@@ -1,0 +1,24 @@
+syntax: glob
+
+Source/*/bin
+Source/*/Bin
+Source/*/obj
+
+*.suo
+Source/*.ReSharper.user
+
+*.csproj.user
+
+Publish
+Artifacts
+Build
+test-reports
+
+_ReSharper*/
+
+App_Data/
+
+Source/**/*.crunchproject.local.xml
+Source/*.crunchsolution.*
+Source/packages/**
+Source/*.DotSettings.user
