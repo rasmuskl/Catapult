@@ -15,25 +15,22 @@ namespace AlphaLaunch.App
         public MainWindow()
         {
             InitializeComponent();
+
+            SearchBar.Focus();
+
         }
+
 
         private void ButtonClick(object sender, RoutedEventArgs e)
         {
-            var dropbox = new DirectoryInfo(@"C:\Users\rasmuskl\Dropbox");
-
             var stopwatch = Stopwatch.StartNew();
 
-            var fileItems = GetFiles(dropbox).ToArray();
+            int count = Model.IndexDropbox();
 
             stopwatch.Stop();
 
-            Status.Text += "Found " + fileItems.Count() + " items. [" + stopwatch.ElapsedMilliseconds + " ms]" + Environment.NewLine;
-        }
+            Status.Text += "Found " + count + " items. [" + stopwatch.ElapsedMilliseconds + " ms]" + Environment.NewLine;
 
-        private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
-        {
-            return directory.GetFiles().Select(x => new FileItem(x.FullName))
-                .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
     }
 }

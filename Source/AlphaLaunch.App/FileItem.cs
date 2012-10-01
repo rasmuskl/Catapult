@@ -6,11 +6,15 @@ namespace AlphaLaunch.App
 {
     public class FileItem
     {
-        private readonly string _fullName;
+        public string DirectoryName { get; set; }
+        public string Name { get; set; }
+        public string Extension { get; set; }
 
-        public FileItem(string fullName)
+        public FileItem(string directoryName, string name, string extension)
         {
-            _fullName = fullName;
+            DirectoryName = directoryName;
+            Name = name;
+            Extension = extension;
         }
     }
 }

@@ -3,14 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Title="MainWindow" Height="350" Width="525">
+        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Height="350" Width="525" WindowStyle="None" Background="#FF333333">
     <Window.DataContext>
-        <local:MainViewModel />
+        <local:MainViewModel x:Name="Model" />
     </Window.DataContext>
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="ButtonClick"/>
-        <TextBox Name="Status" HorizontalAlignment="Left" Height="273" Margin="10,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="497"/>
-        <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="90,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="417"/>
-
+        <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Height="40" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" />
+        <ListBox ItemsSource="{Binding Items}" Margin="10,50,10,95" FontSize="18">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Label Content="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Index" HorizontalAlignment="Right" Margin="432,0,0,10" VerticalAlignment="Bottom" Width="75" Click="ButtonClick"/>
+        <TextBox Name="Status" Height="75" Margin="10,0,80,10" TextWrapping="Wrap" VerticalAlignment="Bottom" />
     </Grid>
 </Window>
