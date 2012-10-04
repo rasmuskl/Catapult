@@ -13,13 +13,12 @@ namespace AlphaLaunch.App
     {
         private string _search;
         private readonly List<FileItem> _fileItems = new List<FileItem>();
-        private int _selectedItem;
+        private int _selectedIndex;
 
         public MainViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
             PropertyChanged += OnPropertyChanged;
-
 
             IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
             IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
@@ -49,12 +48,12 @@ namespace AlphaLaunch.App
 
         public int SelectedIndex
         {
-            get { return _selectedItem; }
+            get { return _selectedIndex; }
             set
             {
-                if (_selectedItem != value)
+                if (_selectedIndex != value)
                 {
-                    _selectedItem = value;
+                    _selectedIndex = value;
                     OnPropertyChanged("SelectedIndex");
                 }
             }
@@ -69,7 +68,7 @@ namespace AlphaLaunch.App
 
             Items.Clear();
 
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name)))
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Id)))
             {
                 Items.Add(item);
             }
@@ -106,5 +105,19 @@ namespace AlphaLaunch.App
                 .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
 
+        public void OpenSelected()
+        {
+            if (!Items.Any())
+            {
+                return;
+            }
+
+            var searchItemModel = Items[_selectedIndex];
+
+            var fileItem = _fileItems.FirstOrDefault(x => x.Id == searchItemModel.Id);
+
+            var info = new ProcessStartInfo(Path.Combine(fileItem.DirectoryName, fileItem.Name));
+            Process.Start(info);
+        }
     }
 }

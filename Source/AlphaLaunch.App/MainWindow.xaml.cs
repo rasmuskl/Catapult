@@ -50,6 +50,10 @@ namespace AlphaLaunch.App
             {
                 Model.SelectedIndex = Math.Max(0, Model.SelectedIndex - 1);
             }
+            else if (e.Key == Key.Enter)
+            {
+                Model.OpenSelected();
+            }
         }
     }
 }
