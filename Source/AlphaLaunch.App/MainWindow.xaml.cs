@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace AlphaLaunch.App
 {
@@ -18,8 +19,16 @@ namespace AlphaLaunch.App
 
             SearchBar.Focus();
 
-        }
+            Left = (SystemParameters.PrimaryScreenWidth - Width)/2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height)/2;
 
+            var debugWindow = new DebugWindow();
+
+            debugWindow.Left = Left + Width + 20;
+            debugWindow.Top = (SystemParameters.PrimaryScreenHeight - debugWindow.Height) / 2;
+            
+            debugWindow.Show();
+        }
 
         private void ButtonClick(object sender, RoutedEventArgs e)
         {
@@ -29,8 +38,20 @@ namespace AlphaLaunch.App
 
             stopwatch.Stop();
 
-            Status.Text += "Found " + count + " items. [" + stopwatch.ElapsedMilliseconds + " ms]" + Environment.NewLine;
+            //Status.Text += "Found " + count + " items. [" + stopwatch.ElapsedMilliseconds + " ms]" + Environment.NewLine;
+        }
 
+        private void WindowClosed(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                Close();
+            }
         }
     }
 }
