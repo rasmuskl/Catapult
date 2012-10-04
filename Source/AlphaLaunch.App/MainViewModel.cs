@@ -13,6 +13,7 @@ namespace AlphaLaunch.App
     {
         private string _search;
         private readonly List<FileItem> _fileItems = new List<FileItem>();
+        private int _selectedItem;
 
         public MainViewModel()
         {
@@ -47,6 +48,19 @@ namespace AlphaLaunch.App
             }
         }
 
+        public int SelectedIndex
+        {
+            get { return _selectedItem; }
+            set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnPropertyChanged("SelectedIndex");
+                }
+            }
+        }
+
         private void UpdateSearch(string search)
         {
             var items = _fileItems
@@ -60,6 +74,8 @@ namespace AlphaLaunch.App
             {
                 Items.Add(item);
             }
+
+            SelectedIndex = 0;
         }
 
         public ObservableCollection<SearchItemModel> Items { get; private set; }

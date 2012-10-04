@@ -20,14 +20,14 @@ namespace AlphaLaunch.App
 
             SearchBar.Focus();
 
-            Left = (SystemParameters.PrimaryScreenWidth - Width)/2;
-            Top = (SystemParameters.PrimaryScreenHeight - Height)/2;
+            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
 
             var debugWindow = new DebugWindow();
 
             debugWindow.Left = Left + Width + 20;
             debugWindow.Top = (SystemParameters.PrimaryScreenHeight - debugWindow.Height) / 2;
-            
+
             debugWindow.Show();
         }
 
@@ -42,6 +42,15 @@ namespace AlphaLaunch.App
             {
                 Close();
             }
+            else if (e.Key == Key.Down)
+            {
+                Model.SelectedIndex = Math.Min(Model.Items.Count, Model.SelectedIndex + 1);
+            }
+            else if (e.Key == Key.Up)
+            {
+                Model.SelectedIndex = Math.Max(0, Model.SelectedIndex - 1);
+            }
+
         }
     }
 }
