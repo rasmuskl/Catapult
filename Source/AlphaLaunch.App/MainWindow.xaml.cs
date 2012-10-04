@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using AlphaLaunch.App.Debug;
 
 namespace AlphaLaunch.App
 {
@@ -28,17 +29,6 @@ namespace AlphaLaunch.App
             debugWindow.Top = (SystemParameters.PrimaryScreenHeight - debugWindow.Height) / 2;
             
             debugWindow.Show();
-        }
-
-        private void ButtonClick(object sender, RoutedEventArgs e)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            int count = Model.IndexDropbox();
-
-            stopwatch.Stop();
-
-            //Status.Text += "Found " + count + " items. [" + stopwatch.ElapsedMilliseconds + " ms]" + Environment.NewLine;
         }
 
         private void WindowClosed(object sender, EventArgs e)

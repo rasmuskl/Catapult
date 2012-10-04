@@ -3,6 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Debug" Height="300" Width="300" Background="Transparent" AllowsTransparency="True" WindowStyle="None">
     <Grid>
-        <TextBox Text="test" Background="#BB333333" Foreground="#FF66FF00"/>
+        <TextBox Name="Status" Background="#BB333333" Foreground="#FF66FF00"/>
     </Grid>
 </Window>

@@ -9,13 +9,12 @@
     </Window.DataContext>
     <Grid Margin="0,0,0,2">
         <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" PreviewKeyUp="SearchBarPreviewKeyUp" Height="40" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" />
-        <ListBox ItemsSource="{Binding Items}" Margin="10,50,10,37" FontSize="18">
+        <ListBox ItemsSource="{Binding Items}" Margin="10,50,10,10" FontSize="18">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Label Content="{Binding Name}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Content="Index" HorizontalAlignment="Right" Margin="0,0,432,10" VerticalAlignment="Bottom" Width="75" Click="ButtonClick"/>
     </Grid>
 </Window>

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using AlphaLaunch.App.Debug;
 
 namespace AlphaLaunch.App
 {
@@ -22,6 +23,7 @@ namespace AlphaLaunch.App
         public DebugWindow()
         {
             InitializeComponent();
+            Log.Attach(s => Status.Text += s + Environment.NewLine);
         }
     }
 }

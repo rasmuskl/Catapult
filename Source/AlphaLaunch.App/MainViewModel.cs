@@ -2,21 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using AlphaLaunch.App.Debug;
 
 namespace AlphaLaunch.App
 {
     public class MainViewModel : INotifyPropertyChanged
     {
         private string _search;
-        private FileItem[] _fileItems = new FileItem[0];
+        private readonly List<FileItem> _fileItems = new List<FileItem>();
 
         public MainViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
             Items.Add(new SearchItemModel("This is a test."));
             PropertyChanged += OnPropertyChanged;
+
+
+            IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
+            IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
+            IndexDirectory("Dropbox", @"C:\Users\rasmuskl\Dropbox");
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -42,7 +49,10 @@ namespace AlphaLaunch.App
 
         private void UpdateSearch(string search)
         {
-            var items = _fileItems.Where(x => x.Name.StartsWith(search)).Take(10);
+            var items = _fileItems
+                .Where(x => x.Name.IndexOf(search, StringComparison.InvariantCultureIgnoreCase) != -1)
+                .OrderBy(x => x.Name.IndexOf(search, StringComparison.InvariantCultureIgnoreCase))
+                .Take(10);
 
             Items.Clear();
 
@@ -62,12 +72,17 @@ namespace AlphaLaunch.App
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public int IndexDropbox()
+        public void IndexDirectory(string s, string path)
         {
-            var dropbox = new DirectoryInfo(@"C:\Users\rasmuskl\Dropbox");
-            _fileItems = GetFiles(dropbox).ToArray();
+            var stopwatch = Stopwatch.StartNew();
 
-            return _fileItems.Length;
+            var dropbox = new DirectoryInfo(path);
+            var fileItems = GetFiles(dropbox).ToArray();
+            _fileItems.AddRange(fileItems);
+
+            stopwatch.Stop();
+
+            Log.Info("Indexed " + s + " - " + fileItems.Length + " items. [" + stopwatch.ElapsedMilliseconds + " ms]");
         }
 
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
