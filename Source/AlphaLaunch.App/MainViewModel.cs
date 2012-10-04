@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using AlphaLaunch.App.Config;
 using AlphaLaunch.App.Debug;
 
 namespace AlphaLaunch.App
@@ -20,9 +21,20 @@ namespace AlphaLaunch.App
             Items = new ObservableCollection<SearchItemModel>();
             PropertyChanged += OnPropertyChanged;
 
+            var loader = new JsonConfigLoader();
+            var config = loader.Load("config.json");
+            loader.Save(config, "config.json");
+            
             IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
             IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
-            IndexDirectory("Dropbox", @"C:\Users\rasmuskl\Dropbox");
+
+            foreach (var path in config.Paths)
+            {
+                IndexDirectory(path, path);
+
+                //IndexDirectory("Dropbox", @"C:\Users\rasmuskl\Dropbox");
+            }
+
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
