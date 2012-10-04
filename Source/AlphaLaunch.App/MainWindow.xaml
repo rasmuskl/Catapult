@@ -3,18 +3,35 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Height="350" Width="525" WindowStyle="None" Background="#FF333333" Closed="WindowClosed">
+        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Height="425" Width="525" WindowStyle="None" Background="#222" Closed="WindowClosed">
+    <Window.Resources>
+
+        <DataTemplate x:Key="ItemTemplate">
+            <Label Content="{Binding Name}" Foreground="#FF66FF00" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="SelectedTemplate">
+            <Label Content="{Binding Name}" Foreground="#FF66FF00" />    
+        </DataTemplate>
+
+        <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
+            <Setter Property="ContentTemplate" Value="{StaticResource ItemTemplate}" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="ContentTemplate" Value="{StaticResource SelectedTemplate}" />
+                </Trigger>
+            </Style.Triggers>
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#111" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#111" />
+            </Style.Resources>
+        </Style>
+    </Window.Resources>
     <Window.DataContext>
         <local:MainViewModel x:Name="Model" />
     </Window.DataContext>
     <Grid Margin="0,0,0,2">
-        <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" PreviewKeyUp="SearchBarPreviewKeyUp" Height="40" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" />
-        <ListBox ItemsSource="{Binding Items}" SelectedIndex="{Binding SelectedIndex}" Margin="10,50,10,10" FontSize="18">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Label Content="{Binding Name}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" PreviewKeyUp="SearchBarPreviewKeyUp" Background="#FF333333" Foreground="#FF66FF00" Height="40" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" />
+        <ListBox ItemsSource="{Binding Items}" SelectedIndex="{Binding SelectedIndex}" Margin="10,50,10,10" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" />
     </Grid>
 </Window>

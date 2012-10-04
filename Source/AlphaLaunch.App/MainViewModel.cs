@@ -18,7 +18,6 @@ namespace AlphaLaunch.App
         public MainViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
-            Items.Add(new SearchItemModel("This is a test."));
             PropertyChanged += OnPropertyChanged;
 
 
