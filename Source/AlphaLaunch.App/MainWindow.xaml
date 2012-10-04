@@ -3,7 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Height="425" Width="525" WindowStyle="None" Background="#222" Closed="WindowClosed">
+        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Height="425" Width="525" WindowStyle="None" Background="#222" 
+        Activated="WindowLoaded"
+        Deactivated="WindowDeactivated"
+        Closed="WindowClosed">
     <Window.Resources>
 
         <DataTemplate x:Key="ItemTemplate">

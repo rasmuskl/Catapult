@@ -11,33 +11,25 @@ namespace AlphaLaunch.App
     /// </summary>
     public partial class MainWindow
     {
+        private readonly DebugWindow _debugWindow;
+
         public MainWindow()
         {
             InitializeComponent();
-
-            SearchBar.Focus();
-
-            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
-            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
-
-            var debugWindow = new DebugWindow();
-
-            debugWindow.Left = Left + Width + 20;
-            debugWindow.Top = (SystemParameters.PrimaryScreenHeight - debugWindow.Height) / 2;
-
-            debugWindow.Show();
+            _debugWindow = new DebugWindow();
         }
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            Application.Current.Shutdown();
+            // TODO Add in debug?
+            //Application.Current.Shutdown();
         }
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
-                Close();
+                Hide();
             }
             else if (e.Key == Key.Down)
             {
@@ -50,7 +42,26 @@ namespace AlphaLaunch.App
             else if (e.Key == Key.Enter)
             {
                 Model.OpenSelected();
+                Hide();
             }
+        }
+
+        private void WindowLoaded(object sender, EventArgs eventArgs)
+        {
+            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
+
+            _debugWindow.Left = Left + Width + 20;
+            _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
+            _debugWindow.Show();
+            
+            SearchBar.SelectAll();
+            SearchBar.Focus();
+        }
+
+        private void WindowDeactivated(object sender, EventArgs e)
+        {
+            _debugWindow.Hide();
         }
     }
 }

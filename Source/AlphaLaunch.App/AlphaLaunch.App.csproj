@@ -63,7 +63,12 @@
     <Compile Include="DebugWindow.xaml.cs">
       <DependentUpon>DebugWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="KeyHooks\AbstractKeyHook.cs" />
+    <Compile Include="KeyHooks\GlobalKBHook.cs" />
     <Compile Include="Debug\Log.cs" />
+    <Compile Include="KeyHooks\GlobalKeyHook.cs" />
+    <Compile Include="KeyHooks\HotkeyKeyHook.cs" />
+    <Compile Include="KeyHooks\IKeyHook.cs" />
     <Compile Include="SearchItemModel.cs" />
     <Page Include="DebugWindow.xaml">
       <SubType>Designer</SubType>
