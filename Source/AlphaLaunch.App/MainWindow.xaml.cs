@@ -6,9 +6,6 @@ using System.Windows.Input;
 
 namespace AlphaLaunch.App
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow
     {
         private readonly DebugWindow _debugWindow;
@@ -54,7 +51,8 @@ namespace AlphaLaunch.App
             _debugWindow.Left = Left + Width + 20;
             _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
             _debugWindow.Show();
-            
+
+            Activate();
             SearchBar.SelectAll();
             SearchBar.Focus();
         }
@@ -62,6 +60,18 @@ namespace AlphaLaunch.App
         private void WindowDeactivated(object sender, EventArgs e)
         {
             _debugWindow.Hide();
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.Space)
+            {
+                e.Handled = true;
+            }
+            else
+            {
+                base.OnKeyDown(e);
+            }
         }
     }
 }

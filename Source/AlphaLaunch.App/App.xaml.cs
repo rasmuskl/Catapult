@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
+using AlphaLaunch.App.Debug;
 using AlphaLaunch.App.Indexes;
 using AlphaLaunch.App.KeyHooks;
 
@@ -23,11 +25,11 @@ namespace AlphaLaunch.App
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;
 
-            _keyHook = new HotkeyKeyHook(ModKeys.Alt, Keys.Space);
+            _keyHook = new HotkeyKeyHook(ModKeys.Win, Keys.Space);
             _keyHook.KeyDown += KeyHookKeyEvent;
             _keyHook.Install();
 
-            using(var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AlphaLaunch.App.Icon.ico"))
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AlphaLaunch.App.Icon.ico"))
             {
                 if (stream != null)
                 {
@@ -35,8 +37,9 @@ namespace AlphaLaunch.App
                 }
             }
 
-            _notifyIcon.Click += (o, args) => Shutdown();
+            Log.Info("Main Thread: " + Thread.CurrentThread.ManagedThreadId);
 
+            _notifyIcon.Click += (o, args) => Shutdown();
             _mainWindow = new MainWindow();
         }
 
@@ -44,7 +47,9 @@ namespace AlphaLaunch.App
         {
             e.SuppressKeyPress = true;
             e.Handled = true;
-            _mainWindow.Show(); 
+
+            _mainWindow.ShowDialog();
+            _mainWindow.Topmost = true;
         }
 
         private void ApplicationExit(object sender, ExitEventArgs e)

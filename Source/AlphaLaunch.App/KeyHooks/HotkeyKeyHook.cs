@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using AlphaLaunch.App.Debug;
 using AlphaLaunch.App.KeyHooks.LowLevel;
 
 namespace AlphaLaunch.App.KeyHooks
@@ -11,15 +12,16 @@ namespace AlphaLaunch.App.KeyHooks
         private readonly ModKeys _modKeys;
         private readonly Keys _key;
         private readonly GlobalKBHook _internalHook;
-        private bool _altDown;
+        private bool _modKeyDown;
+        private bool _keyDown;
 
         public HotkeyKeyHook(ModKeys modKeys, Keys key)
         {
             _modKeys = modKeys;
 
-            if (_modKeys != ModKeys.Alt)
+            if (_modKeys != ModKeys.Win)
             {
-                throw new ArgumentException("Only ALT is supported for hotkeys for now.", "modKeys");
+                throw new ArgumentException("Only WIN is supported for hotkeys for now.", "modKeys");
             }
 
             _key = key;
@@ -33,7 +35,7 @@ namespace AlphaLaunch.App.KeyHooks
             
             if(key == Keys.LMenu || key == Keys.RMenu)
             {
-                _altDown = e.IsKeyDown();
+                _modKeyDown = e.IsKeyDown();
             }
 
             if (key != _key)
@@ -41,18 +43,18 @@ namespace AlphaLaunch.App.KeyHooks
                 return;
             }
 
-            if (_modKeys == ModKeys.Alt && _altDown)
+            if (_keyDown && e.IsKeyUp())
             {
-                if (e.IsKeyDown())
-                {
-                    RaiseKeyDown(new KeyEventArgs(key));
-                }
-                else
-                {
-                    RaiseKeyUp(new KeyEventArgs(key));
-                }
-
                 e.AbortKey = true;
+                _keyDown = false;
+                RaiseKeyUp(new KeyEventArgs(key));
+            }
+
+            if (!_keyDown && _modKeyDown && e.IsKeyDown())
+            {
+                e.AbortKey = true;
+                _keyDown = true;
+                RaiseKeyDown(new KeyEventArgs(key));
             }
         }
 
