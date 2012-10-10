@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
+using AlphaLaunch.App.Indexes;
 using AlphaLaunch.App.KeyHooks;
 
 namespace AlphaLaunch.App
@@ -17,6 +18,8 @@ namespace AlphaLaunch.App
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            IndexStore.Instance.Start();
+
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;
 

@@ -91,6 +91,7 @@
     <Compile Include="DebugWindow.xaml.cs">
       <DependentUpon>DebugWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Indexes\IndexStore.cs" />
     <Compile Include="KeyHooks\AbstractKeyHook.cs" />
     <Compile Include="KeyHooks\LowLevel\GlobalKBHook.cs" />
     <Compile Include="Debug\Log.cs" />

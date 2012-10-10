@@ -5,36 +5,19 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using AlphaLaunch.App.Config;
-using AlphaLaunch.App.Debug;
+using AlphaLaunch.App.Indexes;
 
 namespace AlphaLaunch.App
 {
     public class MainViewModel : INotifyPropertyChanged
     {
         private string _search;
-        private readonly List<FileItem> _fileItems = new List<FileItem>();
         private int _selectedIndex;
 
         public MainViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
             PropertyChanged += OnPropertyChanged;
-
-            var loader = new JsonConfigLoader();
-            var config = loader.Load("config.json");
-            loader.Save(config, "config.json");
-            
-            IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
-            IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
-
-            foreach (var path in config.Paths)
-            {
-                IndexDirectory(path, path);
-
-                //IndexDirectory("Dropbox", @"C:\Users\rasmuskl\Dropbox");
-            }
-
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -73,11 +56,8 @@ namespace AlphaLaunch.App
 
         private void UpdateSearch(string search)
         {
-            var items = _fileItems
-                .Where(x => x.Name.IndexOf(search, StringComparison.InvariantCultureIgnoreCase) != -1)
-                .OrderBy(x => x.Name.IndexOf(search, StringComparison.InvariantCultureIgnoreCase))
-                .Take(10);
-
+            var items = IndexStore.Instance.Search(search);
+            
             Items.Clear();
 
             foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Id)))
@@ -95,26 +75,10 @@ namespace AlphaLaunch.App
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public void IndexDirectory(string s, string path)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            var dropbox = new DirectoryInfo(path);
-            var fileItems = GetFiles(dropbox).ToArray();
-            _fileItems.AddRange(fileItems);
-
-            stopwatch.Stop();
-
-            Log.Info("Indexed " + s + " - " + fileItems.Length + " items. [" + stopwatch.ElapsedMilliseconds + " ms]");
-        }
-
-        private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
-        {
-            return directory.GetFiles().Select(x => new FileItem(x.DirectoryName, x.Name, x.Extension))
-                .Concat(directory.GetDirectories().SelectMany(GetFiles));
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         public void OpenSelected()
@@ -126,7 +90,7 @@ namespace AlphaLaunch.App
 
             var searchItemModel = Items[_selectedIndex];
 
-            var fileItem = _fileItems.FirstOrDefault(x => x.Id == searchItemModel.Id);
+            var fileItem = IndexStore.Instance.GetById(searchItemModel.Id);
 
             var info = new ProcessStartInfo(Path.Combine(fileItem.DirectoryName, fileItem.Name));
             Process.Start(info);
