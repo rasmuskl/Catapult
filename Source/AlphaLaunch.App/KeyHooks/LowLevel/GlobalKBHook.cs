@@ -3,56 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace AlphaLaunch.App.KeyHooks
+namespace AlphaLaunch.App.KeyHooks.LowLevel
 {
-    public enum KBKeyStatus
-    {
-        KeyUp = 0x101,
-        SysKeyUp = 0x105,
-        KeyDown = 0x100,
-        SysKeyDown = 0x104,
-    }
-
-    public class KBHookEventArgs : EventArgs
-    {
-        public int HookCode;
-        public IntPtr wParam;
-        public KBDLLHookStruct lParam;
-        public bool AbortKey = false;
-        public KBKeyStatus KeyStatus;
-
-        public bool IsKeyDown()
-        {
-            return KeyStatus == KBKeyStatus.KeyDown || KeyStatus == KBKeyStatus.SysKeyDown;
-        }
-
-        public bool IsKeyUp()
-        {
-            return KeyStatus == KBKeyStatus.KeyUp || KeyStatus == KBKeyStatus.SysKeyUp;
-        }
-    }
-
-    public struct KBDLLHookStruct
-    {
-        public int vkCode;
-        public int scanCode;
-        public int flags;
-        public int time;
-        public int dwExtraInfo;
-    }
-
-    public enum HookType : int
-    {
-        WH_KEYBOARD_LL = 13,
-    }
-
     public class GlobalKBHook
     {
-        //Callback for the hook 
         public delegate int KBHookProc(int code, IntPtr wParam, ref KBDLLHookStruct lParam);
 
-        protected KBHookProc kbhook = null;
-        protected IntPtr hhook = IntPtr.Zero;
+        private readonly KBHookProc _kbhook;
+        private IntPtr _hhook = IntPtr.Zero;
 
         public delegate void KBHookEventHandler(object sender, KBHookEventArgs e);
 
@@ -61,20 +19,24 @@ namespace AlphaLaunch.App.KeyHooks
         protected void OnKBHookInvoked(KBHookEventArgs e)
         {
             if (KBHookInvoked != null)
+            {
                 KBHookInvoked(this, e);
+            }
         }
 
         public GlobalKBHook()
         {
-            kbhook = this.CoreKBHook;
+            _kbhook = CoreKBHook;
         }
 
         public int CoreKBHook(int code, IntPtr wParam, ref KBDLLHookStruct lParam)
         {
             if (code < 0)
-                return CallNextHookEx(hhook, code, wParam, lParam);
+            {
+                return CallNextHookEx(_hhook, code, wParam, lParam);
+            }
 
-            KBHookEventArgs e = new KBHookEventArgs();
+            var e = new KBHookEventArgs();
             e.HookCode = code;
             e.wParam = wParam;
             e.lParam = lParam;
@@ -85,25 +47,27 @@ namespace AlphaLaunch.App.KeyHooks
 
             // Abort the key
             if (e.AbortKey)
+            {
                 return 1;
+            }
 
             // Yield to the next hook in the chain
-            return CallNextHookEx(hhook, code, wParam, lParam);
+            return CallNextHookEx(_hhook, code, wParam, lParam);
         }
 
         public void Install()
         {
             int hInstance = LoadLibrary("User32");
-            hhook = SetWindowsHookEx(
+            _hhook = SetWindowsHookEx(
                 HookType.WH_KEYBOARD_LL,
-                kbhook,
+                _kbhook,
                 (IntPtr)hInstance, //IntPtr.Zero for local hooks
                 0); //zero = global hook, otherwise use local thread ID
         }
 
         public void Uninstall()
         {
-            UnhookWindowsHookEx(hhook);
+            UnhookWindowsHookEx(_hhook);
         }
 
         //win32 api function for creating hooks

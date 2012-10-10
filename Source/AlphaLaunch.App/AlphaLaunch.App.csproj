@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationRevision>1</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -92,11 +92,14 @@
       <DependentUpon>DebugWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="KeyHooks\AbstractKeyHook.cs" />
-    <Compile Include="KeyHooks\GlobalKBHook.cs" />
+    <Compile Include="KeyHooks\LowLevel\GlobalKBHook.cs" />
     <Compile Include="Debug\Log.cs" />
-    <Compile Include="KeyHooks\GlobalKeyHook.cs" />
     <Compile Include="KeyHooks\HotkeyKeyHook.cs" />
     <Compile Include="KeyHooks\IKeyHook.cs" />
+    <Compile Include="KeyHooks\LowLevel\HookType.cs" />
+    <Compile Include="KeyHooks\LowLevel\KBDLLHookStruct.cs" />
+    <Compile Include="KeyHooks\LowLevel\KBHookEventArgs.cs" />
+    <Compile Include="KeyHooks\LowLevel\KBKeyStatus.cs" />
     <Compile Include="SearchItemModel.cs" />
     <Page Include="DebugWindow.xaml">
       <SubType>Designer</SubType>

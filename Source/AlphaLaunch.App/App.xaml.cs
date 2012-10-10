@@ -20,7 +20,7 @@ namespace AlphaLaunch.App
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;
 
-            _keyHook = new HotkeyKeyHook(ModKeys.None, Keys.CapsLock);
+            _keyHook = new HotkeyKeyHook(ModKeys.Alt, Keys.Space);
             _keyHook.KeyDown += KeyHookKeyEvent;
             _keyHook.Install();
 

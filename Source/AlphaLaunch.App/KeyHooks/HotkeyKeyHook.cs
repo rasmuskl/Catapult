@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using AlphaLaunch.App.KeyHooks.LowLevel;
 
 namespace AlphaLaunch.App.KeyHooks
 {
     public class HotkeyKeyHook : AbstractKeyHook
     {
         private readonly ModKeys _modKeys;
-        private readonly System.Windows.Forms.Keys _key;
+        private readonly Keys _key;
         private readonly GlobalKBHook _internalHook;
+        private bool _altDown;
 
-        public HotkeyKeyHook(ModKeys modKeys, System.Windows.Forms.Keys key)
+        public HotkeyKeyHook(ModKeys modKeys, Keys key)
         {
             _modKeys = modKeys;
+
+            if (_modKeys != ModKeys.Alt)
+            {
+                throw new ArgumentException("Only ALT is supported for hotkeys for now.", "modKeys");
+            }
+
             _key = key;
             _internalHook = new GlobalKBHook();
             _internalHook.KBHookInvoked += InternalHookKbHookInvoked;
@@ -21,18 +29,28 @@ namespace AlphaLaunch.App.KeyHooks
 
         void InternalHookKbHookInvoked(object sender, KBHookEventArgs e)
         {
-            //Keys key = (Keys)(((int)m.LParam >> 16) & 0xFFFF);
-            //ModifierKeys modifier = (ModifierKeys)((int)m.LParam & 0xFFFF);
-            var key = (System.Windows.Forms.Keys) Enum.Parse(typeof (System.Windows.Forms.Keys), e.lParam.vkCode.ToString());
-
-            if(key == _key)
+            var key = (Keys)Enum.Parse(typeof(Keys), e.lParam.vkCode.ToString());
+            
+            if(key == Keys.LMenu || key == Keys.RMenu)
             {
-                var args = new KeyEventArgs(key);
+                _altDown = e.IsKeyDown();
+            }
 
-                if(e.IsKeyDown())
-                    RaiseKeyUp(args);
-                else 
-                    RaiseKeyDown(args);
+            if (key != _key)
+            {
+                return;
+            }
+
+            if (_modKeys == ModKeys.Alt && _altDown)
+            {
+                if (e.IsKeyDown())
+                {
+                    RaiseKeyDown(new KeyEventArgs(key));
+                }
+                else
+                {
+                    RaiseKeyUp(new KeyEventArgs(key));
+                }
 
                 e.AbortKey = true;
             }
