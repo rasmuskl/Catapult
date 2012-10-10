@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
-using AlphaLaunch.App.Debug;
 using AlphaLaunch.App.Indexes;
 using AlphaLaunch.App.KeyHooks;
 
@@ -36,8 +34,6 @@ namespace AlphaLaunch.App
                     _notifyIcon.Icon = new Icon(stream);
                 }
             }
-
-            Log.Info("Main Thread: " + Thread.CurrentThread.ManagedThreadId);
 
             _notifyIcon.Click += (o, args) => Shutdown();
             _mainWindow = new MainWindow();

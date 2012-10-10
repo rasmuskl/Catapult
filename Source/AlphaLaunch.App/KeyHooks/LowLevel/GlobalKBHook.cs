@@ -75,7 +75,7 @@ namespace AlphaLaunch.App.KeyHooks.LowLevel
         protected static extern IntPtr SetWindowsHookEx(HookType code,
                                                         KBHookProc func,
                                                         IntPtr hInstance,
-                                                        int threadID);
+                                                        int threadId);
 
 
         //win32 api function for unhooking 
