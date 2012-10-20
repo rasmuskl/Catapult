@@ -6,7 +6,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace AlphaLaunch.App.Config
+namespace AlphaLaunch.Core.Config
 {
     public class JsonConfigLoader
     {

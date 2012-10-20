@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Linq;
+using System.Collections.Generic;
+using System;
 
-namespace AlphaLaunch.App.Config
+namespace AlphaLaunch.Core.Config
 {
     public class JsonConfiguration
     {

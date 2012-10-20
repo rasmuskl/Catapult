@@ -86,15 +86,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Config\JsonConfigLoader.cs" />
-    <Compile Include="Config\JsonConfiguration.cs" />
     <Compile Include="DebugWindow.xaml.cs">
       <DependentUpon>DebugWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Indexes\IndexStore.cs" />
     <Compile Include="KeyHooks\AbstractKeyHook.cs" />
     <Compile Include="KeyHooks\LowLevel\GlobalKBHook.cs" />
-    <Compile Include="Debug\Log.cs" />
     <Compile Include="KeyHooks\HotkeyKeyHook.cs" />
     <Compile Include="KeyHooks\IKeyHook.cs" />
     <Compile Include="KeyHooks\LowLevel\HookType.cs" />
@@ -114,7 +110,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FileItem.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -169,6 +164,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AlphaLaunch.Core\AlphaLaunch.Core.csproj">
+      <Project>{415649b7-e0d2-415f-8016-7d1dfcb86386}</Project>
+      <Name>AlphaLaunch.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

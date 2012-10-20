@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using AlphaLaunch.App.Debug;
 using AlphaLaunch.App.KeyHooks.LowLevel;
 
 namespace AlphaLaunch.App.KeyHooks

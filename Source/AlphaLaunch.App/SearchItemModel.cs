@@ -7,12 +7,20 @@ namespace AlphaLaunch.App
     public class SearchItemModel
     {
         public string Name { get; set; }
+        public float Score { get; set; }
+        public string FullPath { get; set; }
         public Guid Id { get; set; }
 
-        public SearchItemModel(string name, Guid id)
+        public SearchItemModel(string name, float score, string fullPath)
         {
             Name = name;
-            Id = id;
+            Score = score;
+            FullPath = fullPath;
+        }
+
+        public string DisplayName
+        {
+            get { return string.Format("{0} ({1})", Name, Score); }
         }
     }
 }

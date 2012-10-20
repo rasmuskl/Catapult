@@ -2,7 +2,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 
-namespace AlphaLaunch.App
+namespace AlphaLaunch.Core
 {
     public class FileItem
     {

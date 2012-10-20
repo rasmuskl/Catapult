@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlphaLaunch.App.Debug;
+using AlphaLaunch.Core.Debug;
 
 namespace AlphaLaunch.App
 {

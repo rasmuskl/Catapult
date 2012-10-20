@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using AlphaLaunch.App.Indexes;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App
 {
@@ -60,7 +59,7 @@ namespace AlphaLaunch.App
             
             Items.Clear();
 
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Id)))
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.FullPath)))
             {
                 Items.Add(item);
             }
@@ -89,10 +88,7 @@ namespace AlphaLaunch.App
             }
 
             var searchItemModel = Items[_selectedIndex];
-
-            var fileItem = IndexStore.Instance.GetById(searchItemModel.Id);
-
-            var info = new ProcessStartInfo(Path.Combine(fileItem.DirectoryName, fileItem.Name));
+            var info = new ProcessStartInfo(searchItemModel.FullPath);
             Process.Start(info);
         }
     }

@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using System;
 using System.Threading;
-using AlphaLaunch.App.Config;
-using AlphaLaunch.App.Debug;
+using AlphaLaunch.Core.Config;
+using AlphaLaunch.Core.Debug;
 
-namespace AlphaLaunch.App.Indexes
+namespace AlphaLaunch.Core.Indexes
 {
     public class IndexStore
     {
         public static readonly IndexStore Instance = new IndexStore();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly List<FileItem> _fileItems = new List<FileItem>();
+        private readonly LuceneSearcher _searcher = new LuceneSearcher();
 
         private IndexStore()
         {
@@ -45,7 +45,7 @@ namespace AlphaLaunch.App.Indexes
             try
             {
                 _lock.EnterWriteLock();
-                _fileItems.AddRange(fileItems);
+                _searcher.IndexItems(fileItems);
             }
             finally
             {
@@ -63,17 +63,9 @@ namespace AlphaLaunch.App.Indexes
                 .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
 
-        public IEnumerable<FileItem> Search(string search)
+        public IEnumerable<SearchResult> Search(string search)
         {
-            return _fileItems
-                .Where(x => x.Name.IndexOf(search, StringComparison.InvariantCultureIgnoreCase) != -1)
-                .OrderBy(x => x.Name.IndexOf(search, StringComparison.InvariantCultureIgnoreCase))
-                .Take(10);
-        }
-
-        public FileItem GetById(Guid id)
-        {
-            return _fileItems.FirstOrDefault(x => x.Id == id);
+            return _searcher.Search(search);
         }
     }
 }

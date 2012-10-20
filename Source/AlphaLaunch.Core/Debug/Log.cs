@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+using System;
 
-namespace AlphaLaunch.App.Debug
+namespace AlphaLaunch.Core.Debug
 {
     public static class Log
     {
