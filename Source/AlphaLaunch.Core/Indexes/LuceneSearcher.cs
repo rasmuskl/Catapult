@@ -16,17 +16,17 @@ namespace AlphaLaunch.Core.Indexes
     public class LuceneSearcher
     {
         private readonly RAMDirectory _directory;
-        private readonly StandardAnalyzer _analyzer;
 
         public LuceneSearcher()
         {
             _directory = new RAMDirectory();
-            _analyzer = new StandardAnalyzer(Version.LUCENE_29);
         }
 
         public void IndexItems(FileItem[] items)
         {
-            using (var writer = new IndexWriter(_directory, _analyzer, IndexWriter.MaxFieldLength.UNLIMITED))
+            var indexAnalyzer = new LuceneIndexAnalyzer();
+
+            using (var writer = new IndexWriter(_directory, indexAnalyzer, IndexWriter.MaxFieldLength.UNLIMITED))
             {
                 foreach (var item in items)
                 {
@@ -50,12 +50,13 @@ namespace AlphaLaunch.Core.Indexes
         public IEnumerable<SearchResult> Search(string search)
         {
             var stopwatch = Stopwatch.StartNew();
-
-            var queryParser = new QueryParser(Version.LUCENE_29, "name", _analyzer);
+            var analyzer = new StandardAnalyzer(Version.LUCENE_29);
+            
+            var queryParser = new QueryParser(Version.LUCENE_29, "name", analyzer);
 
             using (var indexSearcher = new IndexSearcher(_directory, true))
             {
-                TopDocs topDocs = indexSearcher.Search(queryParser.Parse(search + "*"), 10);
+                TopDocs topDocs = indexSearcher.Search(queryParser.Parse(search), 10);
 
                 var searchResults = topDocs.ScoreDocs
                     .Select(x => new { Doc = indexSearcher.Doc(x.doc), ScoreDoc = x })
