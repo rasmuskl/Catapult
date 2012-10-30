@@ -8,6 +8,7 @@ Source/*/obj
 Source/*.ReSharper.user
 
 *.csproj.user
+*.ncrunchsolution.user
 
 Publish
 Artifacts
