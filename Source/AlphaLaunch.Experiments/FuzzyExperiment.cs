@@ -67,9 +67,14 @@ namespace AlphaLaunch.Experiments
         }
 
         [Fact]
-        public void FactMethodName()
+        public void Rank_SymbolBoundary()
         {
-            
+            AssertRankOrder("ab", "axx bxx", "acb");
+            AssertRankOrder("ab", "axx/bxx", "acb");
+            AssertRankOrder("ab", "axx\\bxx", "acb");
+            AssertRankOrder("ab", "axx.bxx", "acb");
+            AssertRankOrder("ab", "axx-bxx", "acb");
+            AssertRankOrder("ab", "axx_bxx", "acb");
         }
 
         public class FuzzyMatcher
@@ -84,25 +89,51 @@ namespace AlphaLaunch.Experiments
                         .Select((x, i) => Tuple.Create(x, i))
                         .ToLookup(x => x.Item1, x => x.Item2);
 
+                    var boundaries = str
+                        .Select((x, i) => new { Char = x, Index = i })
+                        .Where(x => @" -_\/.".Contains(x.Char))
+                        .Select(x => x.Index)
+                        .ToArray();
+
                     double boost = 0;
 
                     int lastIndex = 0;
                     bool noMatch = false;
 
+                    var skips = new Dictionary<char, int>();
+
                     foreach (var searchChar in searchString)
                     {
-                        if (!charLookup[searchChar].Any())
+                        int skipCount;
+                        IEnumerable<int> charSequence;
+                        if (skips.TryGetValue(searchChar, out skipCount))
+                        {
+                            charSequence = charLookup[searchChar].Skip(skipCount);
+                            skips[searchChar] = skipCount + 1;
+                        }
+                        else
+                        {
+                            charSequence = charLookup[searchChar];
+                            skips[searchChar] = 1;
+                        }
+
+                        if (!charSequence.Any())
                         {
                             noMatch = true;
                             break;
                         }
 
-                        int charIndex = charLookup[searchChar].First();
+                        var charIndex = charSequence.First();
 
                         if (charIndex < lastIndex)
                         {
                             noMatch = true;
                             break;
+                        }
+
+                        if (boundaries.Contains(charIndex - 1))
+                        {
+                            boost += 10;
                         }
 
                         boost += (11 - (charIndex - lastIndex));
