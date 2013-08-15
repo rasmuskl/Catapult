@@ -180,7 +180,14 @@ namespace AlphaLaunch.Experiments
             var results = matcher.Find(searchString, strings);
             var reversedResults = matcher.Find(searchString, strings.Reverse().ToArray());
 
+            Console.WriteLine();
+            Console.WriteLine("Search for: " + searchString);
+
             PrintResults(results);
+
+            Console.WriteLine();
+            Console.WriteLine("Search for: " + searchString + " (reversed)");
+
             PrintResults(reversedResults);
 
             results.ShouldNotBeNull();
@@ -200,6 +207,8 @@ namespace AlphaLaunch.Experiments
 
             var results = matcher.Find(searchString, new[] { longString });
 
+            Console.WriteLine();
+            Console.WriteLine("Search for: " + searchString);
             PrintResults(results);
 
             results.ShouldNotBeNull();
@@ -226,6 +235,8 @@ namespace AlphaLaunch.Experiments
 
             var results = matcher.Find(searchString, new[] { longString });
 
+            Console.WriteLine();
+            Console.WriteLine("Search for: " + searchString);
             PrintResults(results);
 
             results.ShouldNotBeNull();
