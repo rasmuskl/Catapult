@@ -9,31 +9,48 @@ namespace AlphaLaunch.Experiments
     public class FuzzyExperiment
     {
         [Fact]
-        public void SimpleMatches()
+        public void Matches_Consecutive()
         {
             AssertMatches("abc", "abc");
             AssertMatches("a", "abc");
             AssertMatches("b", "abc");
             AssertMatches("c", "abc");
         }
-
+        
         [Fact]
-        public void SimpleNoMatches()
-        {
-            AssertNoMatches("d", "abc");
-        }
-
-        [Fact]
-        public void Matches()
+        public void Matches_NonConsecutive()
         {
             AssertMatches("ac", "abc");
         }
 
         [Fact]
-        public void NoMatches()
+        public void NoMatch_NotContained()
+        {
+            AssertNoMatches("d", "abc");
+        }
+
+        [Fact]
+        public void NoMatch_PartiallyNotContained()
         {
             AssertNoMatches("ad", "abc");
+        }
+
+        [Fact]
+        public void NoMatch_WrongOrder()
+        {
             AssertNoMatches("ba", "abc");
+        }
+
+        [Fact]
+        public void Match_SameLetters()
+        {
+            AssertMatches("aa", "aa");
+        }
+
+        [Fact]
+        public void NoMatch_TooManySameLetters()
+        {
+            AssertNoMatches("aaa", "aa");
         }
 
         [Fact]
@@ -49,6 +66,12 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("abc", "abcdefgh", "abxc");
         }
 
+        [Fact]
+        public void FactMethodName()
+        {
+            
+        }
+
         public class FuzzyMatcher
         {
             public Result[] Find(string searchString, string[] strings)
@@ -57,22 +80,25 @@ namespace AlphaLaunch.Experiments
 
                 foreach (var str in strings)
                 {
-                    var charIndexes = searchString
-                        .Select(c => str.IndexOf(c))
-                        .ToArray();
-
-                    if (charIndexes.Contains(-1))
-                    {
-                        continue;
-                    }
+                    var charLookup = str
+                        .Select((x, i) => Tuple.Create(x, i))
+                        .ToLookup(x => x.Item1, x => x.Item2);
 
                     double boost = 0;
 
                     int lastIndex = 0;
                     bool noMatch = false;
 
-                    foreach (var charIndex in charIndexes)
+                    foreach (var searchChar in searchString)
                     {
+                        if (!charLookup[searchChar].Any())
+                        {
+                            noMatch = true;
+                            break;
+                        }
+
+                        int charIndex = charLookup[searchChar].First();
+
                         if (charIndex < lastIndex)
                         {
                             noMatch = true;
