@@ -33,6 +33,7 @@ namespace AlphaLaunch.Experiments
         public void NoMatches()
         {
             AssertNoMatches("ad", "abc");
+            AssertNoMatches("ba", "abc");
         }
 
         [Fact]
@@ -87,9 +88,44 @@ namespace AlphaLaunch.Experiments
     {
         public string[] Find(string searchString, string[] strings)
         {
-            return strings
-                .Where(x => searchString.All(x.Contains))
-                .OrderBy(x => x.Length)
+            var result = new Dictionary<string, int>();
+
+            foreach (var str in strings)
+            {
+                var charIndexes = searchString
+                    .Select(c => str.IndexOf(c))
+                    .ToArray();
+
+                if (charIndexes.Contains(-1))
+                {
+                    continue;
+                }
+
+                int maxIndex = -1;
+                bool noMatch = false;
+
+                foreach (var charIndex in charIndexes)
+                {
+                    if (charIndex < maxIndex)
+                    {
+                        noMatch = true;
+                        break;
+                    }
+
+                    maxIndex = charIndex;
+                }
+
+                if(noMatch)
+                {
+                    continue;
+                }
+
+                result[str] = 10 - str.Length;
+            }
+
+            return result
+                .OrderByDescending(x => x.Value)
+                .Select(x => x.Key)
                 .ToArray();
         }
     }
