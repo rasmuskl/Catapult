@@ -23,40 +23,30 @@ namespace AlphaLaunch.Experiments
             foreach (var entry in _index.Entries)
             {
                 double boost = 0;
-                int lastIndex = 0;
+                int lastIndex = -1;
                 bool noMatch = false;
 
-                var skips = new Dictionary<char, int>();
                 var matchedIndexes = new HashSet<int>();
 
                 foreach (var searchChar in searchString)
                 {
-                    int skipCount;
-                    skips.TryGetValue(searchChar, out skipCount);
-                    
-                    ImmutableList<int> charSequence;
+                    ImmutableList<int> charIndexes;
 
-                    if (!entry.CharLookup.TryGetValue(searchChar, out charSequence))
+                    if (!entry.CharLookup.TryGetValue(searchChar, out charIndexes))
                     {
                         noMatch = true;
                         break;
                     }
 
-                    if (skipCount + 1 > charSequence.Count)
+                    charIndexes = charIndexes.RemoveAll(x => x <= lastIndex);
+
+                    if (!charIndexes.Any())
                     {
                         noMatch = true;
                         break;
                     }
 
-                    var charIndex = charSequence.Skip(skipCount).First();
-
-                    if (charIndex < lastIndex)
-                    {
-                        noMatch = true;
-                        break;
-                    }
-
-                    skips[searchChar] = skipCount + 1;
+                    var charIndex = charIndexes.First();
 
                     if (entry.Boundaries.Contains(charIndex - 1) 
                         || entry.CapitalLetters.Contains(charIndex))

@@ -89,6 +89,8 @@ namespace AlphaLaunch.Experiments
         public void Regressions()
         {
             AssertMatches("clie", "OpenVPN Client.lnk");
+
+            AssertRankOrder("word", "Microsoft Office Word 2007", "The Secret World");
         }
 
         [Fact]
