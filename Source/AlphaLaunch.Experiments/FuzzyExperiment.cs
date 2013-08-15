@@ -77,6 +77,12 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("ab", "axx_bxx", "acb");
         }
 
+        [Fact]
+        public void Rank_CasingBoundary()
+        {
+            AssertRankOrder("ab", "AxxBxx", "acb");
+        }
+
         public class FuzzyMatcher
         {
             public Result[] Find(string searchString, string[] strings)
@@ -87,11 +93,17 @@ namespace AlphaLaunch.Experiments
                 {
                     var charLookup = str
                         .Select((x, i) => Tuple.Create(x, i))
-                        .ToLookup(x => x.Item1, x => x.Item2);
+                        .ToLookup(x => char.ToLowerInvariant(x.Item1), x => x.Item2);
 
                     var boundaries = str
                         .Select((x, i) => new { Char = x, Index = i })
                         .Where(x => @" -_\/.".Contains(x.Char))
+                        .Select(x => x.Index)
+                        .ToArray();
+
+                    var capitalLetters = str
+                        .Select((x, i) => new { Char = x, Index = i })
+                        .Where(x => char.IsUpper(x.Char))
                         .Select(x => x.Index)
                         .ToArray();
 
@@ -131,7 +143,7 @@ namespace AlphaLaunch.Experiments
                             break;
                         }
 
-                        if (boundaries.Contains(charIndex - 1))
+                        if (boundaries.Contains(charIndex - 1) || capitalLetters.Contains(charIndex))
                         {
                             boost += 10;
                         }
