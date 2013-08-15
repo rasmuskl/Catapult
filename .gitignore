@@ -8,6 +8,8 @@ Source/*/obj
 Source/*.ReSharper.user
 
 *.csproj.user
+*.ncrunchproject
+*.ncrunchsolution
 *.ncrunchsolution.user
 
 Publish
