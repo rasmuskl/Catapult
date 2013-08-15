@@ -37,9 +37,67 @@ namespace AlphaLaunch.Experiments
         }
 
         [Fact]
-        public void Rank()
+        public void Rank_Length()
         {
             AssertRankOrder("abc", "abc", "abcd");
+        }
+
+        [Fact]
+        public void Rank_Consecutive()
+        {
+            AssertRankOrder("abc", "abcd", "abxc");
+            AssertRankOrder("abc", "abcdefgh", "abxc");
+        }
+
+        public class FuzzyMatcher
+        {
+            public Result[] Find(string searchString, string[] strings)
+            {
+                var result = new Dictionary<string, double>();
+
+                foreach (var str in strings)
+                {
+                    var charIndexes = searchString
+                        .Select(c => str.IndexOf(c))
+                        .ToArray();
+
+                    if (charIndexes.Contains(-1))
+                    {
+                        continue;
+                    }
+
+                    double boost = 0;
+
+                    int lastIndex = 0;
+                    bool noMatch = false;
+
+                    foreach (var charIndex in charIndexes)
+                    {
+                        if (charIndex < lastIndex)
+                        {
+                            noMatch = true;
+                            break;
+                        }
+
+                        boost += (11 - (charIndex - lastIndex));
+
+                        lastIndex = charIndex;
+                    }
+
+                    if (noMatch)
+                    {
+                        continue;
+                    }
+
+                    result[str] = (1000 * (100 + boost)) / 100;
+                }
+
+                return result
+                    .Select(x => new Result(x.Key, x.Value))
+                    .OrderByDescending(x => x.Score)
+                    .ThenBy(x => x.MatchedString.Length)
+                    .ToArray();
+            }
         }
 
         private void AssertRankOrder(string searchString, string firstLong, string secondLong)
@@ -53,13 +111,13 @@ namespace AlphaLaunch.Experiments
 
             results.ShouldNotBeNull();
             results.Count().ShouldEqual(2);
-            results[0].ShouldEqual(firstLong);
-            results[1].ShouldEqual(secondLong);
+            results[0].MatchedString.ShouldEqual(firstLong);
+            results[1].MatchedString.ShouldEqual(secondLong);
 
             reversedResults.ShouldNotBeNull();
             reversedResults.Count().ShouldEqual(2);
-            reversedResults[0].ShouldEqual(firstLong);
-            reversedResults[1].ShouldEqual(secondLong);
+            reversedResults[0].MatchedString.ShouldEqual(firstLong);
+            reversedResults[1].MatchedString.ShouldEqual(secondLong);
         }
 
         private void AssertNoMatches(string searchString, string longString)
@@ -80,53 +138,24 @@ namespace AlphaLaunch.Experiments
 
             results.ShouldNotBeNull();
             results.Count().ShouldBeGreaterThan(0);
-            results.First().ShouldEqual(longString);
+            results.First().MatchedString.ShouldEqual(longString);
         }
     }
 
-    public class FuzzyMatcher
+    public class Result
     {
-        public string[] Find(string searchString, string[] strings)
+        public string MatchedString { get; private set; }
+        public double Score { get; private set; }
+
+        public Result(string matchedString, double score)
         {
-            var result = new Dictionary<string, int>();
+            MatchedString = matchedString;
+            Score = score;
+        }
 
-            foreach (var str in strings)
-            {
-                var charIndexes = searchString
-                    .Select(c => str.IndexOf(c))
-                    .ToArray();
-
-                if (charIndexes.Contains(-1))
-                {
-                    continue;
-                }
-
-                int maxIndex = -1;
-                bool noMatch = false;
-
-                foreach (var charIndex in charIndexes)
-                {
-                    if (charIndex < maxIndex)
-                    {
-                        noMatch = true;
-                        break;
-                    }
-
-                    maxIndex = charIndex;
-                }
-
-                if(noMatch)
-                {
-                    continue;
-                }
-
-                result[str] = 10 - str.Length;
-            }
-
-            return result
-                .OrderByDescending(x => x.Value)
-                .Select(x => x.Key)
-                .ToArray();
+        public override string ToString()
+        {
+            return string.Format("MatchedString: {0}, Score: {1}", MatchedString, Score);
         }
     }
 }
