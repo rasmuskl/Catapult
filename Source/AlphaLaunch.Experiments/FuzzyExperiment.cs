@@ -86,6 +86,12 @@ namespace AlphaLaunch.Experiments
         }
 
         [Fact]
+        public void Regressions()
+        {
+            AssertMatches("clie", "OpenVPN Client.lnk");
+        }
+
+        [Fact]
         public void Rank_CasingBoundary()
         {
             AssertRankOrder("ab", "AxxBxx", "acb");

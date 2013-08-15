@@ -14,7 +14,7 @@ namespace AlphaLaunch.Core.Indexes
         public static readonly IndexStore Instance = new IndexStore();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly ISearcher _searcher = null;
+        private readonly ISearcher _searcher = new FuzzySearcher();
 
         private IndexStore()
         {
@@ -35,7 +35,7 @@ namespace AlphaLaunch.Core.Indexes
             }
         }
 
-        private void IndexDirectory(string s, string path)
+        private void IndexDirectory(string name, string path)
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -54,7 +54,7 @@ namespace AlphaLaunch.Core.Indexes
 
             stopwatch.Stop();
 
-            Log.Info("Indexed " + s + " - " + fileItems.Length + " items. [" + stopwatch.ElapsedMilliseconds + " ms]");
+            Log.Info("Indexed " + name + " - " + fileItems.Length + " items. [" + stopwatch.ElapsedMilliseconds + " ms]");
         }
 
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)

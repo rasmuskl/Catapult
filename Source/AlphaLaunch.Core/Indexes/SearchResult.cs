@@ -7,7 +7,7 @@ namespace AlphaLaunch.Core.Indexes
     public class SearchResult
     {
         public string Name { get; set; }
-        public float Score { get; set; }
+        public double Score { get; set; }
         public string FullPath { get; set; }
     }
 }
