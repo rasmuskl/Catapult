@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using Should;
 using Xunit;
 
@@ -16,6 +15,14 @@ namespace AlphaLaunch.Experiments
             AssertMatches("a", "abc");
             AssertMatches("b", "abc");
             AssertMatches("c", "abc");
+        }        
+        
+        [Fact]
+        public void Matches_Casing()
+        {
+            AssertMatches("ABC", "abc");
+            AssertMatches("ABC", "aBc");
+            AssertMatches("abc", "ABC");
         }
 
         [Fact]
@@ -84,101 +91,14 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("ab", "AxxBxx", "acb");
         }
 
-        public class FuzzyMatcher
-        {
-            public Result[] Find(string searchString, string[] strings)
-            {
-                var results = new List<Result>();
-
-                foreach (var str in strings)
-                {
-                    var charLookup = str
-                        .Select((x, i) => Tuple.Create(x, i))
-                        .ToLookup(x => char.ToLowerInvariant(x.Item1), x => x.Item2);
-
-                    var boundaries = str
-                        .Select((x, i) => new { Char = x, Index = i })
-                        .Where(x => @" -_\/.".Contains(x.Char))
-                        .Select(x => x.Index)
-                        .ToArray();
-
-                    var capitalLetters = str
-                        .Select((x, i) => new { Char = x, Index = i })
-                        .Where(x => char.IsUpper(x.Char))
-                        .Select(x => x.Index)
-                        .ToArray();
-
-                    double boost = 0;
-
-                    int lastIndex = 0;
-                    bool noMatch = false;
-
-                    var skips = new Dictionary<char, int>();
-                    var matchedIndexes = new HashSet<int>();
-
-                    foreach (var searchChar in searchString)
-                    {
-                        int skipCount;
-                        IEnumerable<int> charSequence;
-                        if (skips.TryGetValue(searchChar, out skipCount))
-                        {
-                            charSequence = charLookup[searchChar].Skip(skipCount);
-                            skips[searchChar] = skipCount + 1;
-                        }
-                        else
-                        {
-                            charSequence = charLookup[searchChar];
-                            skips[searchChar] = 1;
-                        }
-
-                        if (!charSequence.Any())
-                        {
-                            noMatch = true;
-                            break;
-                        }
-
-                        var charIndex = charSequence.First();
-
-                        if (charIndex < lastIndex)
-                        {
-                            noMatch = true;
-                            break;
-                        }
-
-                        if (boundaries.Contains(charIndex - 1) || capitalLetters.Contains(charIndex))
-                        {
-                            boost += 10;
-                        }
-
-                        boost += (11 - (charIndex - lastIndex));
-
-                        matchedIndexes.Add(charIndex);
-                        lastIndex = charIndex;
-                    }
-
-                    if (noMatch)
-                    {
-                        continue;
-                    }
-
-                    results.Add(new Result(str, (1000 * (100 + boost)) / 100, matchedIndexes));
-                }
-
-                return results
-                    .OrderByDescending(x => x.Score)
-                    .ThenBy(x => x.MatchedString.Length)
-                    .ToArray();
-            }
-        }
-
         private void AssertRankOrder(string searchString, string firstLong, string secondLong)
         {
-            var matcher = new FuzzyMatcher();
-
             var strings = new[] { firstLong, secondLong };
+            var matcher = new FuzzyMatcher(new SearchIndex(strings));
+            var reverseMatcher = new FuzzyMatcher(new SearchIndex(strings.Reverse().ToArray()));
 
-            var results = matcher.Find(searchString, strings);
-            var reversedResults = matcher.Find(searchString, strings.Reverse().ToArray());
+            var results = matcher.Find(searchString);
+            var reversedResults = reverseMatcher.Find(searchString);
 
             PrintHeader(searchString);
             PrintResults(results);
@@ -199,9 +119,9 @@ namespace AlphaLaunch.Experiments
 
         private void AssertNoMatches(string searchString, string longString)
         {
-            var matcher = new FuzzyMatcher();
+            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }));
 
-            var results = matcher.Find(searchString, new[] { longString });
+            var results = matcher.Find(searchString);
 
             PrintHeader(searchString);
             PrintResults(results);
@@ -226,9 +146,9 @@ namespace AlphaLaunch.Experiments
 
         private void AssertMatches(string searchString, string longString)
         {
-            var matcher = new FuzzyMatcher();
+            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }));
 
-            var results = matcher.Find(searchString, new[] { longString });
+            var results = matcher.Find(searchString);
 
             PrintHeader(searchString);
             PrintResults(results);
@@ -249,25 +169,6 @@ namespace AlphaLaunch.Experiments
 
             Console.WriteLine("Search for: " + searchString);
             _isFirst = false;
-        }
-    }
-
-    public class Result
-    {
-        public string MatchedString { get; private set; }
-        public double Score { get; private set; }
-        public HashSet<int> MatchedIndexes { get; private set; }
-
-        public Result(string matchedString, double score, HashSet<int> matchedIndexes)
-        {
-            MatchedString = matchedString;
-            Score = score;
-            MatchedIndexes = matchedIndexes;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("MatchedString: {0}, Score: {1}", MatchedString, Score);
         }
     }
 }
