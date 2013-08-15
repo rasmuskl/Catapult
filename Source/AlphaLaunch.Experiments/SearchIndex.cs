@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace AlphaLaunch.Experiments
@@ -8,11 +9,9 @@ namespace AlphaLaunch.Experiments
     {
         public SearchIndex(IEnumerable<string> inputStrings)
         {
-            Entries = inputStrings
-                .Select(x => new IndexEntry(x))
-                .ToArray();
+            Entries = ImmutableList.From(inputStrings.Select(x => new IndexEntry(x)));
         }
 
-        public IndexEntry[] Entries { get; private set; }
+        public ImmutableList<IndexEntry> Entries { get; private set; }
     }
 }

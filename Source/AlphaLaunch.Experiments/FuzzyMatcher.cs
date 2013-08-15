@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace AlphaLaunch.Experiments
@@ -13,9 +14,9 @@ namespace AlphaLaunch.Experiments
             _index = index;
         }
 
-        public Result[] Find(string searchString)
+        public ImmutableList<Result> Find(string searchString)
         {
-            var results = new List<Result>();
+            var results = ImmutableList.CreateBuilder<Result>();
 
             searchString = searchString.ToLowerInvariant();
 
@@ -31,31 +32,31 @@ namespace AlphaLaunch.Experiments
                 foreach (var searchChar in searchString)
                 {
                     int skipCount;
-                    IEnumerable<int> charSequence;
-                    if (skips.TryGetValue(searchChar, out skipCount))
-                    {
-                        charSequence = entry.CharLookup[searchChar].Skip(skipCount);
-                        skips[searchChar] = skipCount + 1;
-                    }
-                    else
-                    {
-                        charSequence = entry.CharLookup[searchChar];
-                        skips[searchChar] = 1;
-                    }
+                    skips.TryGetValue(searchChar, out skipCount);
+                    
+                    ImmutableList<int> charSequence;
 
-                    if (!charSequence.Any())
+                    if (!entry.CharLookup.TryGetValue(searchChar, out charSequence))
                     {
                         noMatch = true;
                         break;
                     }
 
-                    var charIndex = charSequence.First();
+                    if (skipCount + 1 > charSequence.Count)
+                    {
+                        noMatch = true;
+                        break;
+                    }
+
+                    var charIndex = charSequence.Skip(skipCount).First();
 
                     if (charIndex < lastIndex)
                     {
                         noMatch = true;
                         break;
                     }
+
+                    skips[searchChar] = skipCount + 1;
 
                     if (entry.Boundaries.Contains(charIndex - 1) 
                         || entry.CapitalLetters.Contains(charIndex))
@@ -80,7 +81,7 @@ namespace AlphaLaunch.Experiments
             return results
                 .OrderByDescending(x => x.Score)
                 .ThenBy(x => x.MatchedString.Length)
-                .ToArray();
+                .ToImmutableList();
         }
     }
 }
