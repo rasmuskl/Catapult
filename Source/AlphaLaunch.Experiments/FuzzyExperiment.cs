@@ -108,6 +108,9 @@ namespace AlphaLaunch.Experiments
 
             var results = matcher.Find(searchString, strings);
             var reversedResults = matcher.Find(searchString, strings.Reverse().ToArray());
+            
+            PrintResults(results);
+            PrintResults(reversedResults);
 
             results.ShouldNotBeNull();
             results.Count().ShouldEqual(2);
@@ -126,8 +129,18 @@ namespace AlphaLaunch.Experiments
 
             var results = matcher.Find(searchString, new[] { longString });
 
+            PrintResults(results);
+
             results.ShouldNotBeNull();
             results.Count().ShouldEqual(0);
+        }
+
+        private static void PrintResults(IEnumerable<Result> results)
+        {
+            foreach (var result in results)
+            {
+                Console.WriteLine(result);
+            }
         }
 
         private void AssertMatches(string searchString, string longString)
@@ -135,6 +148,8 @@ namespace AlphaLaunch.Experiments
             var matcher = new FuzzyMatcher();
 
             var results = matcher.Find(searchString, new[] { longString });
+
+            PrintResults(results);
 
             results.ShouldNotBeNull();
             results.Count().ShouldBeGreaterThan(0);
