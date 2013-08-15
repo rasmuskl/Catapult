@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 using Should;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace AlphaLaunch.Experiments
             AssertMatches("b", "abc");
             AssertMatches("c", "abc");
         }
-        
+
         [Fact]
         public void Matches_NonConsecutive()
         {
@@ -87,7 +88,7 @@ namespace AlphaLaunch.Experiments
         {
             public Result[] Find(string searchString, string[] strings)
             {
-                var result = new Dictionary<string, double>();
+                var results = new List<Result>();
 
                 foreach (var str in strings)
                 {
@@ -113,6 +114,7 @@ namespace AlphaLaunch.Experiments
                     bool noMatch = false;
 
                     var skips = new Dictionary<char, int>();
+                    var matchedIndexes = new HashSet<int>();
 
                     foreach (var searchChar in searchString)
                     {
@@ -150,6 +152,7 @@ namespace AlphaLaunch.Experiments
 
                         boost += (11 - (charIndex - lastIndex));
 
+                        matchedIndexes.Add(charIndex);
                         lastIndex = charIndex;
                     }
 
@@ -158,11 +161,10 @@ namespace AlphaLaunch.Experiments
                         continue;
                     }
 
-                    result[str] = (1000 * (100 + boost)) / 100;
+                    results.Add(new Result(str, (1000 * (100 + boost)) / 100, matchedIndexes));
                 }
 
-                return result
-                    .Select(x => new Result(x.Key, x.Value))
+                return results
                     .OrderByDescending(x => x.Score)
                     .ThenBy(x => x.MatchedString.Length)
                     .ToArray();
@@ -177,7 +179,7 @@ namespace AlphaLaunch.Experiments
 
             var results = matcher.Find(searchString, strings);
             var reversedResults = matcher.Find(searchString, strings.Reverse().ToArray());
-            
+
             PrintResults(results);
             PrintResults(reversedResults);
 
@@ -208,7 +210,13 @@ namespace AlphaLaunch.Experiments
         {
             foreach (var result in results)
             {
-                Console.WriteLine(result);
+                Console.WriteLine("{0} (score: {1})", result.MatchedString, result.Score);
+
+                var highlight = new string(Enumerable.Range(0, result.MatchedString.Length)
+                    .Select(x => result.MatchedIndexes.Contains(x) ? '^' : ' ')
+                    .ToArray());
+
+                Console.WriteLine(highlight);
             }
         }
 
@@ -230,11 +238,13 @@ namespace AlphaLaunch.Experiments
     {
         public string MatchedString { get; private set; }
         public double Score { get; private set; }
+        public HashSet<int> MatchedIndexes { get; private set; }
 
-        public Result(string matchedString, double score)
+        public Result(string matchedString, double score, HashSet<int> matchedIndexes)
         {
             MatchedString = matchedString;
             Score = score;
+            MatchedIndexes = matchedIndexes;
         }
 
         public override string ToString()
