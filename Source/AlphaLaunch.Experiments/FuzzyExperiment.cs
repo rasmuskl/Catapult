@@ -26,7 +26,39 @@ namespace AlphaLaunch.Experiments
         [Fact]
         public void Matches()
         {
-            AssertMatches("as", "abc");
+            AssertMatches("ac", "abc");
+        }
+
+        [Fact]
+        public void NoMatches()
+        {
+            AssertNoMatches("ad", "abc");
+        }
+
+        [Fact]
+        public void Rank()
+        {
+            AssertRankOrder("abc", "abc", "abcd");
+        }
+
+        private void AssertRankOrder(string searchString, string firstLong, string secondLong)
+        {
+            var matcher = new FuzzyMatcher();
+
+            var strings = new[] { firstLong, secondLong };
+
+            var results = matcher.Find(searchString, strings);
+            var reversedResults = matcher.Find(searchString, strings.Reverse().ToArray());
+
+            results.ShouldNotBeNull();
+            results.Count().ShouldEqual(2);
+            results[0].ShouldEqual(firstLong);
+            results[1].ShouldEqual(secondLong);
+
+            reversedResults.ShouldNotBeNull();
+            reversedResults.Count().ShouldEqual(2);
+            reversedResults[0].ShouldEqual(firstLong);
+            reversedResults[1].ShouldEqual(secondLong);
         }
 
         private void AssertNoMatches(string searchString, string longString)
@@ -57,6 +89,7 @@ namespace AlphaLaunch.Experiments
         {
             return strings
                 .Where(x => searchString.All(x.Contains))
+                .OrderBy(x => x.Length)
                 .ToArray();
         }
     }
