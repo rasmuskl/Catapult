@@ -14,7 +14,7 @@ namespace AlphaLaunch.Core.Indexes
         public static readonly IndexStore Instance = new IndexStore();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly LuceneSearcher _searcher = new LuceneSearcher();
+        private readonly ISearcher _searcher = null;
 
         private IndexStore()
         {
@@ -39,8 +39,8 @@ namespace AlphaLaunch.Core.Indexes
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var dropbox = new DirectoryInfo(path);
-            var fileItems = GetFiles(dropbox).ToArray();
+            var directory = new DirectoryInfo(path);
+            var fileItems = GetFiles(directory).ToArray();
 
             try
             {
@@ -58,7 +58,7 @@ namespace AlphaLaunch.Core.Indexes
         }
 
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
-        {
+        { 
             return directory.GetFiles().Select(x => new FileItem(x.DirectoryName, x.Name, x.Extension))
                 .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
