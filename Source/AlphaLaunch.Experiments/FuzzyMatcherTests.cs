@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using AlphaLaunch.Core.Indexes;
 using Should;
 using Xunit;
 
 namespace AlphaLaunch.Experiments
 {
-    public class FuzzyExperiment
+    public class FuzzyMatcherTests
     {
         [Fact]
         public void Matches_Consecutive()

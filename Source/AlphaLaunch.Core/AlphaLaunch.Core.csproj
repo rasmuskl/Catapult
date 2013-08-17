@@ -51,20 +51,19 @@
     <Compile Include="Debug\Log.cs" />
     <Compile Include="Executors\FileItemExecutor.cs" />
     <Compile Include="FileItem.cs" />
+    <Compile Include="Indexes\FuzzyMatcher.cs" />
     <Compile Include="Indexes\FuzzySearcher.cs" />
+    <Compile Include="Indexes\IIndexable.cs" />
+    <Compile Include="Indexes\IndexEntry.cs" />
     <Compile Include="Indexes\IndexStore.cs" />
     <Compile Include="Indexes\ISearcher.cs" />
+    <Compile Include="Indexes\Result.cs" />
+    <Compile Include="Indexes\SearchIndex.cs" />
     <Compile Include="Indexes\SearchResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AlphaLaunch.Experiments\AlphaLaunch.Experiments.csproj">
-      <Project>{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}</Project>
-      <Name>AlphaLaunch.Experiments</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
