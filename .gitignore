@@ -25,3 +25,4 @@ Source/**/*.crunchproject.local.xml
 Source/*.crunchsolution.*
 Source/packages/**
 Source/*.DotSettings.user
+Source/_NCrunch*
