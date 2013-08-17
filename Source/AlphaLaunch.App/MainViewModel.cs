@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using AlphaLaunch.Core.Executors;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App
@@ -59,7 +60,7 @@ namespace AlphaLaunch.App
             
             Items.Clear();
 
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.FullPath, x.HighlightIndexes)))
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes)))
             {
                 Items.Add(item);
             }
@@ -88,8 +89,9 @@ namespace AlphaLaunch.App
             }
 
             var searchItemModel = Items[_selectedIndex];
-            var info = new ProcessStartInfo(searchItemModel.FullPath);
-            Process.Start(info);
+
+            var executor = new FileItemExecutor();
+            executor.Execute(searchItemModel.TargetItem);
         }
     }
 }

@@ -9,15 +9,15 @@ namespace AlphaLaunch.App
     {
         public string Name { get; set; }
         public double Score { get; set; }
-        public string FullPath { get; set; }
+        public object TargetItem { get; set; }
         public Guid Id { get; set; }
         public ImmutableDictionary<int, double> HighlightIndexes { get; set; }
 
-        public SearchItemModel(string name, double score, string fullPath, ImmutableDictionary<int, double> highlightIndexes)
+        public SearchItemModel(string name, double score, object targetItem, ImmutableDictionary<int, double> highlightIndexes)
         {
             Name = name;
             Score = score;
-            FullPath = fullPath;
+            TargetItem = targetItem;
             HighlightIndexes = highlightIndexes;
         }
 

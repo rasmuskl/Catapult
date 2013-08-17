@@ -102,8 +102,8 @@ namespace AlphaLaunch.Experiments
         private void AssertRankOrder(string searchString, string firstLong, string secondLong)
         {
             var strings = new[] { firstLong, secondLong };
-            var matcher = new FuzzyMatcher(new SearchIndex(strings));
-            var reverseMatcher = new FuzzyMatcher(new SearchIndex(strings.Reverse().ToArray()));
+            var matcher = new FuzzyMatcher(new SearchIndex(strings.ToStringIndexables()));
+            var reverseMatcher = new FuzzyMatcher(new SearchIndex(strings.Reverse().ToStringIndexables()));
 
             var results = matcher.Find(searchString);
             var reversedResults = reverseMatcher.Find(searchString);
@@ -127,7 +127,7 @@ namespace AlphaLaunch.Experiments
 
         private void AssertNoMatches(string searchString, string longString)
         {
-            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }));
+            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }.ToStringIndexables()));
 
             var results = matcher.Find(searchString);
 
@@ -160,7 +160,7 @@ namespace AlphaLaunch.Experiments
 
         private void AssertMatches(string searchString, string longString)
         {
-            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }));
+            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }.ToStringIndexables()));
 
             var results = matcher.Find(searchString);
 

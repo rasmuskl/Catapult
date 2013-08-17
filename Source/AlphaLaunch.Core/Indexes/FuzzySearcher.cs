@@ -19,18 +19,13 @@ namespace AlphaLaunch.Core.Indexes
 
         public void IndexItems(FileItem[] items)
         {
-            _searchIndex.AppendToIndex(items.Select(x => x.Name));
+            _searchIndex.AppendToIndex(items);
         }
 
         public ImmutableList<SearchResult> Search(string search)
         {
             return _fuzzyMatcher.Find(search)
-                .Select(x => new SearchResult
-                {
-                    Name = x.MatchedString,
-                    Score = x.Score,
-                    HighlightIndexes = x.MatchedIndexes
-                })
+                .Select(x => new SearchResult(x.MatchedString, x.Score, x.TargetItem, x.MatchedIndexes))
                 .ToImmutableList();
         }
     }

@@ -1,21 +1,23 @@
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using AlphaLaunch.Experiments;
 
 namespace AlphaLaunch.Core
 {
-    public class FileItem
+    public class FileItem : IIndexable
     {
+        public string FullName { get; set; }
         public string DirectoryName { get; set; }
         public string Name { get; set; }
-        public string Extension { get; set; }
         public Guid Id { get; set; }
 
-        public FileItem(string directoryName, string name, string extension)
+        public FileItem(string fullName)
         {
-            DirectoryName = directoryName;
-            Name = name;
-            Extension = extension;
+            FullName = fullName;
+            DirectoryName = Path.GetDirectoryName(fullName);
+            Name = Path.GetFileName(fullName);
             Id = Guid.NewGuid();
         }
     }

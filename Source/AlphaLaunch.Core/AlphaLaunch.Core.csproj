@@ -49,6 +49,7 @@
     <Compile Include="Config\JsonConfigLoader.cs" />
     <Compile Include="Config\JsonConfiguration.cs" />
     <Compile Include="Debug\Log.cs" />
+    <Compile Include="Executors\FileItemExecutor.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="Indexes\FuzzySearcher.cs" />
     <Compile Include="Indexes\IndexStore.cs" />

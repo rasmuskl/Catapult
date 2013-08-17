@@ -59,7 +59,7 @@ namespace AlphaLaunch.Core.Indexes
 
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
         { 
-            return directory.GetFiles().Select(x => new FileItem(x.DirectoryName, x.Name, x.Extension))
+            return directory.GetFiles().Select(x => new FileItem(x.FullName))
                 .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
 

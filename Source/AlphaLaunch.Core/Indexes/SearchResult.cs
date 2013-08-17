@@ -7,9 +7,17 @@ namespace AlphaLaunch.Core.Indexes
 {
     public class SearchResult
     {
-        public string Name { get; set; }
-        public double Score { get; set; }
-        public string FullPath { get; set; }
-        public ImmutableDictionary<int, double> HighlightIndexes { get; set; }
+        public SearchResult(string name, double score, object targetItem, ImmutableDictionary<int, double> highlightIndexes)
+        {
+            Name = name;
+            Score = score;
+            TargetItem = targetItem;
+            HighlightIndexes = highlightIndexes;
+        }
+
+        public string Name { get; private set; }
+        public double Score { get; private set; }
+        public object TargetItem { get; private set; }
+        public ImmutableDictionary<int, double> HighlightIndexes { get; private set; }
     }
 }

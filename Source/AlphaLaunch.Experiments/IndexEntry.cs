@@ -12,6 +12,7 @@ namespace AlphaLaunch.Experiments
         private readonly ImmutableList<int> _capitalLetters;
 
         public string InputString { get; private set; }
+        public object Target { get; private set; }
 
         public ImmutableDictionary<char, ImmutableList<int>> CharLookup
         {
@@ -28,9 +29,10 @@ namespace AlphaLaunch.Experiments
             get { return _capitalLetters; }
         }
 
-        public IndexEntry(string inputString)
+        public IndexEntry(string inputString, object target)
         {
             InputString = inputString;
+            Target = target;
 
             _charLookup = inputString
                 .Select((x, i) => Tuple.Create(x, i))

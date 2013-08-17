@@ -7,13 +7,24 @@ namespace AlphaLaunch.Experiments
 {
     public class Result
     {
-        public string MatchedString { get; private set; }
+        private readonly IndexEntry _indexEntry;
+
         public double Score { get; private set; }
         public ImmutableDictionary<int, double> MatchedIndexes { get; private set; }
 
-        public Result(string matchedString, double score, ImmutableDictionary<int, double> matchedIndexes)
+        public string MatchedString
         {
-            MatchedString = matchedString;
+            get { return _indexEntry.InputString; }
+        }
+
+        public object TargetItem
+        {
+            get { return _indexEntry.Target; }
+        }
+
+        public Result(IndexEntry indexEntry, double score, ImmutableDictionary<int, double> matchedIndexes)
+        {
+            _indexEntry = indexEntry;
             Score = score;
             MatchedIndexes = matchedIndexes;
         }

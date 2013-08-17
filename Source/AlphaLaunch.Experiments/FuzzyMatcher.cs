@@ -68,7 +68,7 @@ namespace AlphaLaunch.Experiments
                     continue;
                 }
 
-                results.Add(new Result(entry.InputString, (1000 * (100 + boost)) / 100, matchedIndexes));
+                results.Add(new Result(entry, (1000 * (100 + boost)) / 100, matchedIndexes));
             }
 
             return results
