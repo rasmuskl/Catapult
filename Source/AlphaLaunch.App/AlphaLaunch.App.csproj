@@ -64,6 +64,9 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GlobalHotKey">
+      <HintPath>..\packages\GlobalHotKey.1.1.0\lib\GlobalHotKey.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.9\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -94,14 +97,6 @@
     <Compile Include="DebugWindow.xaml.cs">
       <DependentUpon>DebugWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="KeyHooks\AbstractKeyHook.cs" />
-    <Compile Include="KeyHooks\LowLevel\GlobalKBHook.cs" />
-    <Compile Include="KeyHooks\HotkeyKeyHook.cs" />
-    <Compile Include="KeyHooks\IKeyHook.cs" />
-    <Compile Include="KeyHooks\LowLevel\HookType.cs" />
-    <Compile Include="KeyHooks\LowLevel\KBDLLHookStruct.cs" />
-    <Compile Include="KeyHooks\LowLevel\KBHookEventArgs.cs" />
-    <Compile Include="KeyHooks\LowLevel\KBKeyStatus.cs" />
     <Compile Include="SearchItemModel.cs" />
     <Page Include="DebugWindow.xaml">
       <SubType>Designer</SubType>

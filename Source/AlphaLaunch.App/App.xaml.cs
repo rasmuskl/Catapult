@@ -5,16 +5,18 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
-using AlphaLaunch.App.KeyHooks;
+using System.Windows.Input;
 using AlphaLaunch.Core.Indexes;
+using GlobalHotKey;
+using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
 namespace AlphaLaunch.App
 {
     public partial class App
     {
         private NotifyIcon _notifyIcon;
-        private HotkeyKeyHook _keyHook;
         private MainWindow _mainWindow;
+        private HotKeyManager _hotKeyManager;
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
@@ -23,9 +25,10 @@ namespace AlphaLaunch.App
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;
 
-            _keyHook = new HotkeyKeyHook(ModKeys.Win, Keys.Space);
-            _keyHook.KeyDown += KeyHookKeyEvent;
-            _keyHook.Install();
+            _hotKeyManager = new HotKeyManager();
+
+            _hotKeyManager.Register(new HotKey(Key.Space, ModifierKeys.Alt));
+            _hotKeyManager.KeyPressed += KeyHookKeyEvent;
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AlphaLaunch.App.Icon.ico"))
             {
@@ -39,19 +42,23 @@ namespace AlphaLaunch.App
             _mainWindow = new MainWindow();
         }
 
-        void KeyHookKeyEvent(object sender, KeyEventArgs e)
+        void KeyHookKeyEvent(object sender, KeyPressedEventArgs keyPressedEventArgs)
         {
-            e.SuppressKeyPress = true;
-            e.Handled = true;
-
-            _mainWindow.ShowDialog();
-            _mainWindow.Topmost = true;
+            if (_mainWindow.Visibility == Visibility.Hidden)
+            {
+                _mainWindow.ShowDialog();
+                _mainWindow.Topmost = true;
+            }
+            else
+            {
+                _mainWindow.Hide();
+            }
         }
 
         private void ApplicationExit(object sender, ExitEventArgs e)
         {
             _notifyIcon.Visible = false;
-            _keyHook.Uninstall();
+            _hotKeyManager.Dispose();
         }
     }
 }
