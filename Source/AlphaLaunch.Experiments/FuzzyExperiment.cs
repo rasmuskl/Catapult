@@ -148,8 +148,11 @@ namespace AlphaLaunch.Experiments
                     .Select(x => result.MatchedIndexes.ContainsKey(x) ? '^' : ' ')
                     .ToArray());
 
-                highlight += string.Join(", ", result.MatchedIndexes.OrderBy(x => x.Key)
-                    .Select(x => x.Value.ToString("0")));
+                var charBoostScores = result.MatchedIndexes
+                    .OrderBy(x => x.Key)
+                    .Select(x => x.Value.ToString("0"));
+
+                highlight += string.Format(" [ {0} ]", string.Join(", ", charBoostScores));
 
                 Console.WriteLine(highlight);
             }

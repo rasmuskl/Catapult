@@ -54,7 +54,10 @@ namespace AlphaLaunch.Experiments
                         boost += 10;
                     }
 
-                    boost += (11 - (charIndex - lastIndex));
+                    if (lastIndex != -1)
+                    {
+                        boost += (11 - (charIndex - lastIndex));
+                    }
 
                     matchedIndexes = matchedIndexes.Add(charIndex, boost);
                     lastIndex = charIndex;
