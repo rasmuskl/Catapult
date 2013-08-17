@@ -65,7 +65,12 @@ namespace AlphaLaunch.Core.Indexes
 
         public IEnumerable<SearchResult> Search(string search)
         {
-            return _searcher.Search(search);
+            var stopwatch = Stopwatch.StartNew();
+            var results = _searcher.Search(search);
+            stopwatch.Stop();
+            Log.Info("Found " + results.Count() + " results. [" + stopwatch.ElapsedMilliseconds + " ms]");
+
+            return results;
         }
     }
 }

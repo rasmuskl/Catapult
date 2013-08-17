@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace AlphaLaunch.Core.Indexes
@@ -7,6 +8,6 @@ namespace AlphaLaunch.Core.Indexes
     public interface ISearcher
     {
         void IndexItems(FileItem[] items);
-        IEnumerable<SearchResult> Search(string search);
+        ImmutableList<SearchResult> Search(string search);
     }
 }
