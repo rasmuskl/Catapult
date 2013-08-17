@@ -7,9 +7,16 @@ namespace AlphaLaunch.Experiments
 {
     public class SearchIndex
     {
-        public SearchIndex(IEnumerable<string> inputStrings)
+        public SearchIndex(IEnumerable<string> inputStrings = null)
         {
-            Entries = ImmutableList.From(inputStrings.Select(x => new IndexEntry(x)));
+            Entries = ImmutableList.Create<IndexEntry>();
+            AppendToIndex(inputStrings);
+        }
+
+        public void AppendToIndex(IEnumerable<string> inputStrings)
+        {
+            inputStrings = inputStrings ?? Enumerable.Empty<string>();
+            Entries = Entries.AddRange(inputStrings.Select(x => new IndexEntry(x)));
         }
 
         public ImmutableList<IndexEntry> Entries { get; private set; }

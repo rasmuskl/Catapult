@@ -50,6 +50,7 @@
     <Compile Include="Config\JsonConfiguration.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
+    <Compile Include="Indexes\FuzzySearcher.cs" />
     <Compile Include="Indexes\IndexStore.cs" />
     <Compile Include="Indexes\ISearcher.cs" />
     <Compile Include="Indexes\SearchResult.cs" />

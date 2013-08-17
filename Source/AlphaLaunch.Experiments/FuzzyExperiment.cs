@@ -145,8 +145,11 @@ namespace AlphaLaunch.Experiments
                 Console.WriteLine("{0} (score: {1})", result.MatchedString, result.Score);
 
                 var highlight = new string(Enumerable.Range(0, result.MatchedString.Length)
-                    .Select(x => result.MatchedIndexes.Contains(x) ? '^' : ' ')
+                    .Select(x => result.MatchedIndexes.ContainsKey(x) ? '^' : ' ')
                     .ToArray());
+
+                highlight += string.Join(", ", result.MatchedIndexes.OrderBy(x => x.Key)
+                    .Select(x => x.Value.ToString("0")));
 
                 Console.WriteLine(highlight);
             }

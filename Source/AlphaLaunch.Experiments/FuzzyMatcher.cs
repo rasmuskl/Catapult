@@ -26,7 +26,7 @@ namespace AlphaLaunch.Experiments
                 int lastIndex = -1;
                 bool noMatch = false;
 
-                var matchedIndexes = new HashSet<int>();
+                var matchedIndexes = ImmutableDictionary.Create<int, double>();
 
                 foreach (var searchChar in searchString)
                 {
@@ -56,7 +56,7 @@ namespace AlphaLaunch.Experiments
 
                     boost += (11 - (charIndex - lastIndex));
 
-                    matchedIndexes.Add(charIndex);
+                    matchedIndexes = matchedIndexes.Add(charIndex, boost);
                     lastIndex = charIndex;
                 }
 

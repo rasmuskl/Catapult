@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace AlphaLaunch.Experiments
@@ -8,9 +9,9 @@ namespace AlphaLaunch.Experiments
     {
         public string MatchedString { get; private set; }
         public double Score { get; private set; }
-        public HashSet<int> MatchedIndexes { get; private set; }
+        public ImmutableDictionary<int, double> MatchedIndexes { get; private set; }
 
-        public Result(string matchedString, double score, HashSet<int> matchedIndexes)
+        public Result(string matchedString, double score, ImmutableDictionary<int, double> matchedIndexes)
         {
             MatchedString = matchedString;
             Score = score;
