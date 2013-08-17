@@ -55,11 +55,11 @@ namespace AlphaLaunch.App
 
         private void UpdateSearch(string search)
         {
-            var items = IndexStore.Instance.Search(search);
+            IEnumerable<SearchResult> items = IndexStore.Instance.Search(search);
             
             Items.Clear();
 
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.FullPath)))
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.FullPath, x.HighlightIndexes)))
             {
                 Items.Add(item);
             }

@@ -13,7 +13,7 @@ namespace AlphaLaunch.Core.Indexes
 
         public FuzzySearcher()
         {
-            _searchIndex = new SearchIndex(new string[0]);
+            _searchIndex = new SearchIndex();
             _fuzzyMatcher = new FuzzyMatcher(_searchIndex);
         }
 
@@ -29,6 +29,7 @@ namespace AlphaLaunch.Core.Indexes
                 {
                     Name = x.MatchedString,
                     Score = x.Score,
+                    HighlightIndexes = x.MatchedIndexes
                 })
                 .ToImmutableList();
         }

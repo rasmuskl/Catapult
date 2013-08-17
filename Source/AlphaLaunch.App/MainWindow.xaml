@@ -10,11 +10,11 @@
     <Window.Resources>
 
         <DataTemplate x:Key="ItemTemplate">
-            <Label Content="{Binding DisplayName}" Foreground="#FF66FF00" />
+            <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FF66FF00" />
         </DataTemplate>
 
         <DataTemplate x:Key="SelectedTemplate">
-            <Label Content="{Binding DisplayName}" Foreground="#FF66FF00" />    
+            <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FF66FF00" />    
         </DataTemplate>
 
         <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
