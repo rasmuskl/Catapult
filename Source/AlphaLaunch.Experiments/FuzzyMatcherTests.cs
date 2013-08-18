@@ -89,7 +89,7 @@ namespace AlphaLaunch.Experiments
         [Fact]
         public void Rank_BestMatch()
         {
-            //AssertRankOrder("tsw", "This Secret World", "The Sewer");
+            AssertRankOrder("tsw", "This Secret World", "The Sewer");
         }
 
         [Fact]
