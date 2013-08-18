@@ -20,10 +20,5 @@ namespace AlphaLaunch.App
             TargetItem = targetItem;
             HighlightIndexes = highlightIndexes;
         }
-
-        public string DisplayName
-        {
-            get { return string.Format("{0} ({1})", Name, Score); }
-        }
     }
 }

@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -23,17 +22,17 @@ namespace AlphaLaunch.App.Converters
 
             var textBlock = new TextBlock();
 
-            for (var i = 0; i < searchItemModel.DisplayName.Length; i++)
+            for (var i = 0; i < searchItemModel.Name.Length; i++)
             {
                 if (searchItemModel.HighlightIndexes.ContainsKey(i))
                 {
-                    var run = new Run(searchItemModel.DisplayName[i].ToString());
+                    var run = new Run(searchItemModel.Name[i].ToString());
                     run.Foreground = Brushes.DeepSkyBlue;
                     textBlock.Inlines.Add(run);
                 }
                 else
                 {
-                    var run = new Run(searchItemModel.DisplayName[i].ToString());
+                    var run = new Run(searchItemModel.Name[i].ToString());
                     textBlock.Inlines.Add(run);
                 }
             }

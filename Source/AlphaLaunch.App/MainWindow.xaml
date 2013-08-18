@@ -10,11 +10,17 @@
     <Window.Resources>
 
         <DataTemplate x:Key="ItemTemplate">
-            <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FF66FF00" />
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FF66FF00" />
+                <Label Content="{Binding Score}" Foreground="MediumSeaGreen"></Label>            
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="SelectedTemplate">
-            <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FF66FF00" />    
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FF66FF00" />
+                <Label Content="{Binding Score}" Foreground="MediumSeaGreen"></Label>
+            </StackPanel>
         </DataTemplate>
 
         <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
