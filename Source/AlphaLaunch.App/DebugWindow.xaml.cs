@@ -10,7 +10,13 @@ namespace AlphaLaunch.App
         public DebugWindow()
         {
             InitializeComponent();
-            Log.Attach(s => Status.Dispatcher.Invoke(() => Status.Text += s + Environment.NewLine));
+            Log.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
+        }
+
+        private void AddLog(string message)
+        {
+            Status.Text += message + Environment.NewLine;
+            Status.ScrollToEnd();
         }
     }
 }
