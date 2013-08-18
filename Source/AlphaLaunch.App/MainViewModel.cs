@@ -17,17 +17,11 @@ namespace AlphaLaunch.App
         public MainViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
-            PropertyChanged += OnPropertyChanged;
 
             _actionRegistry = new ActionRegistry();
 
             _actionRegistry.RegisterAction<OpenAction>();
             _actionRegistry.RegisterAction<OpenAsAdminAction>();
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
-        {
-
         }
 
         public string Search
