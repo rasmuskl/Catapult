@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using AlphaLaunch.Core;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
 
@@ -13,7 +12,7 @@ namespace AlphaLaunch.App
     {
         private string _search;
         private int _selectedIndex;
-        private ActionRegistry _actionRegistry;
+        private readonly ActionRegistry _actionRegistry;
 
         public MainViewModel()
         {
@@ -23,6 +22,7 @@ namespace AlphaLaunch.App
             _actionRegistry = new ActionRegistry();
 
             _actionRegistry.RegisterAction<OpenAction>();
+            _actionRegistry.RegisterAction<OpenAsAdminAction>();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
