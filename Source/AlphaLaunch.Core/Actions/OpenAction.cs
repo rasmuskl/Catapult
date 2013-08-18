@@ -4,20 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace AlphaLaunch.Core.Executors
+namespace AlphaLaunch.Core.Actions
 {
-    public class FileItemExecutor
+    public class OpenAction : IItemSink<FileItem>
     {
-        public void Execute(object obj)
+        public void RunAction(FileItem item)
         {
-            var fileItem = obj as FileItem;
-
-            if (fileItem == null)
-            {
-                return;
-            }
-
-            var fileInfo = new FileInfo(fileItem.FullName);
+            var fileInfo = new FileInfo(item.FullName);
 
             if (!fileInfo.Exists)
             {

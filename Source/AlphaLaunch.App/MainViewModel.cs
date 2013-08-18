@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using AlphaLaunch.Core.Executors;
+using AlphaLaunch.Core;
+using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App
@@ -13,11 +13,16 @@ namespace AlphaLaunch.App
     {
         private string _search;
         private int _selectedIndex;
+        private ActionRegistry _actionRegistry;
 
         public MainViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
             PropertyChanged += OnPropertyChanged;
+
+            _actionRegistry = new ActionRegistry();
+
+            _actionRegistry.RegisterAction<OpenAction>();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -57,7 +62,7 @@ namespace AlphaLaunch.App
         private void UpdateSearch(string search)
         {
             IEnumerable<SearchResult> items = IndexStore.Instance.Search(search);
-            
+
             Items.Clear();
 
             foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes)))
@@ -90,8 +95,13 @@ namespace AlphaLaunch.App
 
             var searchItemModel = Items[_selectedIndex];
 
-            var executor = new FileItemExecutor();
-            executor.Execute(searchItemModel.TargetItem);
+            var actionList = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
+
+            var firstActionType = actionList.First();
+
+            var actionInstance = Activator.CreateInstance(firstActionType);
+            var runMethod = firstActionType.GetMethod("RunAction");
+            runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
         }
     }
 }

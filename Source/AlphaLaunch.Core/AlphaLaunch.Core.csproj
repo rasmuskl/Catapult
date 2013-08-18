@@ -46,10 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\ActionRegistry.cs" />
+    <Compile Include="Actions\IItemSink.cs" />
+    <Compile Include="Actions\OpenAction.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
     <Compile Include="Config\JsonConfiguration.cs" />
     <Compile Include="Debug\Log.cs" />
-    <Compile Include="Executors\FileItemExecutor.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="Indexes\FuzzyMatcher.cs" />
     <Compile Include="Indexes\FuzzySearcher.cs" />
