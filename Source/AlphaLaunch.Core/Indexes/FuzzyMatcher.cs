@@ -45,43 +45,47 @@ namespace AlphaLaunch.Core.Indexes
 
         private static Result GetMatch(string searchString, IndexEntry entry, int lastIndex, ImmutableDictionary<int, double> matchedIndexes, double boost)
         {
-            foreach (var searchChar in searchString)
+            if (searchString.Length == 0)
             {
-                ImmutableList<int> charIndexes;
+                return new Result(entry, (1000 * (100 + boost)) / 100, matchedIndexes);
+            }
+            
+            var searchChar = searchString.First();
 
-                if (!entry.CharLookup.TryGetValue(searchChar, out charIndexes))
-                {
-                    return null;
-                }
+            ImmutableList<int> charIndexes;
 
-                charIndexes = charIndexes.RemoveAll(x => x <= lastIndex);
-
-                if (!charIndexes.Any())
-                {
-                    return null;
-                }
-
-                var charBoost = 0;
-                var charIndex = charIndexes.First();
-
-                if (entry.Boundaries.Contains(charIndex - 1)
-                    || entry.CapitalLetters.Contains(charIndex))
-                {
-                    charBoost += 10;
-                }
-
-                if (lastIndex != -1)
-                {
-                    charBoost += (11 - (charIndex - lastIndex));
-                }
-
-                matchedIndexes = matchedIndexes.Add(charIndex, boost);
-                lastIndex = charIndex;
-
-                boost += charBoost;
+            if (!entry.CharLookup.TryGetValue(searchChar, out charIndexes))
+            {
+                return null;
             }
 
-            return new Result(entry, (1000 * (100 + boost)) / 100, matchedIndexes);
+            charIndexes = charIndexes.RemoveAll(x => x <= lastIndex);
+
+            if (!charIndexes.Any())
+            {
+                return null;
+            }
+
+            var charBoost = 0;
+            var charIndex = charIndexes.First();
+
+            if (entry.Boundaries.Contains(charIndex - 1)
+                || entry.CapitalLetters.Contains(charIndex))
+            {
+                charBoost += 10;
+            }
+
+            if (lastIndex != -1)
+            {
+                charBoost += (11 - (charIndex - lastIndex));
+            }
+
+            matchedIndexes = matchedIndexes.Add(charIndex, boost);
+            lastIndex = charIndex;
+
+            boost += charBoost;
+
+            return GetMatch(searchString.Substring(1), entry, lastIndex, matchedIndexes, boost);
         }
     }
 }
