@@ -38,8 +38,8 @@ namespace AlphaLaunch.App
             }
             else if (e.Key == Key.Enter)
             {
-                Model.OpenSelected();
                 Hide();
+                Model.OpenSelected();
             }
         }
 
