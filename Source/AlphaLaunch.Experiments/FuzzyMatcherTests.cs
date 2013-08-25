@@ -74,6 +74,7 @@ namespace AlphaLaunch.Experiments
         {
             AssertRankOrder("abc", "abcd", "abxc");
             AssertRankOrder("abc", "abcdefgh", "abxc");
+            AssertRankOrder("aaa", "aaaaa", "aaba");
         }
 
         [Fact]

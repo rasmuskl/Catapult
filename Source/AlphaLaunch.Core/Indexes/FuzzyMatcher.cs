@@ -99,6 +99,10 @@ namespace AlphaLaunch.Core.Indexes
                     consecutiveChars += 1;
                     charBoost += 10 * consecutiveChars;
                 }
+                else
+                {
+                    consecutiveChars = 0;
+                }
 
                 var charMatchedIndexes = matchedIndexes.Add(charIndex, charBoost);
 

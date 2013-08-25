@@ -42,7 +42,8 @@ namespace AlphaLaunch.Core.Indexes
             _boundaries = ImmutableList.From(inputString
                 .Select((x, i) => new { Char = x, Index = i })
                 .Where(x => @" -_\/.".Contains(x.Char))
-                .Select(x => x.Index));
+                .Select(x => x.Index)
+                .Concat(new [] { -1 }));
 
             _capitalLetters = ImmutableList.From(inputString
                 .Select((x, i) => new { Char = x, Index = i })
