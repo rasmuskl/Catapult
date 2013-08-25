@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,11 @@ namespace AlphaLaunch.Core.Indexes
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private readonly ISearcher _searcher = new FuzzySearcher();
+        private JsonIndexData _indexData;
+        private readonly JsonConfigLoader _loader = new JsonConfigLoader();
+        private ImmutableDictionary<string, EntryBoost> _boostEntries;
+        private const string IndexJsonPath = "index.json";
+        private const string ConfigJsonPath = "config.json";
 
         private IndexStore()
         {
@@ -25,9 +31,11 @@ namespace AlphaLaunch.Core.Indexes
             IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
             IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
 
-            var loader = new JsonConfigLoader();
-            var config = loader.Load("config.json");
-            loader.Save(config, "config.json");
+            var config = _loader.LoadUserConfig(ConfigJsonPath);
+            _loader.SaveUserConfig(config, ConfigJsonPath);
+
+            _indexData = _loader.LoadIndexData(IndexJsonPath);
+            _boostEntries = _indexData.BoostEntries.ToImmutableDictionary();
 
             foreach (var path in config.Paths)
             {
@@ -63,10 +71,18 @@ namespace AlphaLaunch.Core.Indexes
                 .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
 
+        public void AddBoost(string searchString, string boostIdentifier)
+        {
+            _boostEntries = _boostEntries.SetItem(searchString, new EntryBoost(boostIdentifier));
+
+            _indexData.BoostEntries = _boostEntries.ToDictionary(x => x.Key, x => x.Value);
+            _loader.SaveIndexData(_indexData, IndexJsonPath);
+        }
+
         public IEnumerable<SearchResult> Search(string search)
         {
             var stopwatch = Stopwatch.StartNew();
-            var results = _searcher.Search(search);
+            var results = _searcher.Search(search, _boostEntries);
             stopwatch.Stop();
             Log.Info("Found " + results.Count() + " results. [" + stopwatch.ElapsedMilliseconds + " ms]");
 

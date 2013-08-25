@@ -99,7 +99,7 @@ namespace AlphaLaunch.Experiments
             var boostDictionary = ImmutableDictionary.Create<string, EntryBoost>()
                 .Add("tsw", new EntryBoost("The Sewer"));
 
-            AssertRankOrder("tsw", "This Secret World", "The Sewer", boostDictionary);
+            AssertRankOrder("tsw", "The Sewer", "This Secret World", boostDictionary);
         }
 
         [Fact]

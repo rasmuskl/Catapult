@@ -8,6 +8,6 @@ namespace AlphaLaunch.Core.Indexes
     public interface ISearcher
     {
         void IndexItems(FileItem[] items);
-        ImmutableList<SearchResult> Search(string search);
+        ImmutableList<SearchResult> Search(string search, ImmutableDictionary<string, EntryBoost> boostEntries);
     }
 }

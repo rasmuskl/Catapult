@@ -21,9 +21,9 @@ namespace AlphaLaunch.Core.Indexes
             _searchIndex.AppendToIndex(items);
         }
 
-        public ImmutableList<SearchResult> Search(string search)
+        public ImmutableList<SearchResult> Search(string search, ImmutableDictionary<string, EntryBoost> boostEntries)
         {
-            return _fuzzyMatcher.Find(search)
+            return _fuzzyMatcher.Find(search, boostEntries)
                 .Select(x => new SearchResult(x.MatchedString, x.Score, x.TargetItem, x.MatchedIndexes))
                 .ToImmutableList();
         }

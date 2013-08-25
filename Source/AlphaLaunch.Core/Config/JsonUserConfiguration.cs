@@ -4,9 +4,9 @@ using System;
 
 namespace AlphaLaunch.Core.Config
 {
-    public class JsonConfiguration
+    public class JsonUserConfiguration
     {
-        public JsonConfiguration()
+        public JsonUserConfiguration()
         {
             Paths = new string[0];
         }

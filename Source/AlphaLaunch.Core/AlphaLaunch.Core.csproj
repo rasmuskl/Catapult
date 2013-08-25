@@ -51,7 +51,8 @@
     <Compile Include="Actions\OpenAction.cs" />
     <Compile Include="Actions\OpenAsAdminAction.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
-    <Compile Include="Config\JsonConfiguration.cs" />
+    <Compile Include="Config\JsonIndexData.cs" />
+    <Compile Include="Config\JsonUserConfiguration.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="Indexes\EntryBoost.cs" />

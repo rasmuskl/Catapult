@@ -7,7 +7,7 @@ namespace AlphaLaunch.Core.Indexes
 {
     public class SearchResult
     {
-        public SearchResult(string name, double score, object targetItem, ImmutableDictionary<int, double> highlightIndexes)
+        public SearchResult(string name, double score, IIndexable targetItem, ImmutableDictionary<int, double> highlightIndexes)
         {
             Name = name;
             Score = score;
@@ -17,7 +17,7 @@ namespace AlphaLaunch.Core.Indexes
 
         public string Name { get; private set; }
         public double Score { get; private set; }
-        public object TargetItem { get; private set; }
+        public IIndexable TargetItem { get; private set; }
         public ImmutableDictionary<int, double> HighlightIndexes { get; private set; }
     }
 }

@@ -35,7 +35,6 @@ namespace AlphaLaunch.App
                     OnPropertyChanged("Search");
 
                     UpdateSearch(_search);
-
                 }
             }
         }
@@ -96,6 +95,8 @@ namespace AlphaLaunch.App
             var actionInstance = Activator.CreateInstance(firstActionType);
             var runMethod = firstActionType.GetMethod("RunAction");
             runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
+        
+            IndexStore.Instance.AddBoost(_search, searchItemModel.TargetItem.BoostIdentifier);
         }
     }
 }
