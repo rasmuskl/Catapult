@@ -30,6 +30,9 @@ namespace AlphaLaunch.Core.Indexes
         {
             IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
             IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
+            IndexDirectory("Favorites", Environment.GetFolderPath(Environment.SpecialFolder.Favorites));
+            IndexDirectory("Recent", Environment.GetFolderPath(Environment.SpecialFolder.Recent));
+            IndexDirectory("Desktop", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
 
             var config = _loader.LoadUserConfig(ConfigJsonPath);
             _loader.SaveUserConfig(config, ConfigJsonPath);
@@ -66,7 +69,7 @@ namespace AlphaLaunch.Core.Indexes
         }
 
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
-        { 
+        {
             return directory.GetFiles().Select(x => new FileItem(x.FullName))
                 .Concat(directory.GetDirectories().SelectMany(GetFiles));
         }
