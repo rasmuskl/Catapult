@@ -116,6 +116,12 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("ab", "AxxBxx", "acb");
         }
 
+        [Fact]
+        public void Rank_ConsecutiveOverBoundaries()
+        {
+            AssertRankOrder("ste", "Steam", "Sublime Text 3");
+        }
+
         private void AssertRankOrder(string searchString, string firstLong, string secondLong, ImmutableDictionary<string, EntryBoost> boostDictionary = null)
         {
             var strings = new[] { firstLong, secondLong };

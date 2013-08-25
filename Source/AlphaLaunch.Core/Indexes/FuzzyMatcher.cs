@@ -24,7 +24,7 @@ namespace AlphaLaunch.Core.Indexes
             {
                 var matchedIndexes = ImmutableDictionary.Create<int, double>();
 
-                var result = GetBestMatch(searchString, entry, -1, matchedIndexes, 0);
+                var result = GetBestMatch(searchString, entry, int.MinValue, 0, matchedIndexes, 0);
 
                 if (result == null)
                 {
@@ -54,7 +54,7 @@ namespace AlphaLaunch.Core.Indexes
                 .ToImmutableList();
         }
 
-        private static Result GetBestMatch(string searchString, IndexEntry entry, int lastIndex, ImmutableDictionary<int, double> matchedIndexes, double boost)
+        private static Result GetBestMatch(string searchString, IndexEntry entry, int lastIndex, int consecutiveChars, ImmutableDictionary<int, double> matchedIndexes, double boost)
         {
             if (searchString.Length == 0)
             {
@@ -77,10 +77,10 @@ namespace AlphaLaunch.Core.Indexes
                 return null;
             }
 
-            return MatchNextChar(searchString, entry, lastIndex, matchedIndexes, boost, charIndexes);
+            return MatchNextChar(searchString, entry, lastIndex, consecutiveChars, matchedIndexes, boost, charIndexes);
         }
 
-        private static Result MatchNextChar(string searchString, IndexEntry entry, int lastIndex, ImmutableDictionary<int, double> matchedIndexes, double boost, ImmutableList<int> charIndexes)
+        private static Result MatchNextChar(string searchString, IndexEntry entry, int lastIndex, int consecutiveChars, ImmutableDictionary<int, double> matchedIndexes, double boost, ImmutableList<int> charIndexes)
         {
             double maxScore = 0;
             Result best = null;
@@ -94,14 +94,15 @@ namespace AlphaLaunch.Core.Indexes
                     charBoost += 10;
                 }
 
-                if (lastIndex != -1)
+                if (lastIndex == charIndex - 1)
                 {
-                    charBoost += (11 - (charIndex - lastIndex));
+                    consecutiveChars += 1;
+                    charBoost += 10 * consecutiveChars;
                 }
 
                 var charMatchedIndexes = matchedIndexes.Add(charIndex, charBoost);
 
-                var result = GetBestMatch(searchString.Substring(1), entry, charIndex, charMatchedIndexes, boost + charBoost);
+                var result = GetBestMatch(searchString.Substring(1), entry, charIndex, consecutiveChars, charMatchedIndexes, boost + charBoost);
 
                 if (result != null && result.Score > maxScore)
                 {
