@@ -54,6 +54,7 @@
     <Compile Include="Config\JsonConfiguration.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
+    <Compile Include="Indexes\EntryBoost.cs" />
     <Compile Include="Indexes\FuzzyMatcher.cs" />
     <Compile Include="Indexes\FuzzySearcher.cs" />
     <Compile Include="Indexes\IIndexable.cs" />

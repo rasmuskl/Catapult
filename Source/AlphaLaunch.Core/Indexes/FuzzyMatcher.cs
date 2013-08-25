@@ -14,7 +14,7 @@ namespace AlphaLaunch.Core.Indexes
             _index = index;
         }
 
-        public ImmutableList<Result> Find(string searchString)
+        public ImmutableList<Result> Find(string searchString, ImmutableDictionary<string, EntryBoost> boostDictionary = null)
         {
             var results = ImmutableList.CreateBuilder<Result>();
 
@@ -32,6 +32,20 @@ namespace AlphaLaunch.Core.Indexes
                 }
 
                 results.Add(result);
+            }
+
+            if (boostDictionary != null && boostDictionary.ContainsKey(searchString))
+            {
+                var entryBoost = boostDictionary[searchString];
+                var boostedResult = results.FirstOrDefault(x => x.TargetItem.BoostIdentifier == entryBoost.BoostIdentifier);
+
+                if (boostedResult != null)
+                {
+                    var maxScore = results.Except(new [] { boostedResult }).Max(x => x.Score);
+
+                    var index = results.IndexOf(boostedResult);
+                    results[index] = new Result(boostedResult, maxScore + 100);
+                }
             }
 
             return results

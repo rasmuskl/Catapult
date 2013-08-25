@@ -11,14 +11,13 @@ namespace AlphaLaunch.Core
         public string FullName { get; set; }
         public string DirectoryName { get; set; }
         public string Name { get; set; }
-        public Guid Id { get; set; }
+        public string BoostIdentifier { get { return FullName; } }
 
         public FileItem(string fullName)
         {
             FullName = fullName;
             DirectoryName = Path.GetDirectoryName(fullName);
             Name = Path.GetFileName(fullName);
-            Id = Guid.NewGuid();
         }
     }
 }

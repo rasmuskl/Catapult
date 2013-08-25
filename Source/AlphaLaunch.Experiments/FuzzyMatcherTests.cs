@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Collections.Generic;
 using AlphaLaunch.Core.Indexes;
@@ -16,8 +17,8 @@ namespace AlphaLaunch.Experiments
             AssertMatches("a", "abc");
             AssertMatches("b", "abc");
             AssertMatches("c", "abc");
-        }        
-        
+        }
+
         [Fact]
         public void Matches_Casing()
         {
@@ -93,6 +94,15 @@ namespace AlphaLaunch.Experiments
         }
 
         [Fact]
+        public void Rank_Boost()
+        {
+            var boostDictionary = ImmutableDictionary.Create<string, EntryBoost>()
+                .Add("tsw", new EntryBoost("The Sewer"));
+
+            AssertRankOrder("tsw", "This Secret World", "The Sewer", boostDictionary);
+        }
+
+        [Fact]
         public void Regressions()
         {
             AssertMatches("clie", "OpenVPN Client.lnk");
@@ -106,14 +116,14 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("ab", "AxxBxx", "acb");
         }
 
-        private void AssertRankOrder(string searchString, string firstLong, string secondLong)
+        private void AssertRankOrder(string searchString, string firstLong, string secondLong, ImmutableDictionary<string, EntryBoost> boostDictionary = null)
         {
             var strings = new[] { firstLong, secondLong };
             var matcher = new FuzzyMatcher(new SearchIndex(strings.ToStringIndexables()));
             var reverseMatcher = new FuzzyMatcher(new SearchIndex(strings.Reverse().ToStringIndexables()));
 
-            var results = matcher.Find(searchString);
-            var reversedResults = reverseMatcher.Find(searchString);
+            var results = matcher.Find(searchString, boostDictionary);
+            var reversedResults = reverseMatcher.Find(searchString, boostDictionary);
 
             PrintHeader(searchString);
             PrintResults(results);

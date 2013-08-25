@@ -12,7 +12,7 @@ namespace AlphaLaunch.Core.Indexes
         private readonly ImmutableList<int> _capitalLetters;
 
         public string InputString { get; private set; }
-        public object Target { get; private set; }
+        public IIndexable Target { get; private set; }
 
         public ImmutableDictionary<char, ImmutableList<int>> CharLookup
         {
@@ -29,7 +29,7 @@ namespace AlphaLaunch.Core.Indexes
             get { return _capitalLetters; }
         }
 
-        public IndexEntry(string inputString, object target)
+        public IndexEntry(string inputString, IIndexable target)
         {
             InputString = inputString;
             Target = target;

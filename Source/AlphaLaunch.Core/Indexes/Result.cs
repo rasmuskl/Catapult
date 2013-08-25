@@ -17,7 +17,7 @@ namespace AlphaLaunch.Core.Indexes
             get { return _indexEntry.InputString; }
         }
 
-        public object TargetItem
+        public IIndexable TargetItem
         {
             get { return _indexEntry.Target; }
         }
@@ -27,6 +27,10 @@ namespace AlphaLaunch.Core.Indexes
             _indexEntry = indexEntry;
             Score = score;
             MatchedIndexes = matchedIndexes;
+        }
+
+        public Result(Result result, double score) : this(result._indexEntry, score, result.MatchedIndexes)
+        {
         }
 
         public override string ToString()
