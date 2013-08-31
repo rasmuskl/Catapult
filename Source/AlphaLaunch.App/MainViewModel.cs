@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
+using AlphaLaunch.Spotify;
 
 namespace AlphaLaunch.App
 {
@@ -22,6 +23,9 @@ namespace AlphaLaunch.App
 
             _actionRegistry.RegisterAction<OpenAction>();
             _actionRegistry.RegisterAction<OpenAsAdminAction>();
+            _actionRegistry.RegisterAction<SpotifyNextTrackAction>();
+
+            IndexStore.Instance.IndexAction(new SpotifyNextTrackAction());
         }
 
         public string Search
@@ -87,6 +91,14 @@ namespace AlphaLaunch.App
             }
 
             var searchItemModel = Items[_selectedIndex];
+
+            var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
+            if (standaloneAction != null)
+            {
+                standaloneAction.RunAction();
+                IndexStore.Instance.AddBoost(_search, searchItemModel.TargetItem.BoostIdentifier);
+                return;
+            }
 
             var actionList = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
 

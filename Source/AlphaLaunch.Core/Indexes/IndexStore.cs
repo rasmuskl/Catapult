@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Threading;
+using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Config;
 using AlphaLaunch.Core.Debug;
 
@@ -43,6 +44,19 @@ namespace AlphaLaunch.Core.Indexes
             foreach (var path in config.Paths)
             {
                 IndexDirectory(path, path);
+            }
+        }
+
+        public void IndexAction(IStandaloneAction standaloneAction)
+        {
+            try
+            {
+                _lock.EnterWriteLock();
+                _searcher.IndexItems(new[] { standaloneAction });
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
             }
         }
 

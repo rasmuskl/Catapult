@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{51EE42
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaLaunch.Experiments", "AlphaLaunch.Experiments\AlphaLaunch.Experiments.csproj", "{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaLaunch.Spotify", "AlphaLaunch.Spotify\AlphaLaunch.Spotify.csproj", "{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

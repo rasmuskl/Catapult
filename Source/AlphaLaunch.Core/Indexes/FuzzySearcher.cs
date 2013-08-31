@@ -16,7 +16,7 @@ namespace AlphaLaunch.Core.Indexes
             _fuzzyMatcher = new FuzzyMatcher(_searchIndex);
         }
 
-        public void IndexItems(FileItem[] items)
+        public void IndexItems(IEnumerable<IIndexable> items)
         {
             _searchIndex.AppendToIndex(items);
         }
