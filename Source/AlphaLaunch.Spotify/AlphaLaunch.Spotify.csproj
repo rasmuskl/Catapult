@@ -40,9 +40,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpotifyAction.cs" />
+    <Compile Include="SpotifyClient.cs" />
     <Compile Include="SpotifyNextTrackAction.cs" />
-    <Compile Include="Win32.cs" />
+    <Compile Include="SpotifyPlayPauseAction.cs" />
+    <Compile Include="SpotifyPreviousTrackAction.cs" />
+    <Compile Include="SpotifyStopAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AlphaLaunch.Core\AlphaLaunch.Core.csproj">

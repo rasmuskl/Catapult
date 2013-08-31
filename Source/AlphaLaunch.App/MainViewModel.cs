@@ -23,9 +23,17 @@ namespace AlphaLaunch.App
 
             _actionRegistry.RegisterAction<OpenAction>();
             _actionRegistry.RegisterAction<OpenAsAdminAction>();
-            _actionRegistry.RegisterAction<SpotifyNextTrackAction>();
+            
+            RegisterStandaloneAction<SpotifyNextTrackAction>();
+            RegisterStandaloneAction<SpotifyPlayPauseAction>();
+            RegisterStandaloneAction<SpotifyPreviousTrackAction>();
+            RegisterStandaloneAction<SpotifyStopAction>();
+        }
 
-            IndexStore.Instance.IndexAction(new SpotifyNextTrackAction());
+        private void RegisterStandaloneAction<T>() where T : IStandaloneAction, new()
+        {
+            _actionRegistry.RegisterAction<T>();
+            IndexStore.Instance.IndexAction(new T());
         }
 
         public string Search
