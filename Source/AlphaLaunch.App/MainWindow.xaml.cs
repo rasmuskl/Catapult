@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 
 namespace AlphaLaunch.App
 {
@@ -24,6 +25,8 @@ namespace AlphaLaunch.App
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
         {
+            AnimateSearchItemsHeight();
+
             if (e.Key == Key.Escape)
             {
                 Hide();
@@ -35,35 +38,17 @@ namespace AlphaLaunch.App
             }
         }
 
-        private void WindowLoaded(object sender, EventArgs eventArgs)
+        private void AnimateSearchItemsHeight()
         {
-            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
-            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
-            
-            Activate();
-            SearchBar.SelectAll();
-            SearchBar.Focus();
+            var fromValue = Double.IsNaN(SearchItems.Height) ? 0 : SearchItems.Height;
 
-            //_debugWindow.Left = Left + Width + 20;
-            //_debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
-            //_debugWindow.Show();
-        }
-
-        private void WindowDeactivated(object sender, EventArgs e)
-        {
-            //_debugWindow.Hide();
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.Space)
+            var toValue = 4 + SearchItems.Items.Count*38;
+            if (SearchItems.Items.Count == 0)
             {
-                e.Handled = true;
+                toValue = 0;
             }
-            else
-            {
-                base.OnKeyDown(e);
-            }
+            var doubleAnimation = new DoubleAnimation(fromValue, toValue, new Duration(TimeSpan.FromMilliseconds(50)));
+            SearchItems.BeginAnimation(HeightProperty, doubleAnimation);
         }
 
         private void SearchBar_OnKeyDown(object sender, KeyEventArgs e)
@@ -76,6 +61,27 @@ namespace AlphaLaunch.App
             {
                 Model.SelectedIndex = Math.Max(0, Model.SelectedIndex - 1);
             }
+        }
+
+        private void WindowActivated(object sender, EventArgs eventArgs)
+        {
+            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
+
+            SearchItems.Height = 0;
+
+            Activate();
+            SearchBar.SelectAll();
+            SearchBar.Focus();
+
+            //_debugWindow.Left = Left + Width + 20;
+            //_debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
+            //_debugWindow.Show();
+        }
+
+        private void WindowDeactivated(object sender, EventArgs e)
+        {
+            //_debugWindow.Hide();
         }
     }
 }
