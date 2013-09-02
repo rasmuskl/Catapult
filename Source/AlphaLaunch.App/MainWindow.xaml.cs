@@ -8,12 +8,12 @@ namespace AlphaLaunch.App
 {
     public partial class MainWindow
     {
-        private readonly DebugWindow _debugWindow;
+        //private readonly DebugWindow _debugWindow;
 
         public MainWindow()
         {
             InitializeComponent();
-            _debugWindow = new DebugWindow();
+            //_debugWindow = new DebugWindow();
         }
 
         private void WindowClosed(object sender, EventArgs e)
@@ -28,14 +28,6 @@ namespace AlphaLaunch.App
             {
                 Hide();
             }
-            else if (e.Key == Key.Down)
-            {
-                Model.SelectedIndex = Math.Min(Model.Items.Count, Model.SelectedIndex + 1);
-            }
-            else if (e.Key == Key.Up)
-            {
-                Model.SelectedIndex = Math.Max(0, Model.SelectedIndex - 1);
-            }
             else if (e.Key == Key.Enter)
             {
                 Hide();
@@ -47,19 +39,19 @@ namespace AlphaLaunch.App
         {
             Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
             Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
-
-            _debugWindow.Left = Left + Width + 20;
-            _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
-            _debugWindow.Show();
-
+            
             Activate();
             SearchBar.SelectAll();
             SearchBar.Focus();
+
+            //_debugWindow.Left = Left + Width + 20;
+            //_debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
+            //_debugWindow.Show();
         }
 
         private void WindowDeactivated(object sender, EventArgs e)
         {
-            _debugWindow.Hide();
+            //_debugWindow.Hide();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -71,6 +63,18 @@ namespace AlphaLaunch.App
             else
             {
                 base.OnKeyDown(e);
+            }
+        }
+
+        private void SearchBar_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Down)
+            {
+                Model.SelectedIndex = Math.Min(Model.Items.Count, Model.SelectedIndex + 1);
+            }
+            else if (e.Key == Key.Up)
+            {
+                Model.SelectedIndex = Math.Max(0, Model.SelectedIndex - 1);
             }
         }
     }

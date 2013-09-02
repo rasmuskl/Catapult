@@ -66,7 +66,7 @@ namespace AlphaLaunch.App
 
         private void UpdateSearch(string search)
         {
-            IEnumerable<SearchResult> items = IndexStore.Instance.Search(search);
+            IEnumerable<SearchResult> items = IndexStore.Instance.Search(search).Take(10);
 
             Items.Clear();
 

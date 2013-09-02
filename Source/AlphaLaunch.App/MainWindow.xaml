@@ -1,9 +1,7 @@
 ﻿<Window x:Class="AlphaLaunch.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AlphaLaunch.App" mc:Ignorable="d" Height="425" Width="525" WindowStyle="None" Background="#222" 
+        xmlns:local="clr-namespace:AlphaLaunch.App" Height="425" Width="525" WindowStyle="None" AllowsTransparency="True" BorderThickness="0"
         Activated="WindowLoaded"
         Deactivated="WindowDeactivated"
         Closed="WindowClosed">
@@ -39,8 +37,8 @@
     <Window.DataContext>
         <local:MainViewModel x:Name="Model" />
     </Window.DataContext>
-    <Grid Margin="0,0,0,2">
-        <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" PreviewKeyUp="SearchBarPreviewKeyUp" Background="#FF333333" Foreground="#FF66FF00" Height="40" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" />
-        <ListBox ItemsSource="{Binding Items}" SelectedIndex="{Binding SelectedIndex}" Margin="10,50,10,10" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" />
+    <Grid Margin="0,0,0,0">
+        <TextBox Name="SearchBar" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" PreviewKeyUp="SearchBarPreviewKeyUp" PreviewKeyDown="SearchBar_OnKeyDown" Background="#FF333333" Foreground="#FF66FF00" Height="40" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" />
+        <ListBox ItemsSource="{Binding Items}" SelectedIndex="{Binding SelectedIndex}" Margin="0,40,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
     </Grid>
 </Window>
