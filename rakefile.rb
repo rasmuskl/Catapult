@@ -38,14 +38,14 @@ end
 
 msbuild :compile => [:fetchslndeps] do |msb|
 	msb.command = $msbuildpath
-	msb.properties :configuration => :Release, :ApplicationVersion => $build_number
+	msb.properties :configuration => :Release
 	msb.targets :Build
 	msb.solution = "Source/AlphaLaunch.App.sln"	
 end
 
 msbuild :publish => [:compile] do |msb|
 	msb.command = $msbuildpath
-	msb.properties :configuration => :Release, :ApplicationVersion => $build_number
+	msb.properties :configuration => :Release, :ApplicationVersion => $build_number, :PublishUrl => 'http://alphalaunch.rasmuskl.dk/setup/'
 	msb.targets :Publish
 	msb.solution = "Source/AlphaLaunch.App.sln"	
 end

@@ -3,8 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AlphaLaunch.App" Height="425" Width="525" WindowStyle="None" Background="Transparent" AllowsTransparency="True" BorderThickness="0"
         Loaded="MainWindow_OnLoaded"
-        Activated="MainWindow_OnActivated"
-        >
+        Activated="MainWindow_OnActivated">
     <Window.Resources>
 
         <DataTemplate x:Key="ItemTemplate">
