@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -45,6 +44,10 @@ namespace AlphaLaunch.App
             _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
 
             _debugWindow = new DebugWindow();
+
+#if DEBUG
+            ToggleMainWindow();
+#endif
         }
 
         void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -56,19 +59,27 @@ namespace AlphaLaunch.App
             else
             {
                 _debugWindow.Hide();
+
+#if DEBUG
+                Shutdown();
+#endif
             }
         }
 
         void KeyHookKeyEvent(object sender, KeyPressedEventArgs keyPressedEventArgs)
+        {
+            ToggleMainWindow();
+        }
+
+        private void ToggleMainWindow()
         {
             if (_mainWindow.Visibility != Visibility.Visible)
             {
                 _mainWindow.Show();
                 _mainWindow.Topmost = true;
 
-                _debugWindow.Left = _mainWindow.Left +_mainWindow.Width + 20;
-                _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
-                _debugWindow.Show();
+                _debugWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
+                _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height)/2;
                 _debugWindow.Topmost = true;
             }
             else

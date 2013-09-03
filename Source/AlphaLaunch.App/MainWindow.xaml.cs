@@ -62,6 +62,10 @@ namespace AlphaLaunch.App
             SearchItems.Height = 0;
 
             Activate();
+        }
+
+        private void MainWindow_OnActivated(object sender, EventArgs e)
+        {
             SearchBar.SelectAll();
             SearchBar.Focus();
         }
