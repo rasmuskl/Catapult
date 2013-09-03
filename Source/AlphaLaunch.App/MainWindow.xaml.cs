@@ -9,18 +9,9 @@ namespace AlphaLaunch.App
 {
     public partial class MainWindow
     {
-        //private readonly DebugWindow _debugWindow;
-
         public MainWindow()
         {
             InitializeComponent();
-            //_debugWindow = new DebugWindow();
-        }
-
-        private void WindowClosed(object sender, EventArgs e)
-        {
-            // TODO Add in debug?
-            //Application.Current.Shutdown();
         }
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
@@ -63,7 +54,7 @@ namespace AlphaLaunch.App
             }
         }
 
-        private void WindowActivated(object sender, EventArgs eventArgs)
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
             Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
@@ -73,15 +64,6 @@ namespace AlphaLaunch.App
             Activate();
             SearchBar.SelectAll();
             SearchBar.Focus();
-
-            //_debugWindow.Left = Left + Width + 20;
-            //_debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
-            //_debugWindow.Show();
-        }
-
-        private void WindowDeactivated(object sender, EventArgs e)
-        {
-            //_debugWindow.Hide();
         }
     }
 }

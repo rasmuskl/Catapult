@@ -27,6 +27,7 @@ namespace AlphaLaunch.App.Converters
                 if (searchItemModel.HighlightIndexes.ContainsKey(i))
                 {
                     var run = new Run(searchItemModel.Name[i].ToString());
+                    //run.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF00E5FF"));
                     run.Foreground = Brushes.DeepSkyBlue;
                     textBlock.Inlines.Add(run);
                 }

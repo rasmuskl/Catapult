@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +9,6 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using AlphaLaunch.Core.Indexes;
 using GlobalHotKey;
-using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
 namespace AlphaLaunch.App
 {
@@ -17,6 +17,7 @@ namespace AlphaLaunch.App
         private NotifyIcon _notifyIcon;
         private MainWindow _mainWindow;
         private HotKeyManager _hotKeyManager;
+        private DebugWindow _debugWindow;
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
@@ -40,14 +41,35 @@ namespace AlphaLaunch.App
 
             _notifyIcon.Click += (o, args) => Shutdown();
             _mainWindow = new MainWindow();
+
+            _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
+
+            _debugWindow = new DebugWindow();
+        }
+
+        void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool)e.NewValue)
+            {
+                _debugWindow.Show();
+            }
+            else
+            {
+                _debugWindow.Hide();
+            }
         }
 
         void KeyHookKeyEvent(object sender, KeyPressedEventArgs keyPressedEventArgs)
         {
-            if (_mainWindow.Visibility == Visibility.Hidden)
+            if (_mainWindow.Visibility != Visibility.Visible)
             {
-                _mainWindow.ShowDialog();
+                _mainWindow.Show();
                 _mainWindow.Topmost = true;
+
+                _debugWindow.Left = _mainWindow.Left +_mainWindow.Width + 20;
+                _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height) / 2;
+                _debugWindow.Show();
+                _debugWindow.Topmost = true;
             }
             else
             {

@@ -5,7 +5,6 @@
              Startup="ApplicationStartup"
              Exit="ApplicationExit">
     <Application.Resources>
-
         <converters:HighlightValueConverter x:Key="HighlightConverter" />
     </Application.Resources>
 </Application>

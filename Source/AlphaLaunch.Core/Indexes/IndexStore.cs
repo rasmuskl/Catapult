@@ -62,10 +62,14 @@ namespace AlphaLaunch.Core.Indexes
 
         private void IndexDirectory(string name, string path)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var traverseDirectoriesWatch = Stopwatch.StartNew();
 
             var directory = new DirectoryInfo(path);
             var fileItems = GetFiles(directory).ToArray();
+
+            traverseDirectoriesWatch.Stop();
+
+            var indexWatch = Stopwatch.StartNew();
 
             try
             {
@@ -77,15 +81,52 @@ namespace AlphaLaunch.Core.Indexes
                 _lock.ExitWriteLock();
             }
 
-            stopwatch.Stop();
+            indexWatch.Stop();
 
-            Log.Info("Indexed " + name + " - " + fileItems.Length + " items. [" + stopwatch.ElapsedMilliseconds + " ms]");
+            var traverseMs = traverseDirectoriesWatch.ElapsedMilliseconds;
+            var indexMs = indexWatch.ElapsedMilliseconds;
+            var totalMs = indexWatch.ElapsedMilliseconds + traverseDirectoriesWatch.ElapsedMilliseconds;
+
+            Log.Info("Index " + name + " - " + fileItems.Length + " items. [ " + totalMs + " ms, tra: " + traverseMs + " ms, idx: " + indexMs +" ms ]");
         }
 
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
         {
-            return directory.GetFiles().Select(x => new FileItem(x.FullName))
-                .Concat(directory.GetDirectories().SelectMany(GetFiles));
+            var directoryQueue = new Queue<DirectoryInfo>();
+
+            directoryQueue.Enqueue(directory);
+
+            var fileItems = new List<FileItem>();
+
+            while (directoryQueue.Any())
+            {
+                DirectoryInfo nextDirectory = directoryQueue.Dequeue();
+
+                try
+                {
+                    FileSystemInfo[] fileSystemInfos = nextDirectory.GetFileSystemInfos();
+
+                    foreach (var fileSystemInfo in fileSystemInfos)
+                    {
+                        if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
+                        {
+                            directoryQueue.Enqueue(new DirectoryInfo(fileSystemInfo.FullName));
+                        }
+                        else
+                        {
+                            fileItems.Add(new FileItem(fileSystemInfo.FullName));
+                        }
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+                catch (PathTooLongException)
+                {
+                }
+            }
+
+            return fileItems;
         }
 
         public void AddBoost(string searchString, string boostIdentifier)
