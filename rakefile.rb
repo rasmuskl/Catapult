@@ -1,13 +1,23 @@
 require 'albacore'
 
+def get_build_number
+	yearversion = Time.now.strftime("%Y")
+	dateversion = Time.now.strftime("%m%d")
+	buildnumber = Time.now.strftime("%H%M")
+	#buildnumber = ENV["BUILD_NUMBER"].nil? ? '0' : ENV["BUILD_NUMBER"]
+	"#{$major_version}.#{yearversion}.#{dateversion}.#{buildnumber}"
+end
+
 $msbuildpath = 'C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe'
 $aspnet_compiler_path = 'C:\Windows\Microsoft.NET\Framework\v4.0.30319\aspnet_compiler.exe'
 $publishdir = 'Publish'
 $major_version = '1'
+$build_number = get_build_number
 
 task :default => [:full]
 
 task :full => [:clean, :compile, :publish] do
+	puts $build_number
 end
 
 desc "Removes old build artifacts."
@@ -28,21 +38,15 @@ end
 
 msbuild :compile => [:fetchslndeps] do |msb|
 	msb.command = $msbuildpath
-	msb.properties :configuration => :Release
+	msb.properties :configuration => :Release, :ApplicationVersion => $build_number
 	msb.targets :Build
 	msb.solution = "Source/AlphaLaunch.App.sln"	
 end
 
 msbuild :publish => [:compile] do |msb|
 	msb.command = $msbuildpath
-	msb.properties :configuration => :Release, :ApplicationVersion => get_build_number
+	msb.properties :configuration => :Release, :ApplicationVersion => $build_number
 	msb.targets :Publish
 	msb.solution = "Source/AlphaLaunch.App.sln"	
 end
 
-def get_build_number
-	yearversion = Time.now.strftime("%Y")
-	dateversion = Time.now.strftime("%m%d")
-	buildnumber = ENV["BUILD_NUMBER"].nil? ? '0' : ENV["BUILD_NUMBER"]
-	"#{$major_version}.#{yearversion}.#{dateversion}.#{buildnumber}"
-end
