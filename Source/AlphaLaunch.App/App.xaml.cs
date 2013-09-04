@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
@@ -20,6 +18,8 @@ namespace AlphaLaunch.App
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
             IndexStore.Instance.Start();
 
             _notifyIcon = new NotifyIcon();
@@ -48,6 +48,21 @@ namespace AlphaLaunch.App
 #if DEBUG
             ToggleMainWindow();
 #endif
+        }
+
+        public void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var exception = e.ExceptionObject as Exception;
+
+            if (exception == null)
+            {
+                return;
+            }
+
+            System.Windows.MessageBox.Show(exception.Message 
+                + Environment.NewLine
+                + Environment.NewLine 
+                + exception.StackTrace, "Exception occured");
         }
 
         void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
