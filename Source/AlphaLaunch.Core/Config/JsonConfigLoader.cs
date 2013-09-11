@@ -1,8 +1,9 @@
+using System.Deployment.Application;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Collections.Generic;
 using System;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -12,48 +13,76 @@ namespace AlphaLaunch.Core.Config
     {
         public JsonUserConfiguration LoadUserConfig(string file)
         {
-            var directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var fullName = Path.Combine(directoryName, file);
+            var fileContents = ReadEntireFile(file);
 
-            if (File.Exists(fullName))
+            if (fileContents == null)
             {
-                return JsonConvert.DeserializeObject<JsonUserConfiguration>(File.ReadAllText(fullName));
+                return new JsonUserConfiguration();
             }
 
-            return new JsonUserConfiguration();
+            return JsonConvert.DeserializeObject<JsonUserConfiguration>(fileContents);
         }
 
         public void SaveUserConfig(JsonUserConfiguration config, string file)
         {
-            var directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var fullName = Path.Combine(directoryName, file);
-
             var json = JsonConvert.SerializeObject(config, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
-
-            File.WriteAllText(fullName, json);
+            WriteEntireFile(file, json);
         }
 
         public JsonIndexData LoadIndexData(string file)
         {
-            var directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var fullName = Path.Combine(directoryName, file);
+            var fileContents = ReadEntireFile(file);
 
-            if (File.Exists(fullName))
+            if (fileContents == null)
             {
-                return JsonConvert.DeserializeObject<JsonIndexData>(File.ReadAllText(fullName));
+                return new JsonIndexData();
             }
 
-            return new JsonIndexData();
+            return JsonConvert.DeserializeObject<JsonIndexData>(fileContents);
         }
 
         public void SaveIndexData(JsonIndexData data, string file)
         {
-            var directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var fullName = Path.Combine(directoryName, file);
-
             var json = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            WriteEntireFile(file, json);
+        }
 
-            File.WriteAllText(fullName, json);
+        private void WriteEntireFile(string file, string contents)
+        {
+            var scope = GetIsolatedStorageFileScope();
+
+            using (var stream = scope.OpenFile(file, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(contents);
+                }
+            }
+        }
+
+        private string ReadEntireFile(string file)
+        {
+            var scope = GetIsolatedStorageFileScope();
+
+            if (!scope.FileExists(file))
+            {
+                return null;
+            }
+            
+            using (var stream = scope.OpenFile(file, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+
+        private static IsolatedStorageFile GetIsolatedStorageFileScope()
+        {
+            return ApplicationDeployment.IsNetworkDeployed
+                ? IsolatedStorageFile.GetUserStoreForApplication()
+                : IsolatedStorageFile.GetUserStoreForDomain();
         }
     }
 }
