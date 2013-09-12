@@ -8,6 +8,7 @@ using System.Threading;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Config;
 using AlphaLaunch.Core.Debug;
+using AlphaLaunch.Core.Indexes.Extensions;
 
 namespace AlphaLaunch.Core.Indexes
 {
@@ -93,6 +94,8 @@ namespace AlphaLaunch.Core.Indexes
         private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
         {
             var directoryQueue = new Queue<DirectoryInfo>();
+            var extensionReader = new ExtensionReader();
+            var extensionContainer = extensionReader.ReadRegistry();
 
             directoryQueue.Enqueue(directory);
 
@@ -114,7 +117,10 @@ namespace AlphaLaunch.Core.Indexes
                         }
                         else
                         {
-                            fileItems.Add(new FileItem(fileSystemInfo.FullName));
+                            if (extensionContainer.IsKnownExtension(fileSystemInfo.Extension))
+                            {
+                                fileItems.Add(new FileItem(fileSystemInfo.FullName));
+                            }
                         }
                     }
                 }
