@@ -101,6 +101,7 @@
     <Compile Include="DebugWindow.xaml.cs">
       <DependentUpon>DebugWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ListViewModel.cs" />
     <Compile Include="SearchItemModel.cs" />
     <Page Include="DebugWindow.xaml">
       <SubType>Designer</SubType>

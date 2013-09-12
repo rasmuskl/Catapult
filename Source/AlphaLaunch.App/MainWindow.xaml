@@ -49,7 +49,7 @@
     </Window.DataContext>
     <StackPanel>
         <TextBox Name="SearchBar" 
-                 Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" 
+                 Text="{Binding ListModel.Search, UpdateSourceTrigger=PropertyChanged}" 
                  Style="{StaticResource NoBorder}" 
                  PreviewKeyUp="SearchBarPreviewKeyUp" 
                  PreviewKeyDown="SearchBar_OnKeyDown" 
@@ -60,6 +60,6 @@
                  VerticalAlignment="Center" 
                  Padding="5,5,5,5" 
                  FontSize="24" />
-        <ListBox Name="SearchItems" ItemsSource="{Binding Items}" SelectedIndex="{Binding SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
+        <ListBox Name="SearchItems" ItemsSource="{Binding ListModel.Items}" SelectedIndex="{Binding ListModel.SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
     </StackPanel>
 </Window>

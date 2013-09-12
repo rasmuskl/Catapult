@@ -50,6 +50,7 @@
     <Compile Include="Actions\ActionRegistry.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />
     <Compile Include="Actions\IItemSink.cs" />
+    <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />
     <Compile Include="Actions\OpenAsAdminAction.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />

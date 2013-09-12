@@ -46,11 +46,11 @@ namespace AlphaLaunch.App
         {
             if (e.Key == Key.Down)
             {
-                Model.SelectedIndex = Math.Min(Model.Items.Count, Model.SelectedIndex + 1);
+                Model.ListModel.SelectedIndex = Math.Min(Model.ListModel.Items.Count, Model.ListModel.SelectedIndex + 1);
             }
             else if (e.Key == Key.Up)
             {
-                Model.SelectedIndex = Math.Max(0, Model.SelectedIndex - 1);
+                Model.ListModel.SelectedIndex = Math.Max(0, Model.ListModel.SelectedIndex - 1);
             }
         }
 

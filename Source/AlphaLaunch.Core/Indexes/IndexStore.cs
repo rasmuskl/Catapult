@@ -48,12 +48,12 @@ namespace AlphaLaunch.Core.Indexes
             }
         }
 
-        public void IndexAction(IStandaloneAction standaloneAction)
+        public void IndexAction(IIndexable action)
         {
             try
             {
                 _lock.EnterWriteLock();
-                _searcher.IndexItems(new[] { standaloneAction });
+                _searcher.IndexItems(new[] { action });
             }
             finally
             {
