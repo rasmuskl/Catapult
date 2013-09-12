@@ -39,7 +39,7 @@ end
 
 msbuild :compile => [:fetchslndeps] do |msb|
 	msb.command = $msbuildpath
-	msb.properties :configuration => :Release
+	msb.properties :configuration => :Release, :ApplicationVersion => $build_number
 	msb.targets :Build
 	msb.solution = "Source/AlphaLaunch.App.sln"	
 end
