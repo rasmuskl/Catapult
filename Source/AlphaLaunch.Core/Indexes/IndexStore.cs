@@ -22,7 +22,7 @@ namespace AlphaLaunch.Core.Indexes
         private ImmutableDictionary<string, EntryBoost> _boostEntries;
         private const string IndexJsonPath = "index.json";
         private const string ConfigJsonPath = "config.json";
-        private DirectoryTraverser _directoryTraverser = new DirectoryTraverser();
+        private readonly DirectoryTraverser _directoryTraverser = new DirectoryTraverser();
 
         private IndexStore()
         {
@@ -104,6 +104,7 @@ namespace AlphaLaunch.Core.Indexes
             var stopwatch = Stopwatch.StartNew();
             var results = _searcher.Search(search, _boostEntries);
             stopwatch.Stop();
+
             Log.Info("Found " + results.Count() + " results. [" + stopwatch.ElapsedMilliseconds + " ms]");
 
             return results;
