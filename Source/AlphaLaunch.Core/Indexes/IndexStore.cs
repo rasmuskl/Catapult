@@ -8,7 +8,6 @@ using System.Threading;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Config;
 using AlphaLaunch.Core.Debug;
-using AlphaLaunch.Core.Indexes.Extensions;
 
 namespace AlphaLaunch.Core.Indexes
 {
@@ -23,6 +22,7 @@ namespace AlphaLaunch.Core.Indexes
         private ImmutableDictionary<string, EntryBoost> _boostEntries;
         private const string IndexJsonPath = "index.json";
         private const string ConfigJsonPath = "config.json";
+        private DirectoryTraverser _directoryTraverser = new DirectoryTraverser();
 
         private IndexStore()
         {
@@ -66,7 +66,7 @@ namespace AlphaLaunch.Core.Indexes
             var traverseDirectoriesWatch = Stopwatch.StartNew();
 
             var directory = new DirectoryInfo(path);
-            var fileItems = GetFiles(directory).ToArray();
+            var fileItems = _directoryTraverser.GetFiles(directory);
 
             traverseDirectoriesWatch.Stop();
 
@@ -88,51 +88,7 @@ namespace AlphaLaunch.Core.Indexes
             var indexMs = indexWatch.ElapsedMilliseconds;
             var totalMs = indexWatch.ElapsedMilliseconds + traverseDirectoriesWatch.ElapsedMilliseconds;
 
-            Log.Info("Index " + name + " - " + fileItems.Length + " items. [ " + totalMs + " ms, tra: " + traverseMs + " ms, idx: " + indexMs +" ms ]");
-        }
-
-        private IEnumerable<FileItem> GetFiles(DirectoryInfo directory)
-        {
-            var directoryQueue = new Queue<DirectoryInfo>();
-            var extensionReader = new ExtensionReader();
-            var extensionContainer = extensionReader.ReadRegistry();
-
-            directoryQueue.Enqueue(directory);
-
-            var fileItems = new List<FileItem>();
-
-            while (directoryQueue.Any())
-            {
-                DirectoryInfo nextDirectory = directoryQueue.Dequeue();
-
-                try
-                {
-                    FileSystemInfo[] fileSystemInfos = nextDirectory.GetFileSystemInfos();
-
-                    foreach (var fileSystemInfo in fileSystemInfos)
-                    {
-                        if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
-                        {
-                            directoryQueue.Enqueue(new DirectoryInfo(fileSystemInfo.FullName));
-                        }
-                        else
-                        {
-                            if (extensionContainer.IsKnownExtension(fileSystemInfo.Extension))
-                            {
-                                fileItems.Add(new FileItem(fileSystemInfo.FullName));
-                            }
-                        }
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                }
-                catch (PathTooLongException)
-                {
-                }
-            }
-
-            return fileItems;
+            Log.Info("Index " + name + " - " + fileItems.Count + " items. [ " + totalMs + " ms, tra: " + traverseMs + " ms, idx: " + indexMs +" ms ]");
         }
 
         public void AddBoost(string searchString, string boostIdentifier)
