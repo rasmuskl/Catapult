@@ -17,7 +17,7 @@ $includePattern = '/**/*'
 
 task :default => [:full]
 
-task :full => [:clean, :compile, :publish, :copyfiles] do
+task :full => [:clean, :compile, :publish, :copyfiles, :uploadfiles] do
 	puts $build_number
 end
 
