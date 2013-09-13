@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
@@ -7,10 +8,11 @@ using AlphaLaunch.Spotify;
 
 namespace AlphaLaunch.App
 {
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
         private readonly ActionRegistry _actionRegistry;
         private readonly ListViewModel _listModel;
+        private string _search;
 
         public MainViewModel()
         {
@@ -33,6 +35,46 @@ namespace AlphaLaunch.App
             IndexStore.Instance.IndexAction(new T());
         }
 
+        public string Search
+        {
+            get { return _search; }
+            set
+            {
+                if (_search != value)
+                {
+                    _search = value;
+                    OnPropertyChanged("Search");
+
+                    UpdateSearch(_search);
+                }
+            }
+        }
+
+        private void UpdateSearch(string search)
+        {
+            IEnumerable<SearchResult> items = IndexStore.Instance.Search(search).Take(10);
+
+            ListModel.Items.Clear();
+
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes)))
+            {
+                ListModel.Items.Add(item);
+            }
+
+            ListModel.SelectedIndex = 0;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        
         public ListViewModel ListModel
         {
             get { return _listModel; }
@@ -51,7 +93,7 @@ namespace AlphaLaunch.App
             if (standaloneAction != null)
             {
                 standaloneAction.RunAction();
-                IndexStore.Instance.AddBoost(_listModel.Search, searchItemModel.TargetItem.BoostIdentifier);
+                IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
                 return;
             }
 
@@ -63,7 +105,7 @@ namespace AlphaLaunch.App
             var runMethod = firstActionType.GetMethod("RunAction");
             runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
 
-            IndexStore.Instance.AddBoost(_listModel.Search, searchItemModel.TargetItem.BoostIdentifier);
+            IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
         }
     }
 }

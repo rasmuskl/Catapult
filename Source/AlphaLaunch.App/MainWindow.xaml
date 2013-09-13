@@ -49,7 +49,7 @@
     </Window.DataContext>
     <StackPanel>
         <TextBox Name="SearchBar" 
-                 Text="{Binding ListModel.Search, UpdateSourceTrigger=PropertyChanged}" 
+                 Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" 
                  Style="{StaticResource NoBorder}" 
                  PreviewKeyUp="SearchBarPreviewKeyUp" 
                  PreviewKeyDown="SearchBar_OnKeyDown" 
