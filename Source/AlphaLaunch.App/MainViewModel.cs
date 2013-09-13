@@ -85,6 +85,8 @@ namespace AlphaLaunch.App
                     _processListModel.Items.Add(new SearchItemModel(searchResult.Name, searchResult.Score, searchResult.TargetItem, searchResult.HighlightIndexes));
                 }
 
+                _processListModel.SelectedIndex = 0;
+
                 return;
             }
 
