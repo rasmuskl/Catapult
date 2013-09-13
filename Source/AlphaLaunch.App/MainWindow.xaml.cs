@@ -33,7 +33,7 @@ namespace AlphaLaunch.App
         {
             var fromValue = Double.IsNaN(SearchItems.Height) ? 0 : SearchItems.Height;
 
-            var toValue = 4 + SearchItems.Items.Count*38;
+            var toValue = 4 + SearchItems.Items.Count * 38;
             if (SearchItems.Items.Count == 0)
             {
                 toValue = 0;
@@ -46,11 +46,11 @@ namespace AlphaLaunch.App
         {
             if (e.Key == Key.Down)
             {
-                Model.ListModel.SelectedIndex = Math.Min(Model.ListModel.Items.Count, Model.ListModel.SelectedIndex + 1);
+                Model.ActiveListModel.SelectedIndex = Math.Min(Model.ActiveListModel.Items.Count, Model.ActiveListModel.SelectedIndex + 1);
             }
             else if (e.Key == Key.Up)
             {
-                Model.ListModel.SelectedIndex = Math.Max(0, Model.ListModel.SelectedIndex - 1);
+                Model.ActiveListModel.SelectedIndex = Math.Max(0, Model.ActiveListModel.SelectedIndex - 1);
             }
         }
 

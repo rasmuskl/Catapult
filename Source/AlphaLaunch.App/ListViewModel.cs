@@ -28,6 +28,19 @@ namespace AlphaLaunch.App
             }
         }
 
+        public SearchItemModel SelectedSearchItem
+        {
+            get
+            {
+                if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
+                {
+                    return Items[SelectedIndex];
+                }
+                
+                return null;
+            }
+        }
+
         public ObservableCollection<SearchItemModel> Items { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
