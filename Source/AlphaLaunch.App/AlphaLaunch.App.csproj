@@ -16,7 +16,7 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <PublishUrl>ftps://217.195.176.109/alphalaunch/setup/</PublishUrl>
+    <PublishUrl>ftps://aspectoweb.com/alphalaunch/setup/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -29,8 +29,8 @@
     <InstallUrl>http://alphalaunch.rasmuskl.dk/setup/</InstallUrl>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.htm</WebPage>
-    <ApplicationRevision>6</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>3</ApplicationRevision>
+    <ApplicationVersion>1.2016.0210.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -44,6 +44,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -55,7 +56,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>50459756267A031B3AB74FEC78B284377451E7F7</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>C772368FA90EE7E77F29FF1EAF7587D3A229E54D</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>AlphaLaunch.App_TemporaryKey.pfx</ManifestKeyFile>

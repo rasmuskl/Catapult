@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using AlphaLaunch.Core.Indexes;
 using GlobalHotKey;
 
 namespace AlphaLaunch.App
@@ -20,7 +19,7 @@ namespace AlphaLaunch.App
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            IndexStore.Instance.Start();
+            //IndexStore.Instance.Start();
 
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;

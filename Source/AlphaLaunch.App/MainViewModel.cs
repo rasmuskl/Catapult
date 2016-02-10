@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
+using AlphaLaunch.Core.Selecta;
 using AlphaLaunch.Spotify;
 
 namespace AlphaLaunch.App
@@ -92,7 +93,8 @@ namespace AlphaLaunch.App
 
             ActiveListModel = _mainListModel;
 
-            IEnumerable<SearchResult> items = IndexStore.Instance.Search(search).Take(10);
+            //IEnumerable<SearchResult> items = IndexStore.Instance.Search(search).Take(10);
+            IEnumerable<SearchResult> items = new SelectaSearcher().Search(search);
 
             ActiveListModel.Items.Clear();
 
@@ -146,7 +148,7 @@ namespace AlphaLaunch.App
             if (standaloneAction != null)
             {
                 standaloneAction.RunAction();
-                IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
+                //IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
                 return;
             }
 
@@ -158,7 +160,7 @@ namespace AlphaLaunch.App
             var runMethod = firstActionType.GetMethod("RunAction");
             runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
 
-            IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
+            //IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

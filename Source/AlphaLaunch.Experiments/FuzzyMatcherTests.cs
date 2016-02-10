@@ -3,14 +3,15 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Collections.Generic;
 using AlphaLaunch.Core.Indexes;
+using NUnit.Framework;
 using Should;
-using Xunit;
 
 namespace AlphaLaunch.Experiments
 {
+    [TestFixture]
     public class FuzzyMatcherTests
     {
-        [Fact]
+        [Test]
         public void Matches_Consecutive()
         {
             AssertMatches("abc", "abc");
@@ -19,7 +20,7 @@ namespace AlphaLaunch.Experiments
             AssertMatches("c", "abc");
         }
 
-        [Fact]
+        [Test]
         public void Matches_Casing()
         {
             AssertMatches("ABC", "abc");
@@ -27,49 +28,49 @@ namespace AlphaLaunch.Experiments
             AssertMatches("abc", "ABC");
         }
 
-        [Fact]
+        [Test]
         public void Matches_NonConsecutive()
         {
             AssertMatches("ac", "abc");
         }
 
-        [Fact]
+        [Test]
         public void NoMatch_NotContained()
         {
             AssertNoMatches("d", "abc");
         }
 
-        [Fact]
+        [Test]
         public void NoMatch_PartiallyNotContained()
         {
             AssertNoMatches("ad", "abc");
         }
 
-        [Fact]
+        [Test]
         public void NoMatch_WrongOrder()
         {
             AssertNoMatches("ba", "abc");
         }
 
-        [Fact]
+        [Test]
         public void Match_SameLetters()
         {
             AssertMatches("aa", "aa");
         }
 
-        [Fact]
+        [Test]
         public void NoMatch_TooManySameLetters()
         {
             AssertNoMatches("aaa", "aa");
         }
 
-        [Fact]
+        [Test]
         public void Rank_Length()
         {
             AssertRankOrder("abc", "abc", "abcd");
         }
 
-        [Fact]
+        [Test]
         public void Rank_Consecutive()
         {
             AssertRankOrder("abc", "abcd", "abxc");
@@ -77,7 +78,7 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("aaa", "aaaaa", "aaba");
         }
 
-        [Fact]
+        [Test]
         public void Rank_SymbolBoundary()
         {
             AssertRankOrder("ab", "axx bxx", "acb");
@@ -88,13 +89,13 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("ab", "axx_bxx", "acb");
         }
 
-        [Fact]
+        [Test]
         public void Rank_BestMatch()
         {
             AssertRankOrder("tsw", "This Secret World", "The Sewer");
         }
 
-        [Fact]
+        [Test]
         public void Rank_Boost()
         {
             var boostDictionary = ImmutableDictionary.Create<string, EntryBoost>()
@@ -103,7 +104,7 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("tsw", "The Sewer", "This Secret World", boostDictionary);
         }
 
-        [Fact]
+        [Test]
         public void Regressions()
         {
             AssertMatches("clie", "OpenVPN Client.lnk");
@@ -111,13 +112,13 @@ namespace AlphaLaunch.Experiments
             AssertRankOrder("word", "Microsoft Office Word 2007", "The Secret World");
         }
 
-        [Fact]
+        [Test]
         public void Rank_CasingBoundary()
         {
             AssertRankOrder("ab", "AxxBxx", "acb");
         }
 
-        [Fact]
+        [Test]
         public void Rank_ConsecutiveOverBoundaries()
         {
             AssertRankOrder("ste", "Steam", "Sublime Text 3");
