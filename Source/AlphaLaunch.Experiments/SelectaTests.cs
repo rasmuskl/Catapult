@@ -32,6 +32,7 @@ namespace AlphaLaunch.Experiments
         [TestCase("spec", "spearch_spec.rb", 2)]
         [TestCase("amu", "app/models/user.rb", 2)]
         [TestCase("lice", "LICE.rb", 2)]
+        [TestCase("vstud", "SQL Server Management Studio", 3)]
         public void ScoreFunction(string searchString, string targetString, int expectedScore)
         {
             var score = new SelectaSearcher().Score(searchString, targetString);

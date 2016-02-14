@@ -1,4 +1,4 @@
-﻿<Window x:Class="AlphaLaunch.App.DebugWindow"
+﻿<Window x:Class="AlphaLaunch.App.LogWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Debug" Height="300" Width="300" Background="Transparent" AllowsTransparency="True" WindowStyle="None" ShowInTaskbar="False">

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
+using AlphaLaunch.Core.Indexes.Extensions;
 
 namespace AlphaLaunch.Core.Selecta
 {
@@ -25,18 +26,24 @@ namespace AlphaLaunch.Core.Selecta
                 Environment.GetFolderPath(Environment.SpecialFolder.Favorites),
                 Environment.GetFolderPath(Environment.SpecialFolder.Recent),
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                @"c:\dev",
             };
 
             var fileStopwatch = Stopwatch.StartNew();
 
-            var files = paths.SelectMany(x => SafeWalk.EnumerateFiles(x, "*", SearchOption.AllDirectories)).ToArray();
+            var ignoredDirectories = new HashSet<string>(new []  { "node_modules", ".git", "scratch" });
+
+            var extensionContainer = new ExtensionContainer(new[] {new ExtensionInfo(".lnk"), new ExtensionInfo(".exe"), new ExtensionInfo(".sln"), });
+
+            var allFiles = paths.SelectMany(x => SafeWalk.EnumerateFiles(x, ignoredDirectories)).ToArray();
+            var files = allFiles.Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x))).ToArray().Select(x => new FileItem(x)).ToArray();
 
             fileStopwatch.Stop();
 
             var scoreStopwatch = Stopwatch.StartNew();
 
             var matches = files
-                .Select(x => new { MatchScore = Score(search, Path.GetFileName(x)), Name = Path.GetFileName(x), FullName = x })
+                .Select(x => new { MatchScore = Score(search, x.Name), Name = x.Name, FullName = x.FullName })
                 .Where(x => x.MatchScore.Score != int.MaxValue)
                 .ToArray();
 
@@ -167,31 +174,6 @@ namespace AlphaLaunch.Core.Selecta
             {
                 StartIndex = startIndex;
                 EndIndex = endIndex;
-            }
-        }
-    }
-
-    public static class SafeWalk
-    {
-        public static IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOpt)
-        {
-            try
-            {
-                var dirFiles = Enumerable.Empty<string>();
-                if (searchOpt == SearchOption.AllDirectories)
-                {
-                    dirFiles = Directory.EnumerateDirectories(path)
-                        .SelectMany(x => EnumerateFiles(x, searchPattern, searchOpt));
-                }
-                return dirFiles.Concat(Directory.EnumerateFiles(path, searchPattern));
-            }
-            catch (PathTooLongException)
-            {
-                return Enumerable.Empty<string>();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Enumerable.Empty<string>();
             }
         }
     }

@@ -13,7 +13,7 @@ namespace AlphaLaunch.App
         private NotifyIcon _notifyIcon;
         private MainWindow _mainWindow;
         private HotKeyManager _hotKeyManager;
-        private DebugWindow _debugWindow;
+        private LogWindow _logWindow;
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
@@ -42,7 +42,7 @@ namespace AlphaLaunch.App
 
             _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
 
-            _debugWindow = new DebugWindow();
+            _logWindow = new LogWindow();
 
 #if DEBUG
             ToggleMainWindow();
@@ -68,11 +68,11 @@ namespace AlphaLaunch.App
         {
             if ((bool)e.NewValue)
             {
-                _debugWindow.Show();
+                _logWindow.Show();
             }
             else
             {
-                _debugWindow.Hide();
+                _logWindow.Hide();
 
 #if DEBUG
                 Shutdown();
@@ -92,9 +92,9 @@ namespace AlphaLaunch.App
                 _mainWindow.Show();
                 _mainWindow.Topmost = true;
 
-                _debugWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
-                _debugWindow.Top = (SystemParameters.PrimaryScreenHeight - _debugWindow.Height)/2;
-                _debugWindow.Topmost = true;
+                _logWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
+                _logWindow.Top = (SystemParameters.PrimaryScreenHeight - _logWindow.Height)/2;
+                _logWindow.Topmost = true;
             }
             else
             {

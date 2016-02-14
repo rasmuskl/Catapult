@@ -5,9 +5,9 @@ using AlphaLaunch.Core.Debug;
 
 namespace AlphaLaunch.App
 {
-    public partial class DebugWindow
+    public partial class LogWindow
     {
-        public DebugWindow()
+        public LogWindow()
         {
             InitializeComponent();
             Log.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));

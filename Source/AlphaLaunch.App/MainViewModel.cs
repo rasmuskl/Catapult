@@ -60,7 +60,7 @@ namespace AlphaLaunch.App
                 }
             }
         }
-
+        
         private void UpdateSearch(string search)
         {
             var searchItemModel = _mainListModel.SelectedSearchItem;
@@ -115,7 +115,7 @@ namespace AlphaLaunch.App
                 OnPropertyChanged("ActiveListModel");
             }
         }
-
+        
         public void OpenSelected()
         {
             if (!_activeListModel.Items.Any())
