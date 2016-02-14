@@ -10,6 +10,97 @@ using AlphaLaunch.Core.Indexes.Extensions;
 
 namespace AlphaLaunch.Core.Selecta
 {
+    public class Searcher
+    {
+        private readonly string[] _allItems;
+        private readonly string[] _matchedItems;
+        private readonly SelectaSearcher _selecta;
+
+        public string SearchString { get; }
+        public SearchResult[] SearchResults { get; }
+
+        public static Searcher Create(string[] allItems)
+        {
+            return new Searcher(allItems, allItems, string.Empty, new SearchResult[0]);
+        }
+
+        private Searcher(string[] allItems, string[] matchedItems, string searchString, SearchResult[] searchResults)
+        {
+            _allItems = allItems;
+            _matchedItems = matchedItems;
+            SearchString = searchString;
+            SearchResults = searchResults;
+            _selecta = new SelectaSearcher();
+        }
+
+        public Searcher Search(string searchString)
+        {
+            searchString = searchString ?? string.Empty;
+
+            var items = _matchedItems;
+
+            if (!searchString.StartsWith(SearchString))
+            {
+                items = _allItems;
+            }
+
+            var scoreStopwatch = Stopwatch.StartNew();
+
+            var matches = items
+                .Select(x => new { MatchScore = _selecta.Score(searchString, Path.GetFileName(x)), Name = Path.GetFileName(x), FullName = x })
+                .Where(x => x.MatchScore.Score != int.MaxValue)
+                .ToArray();
+
+            var searchResults = matches
+                .OrderBy(x => x.MatchScore.Score)
+                .ThenBy(x => x.Name.Length)
+                .ThenBy(x => x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex)
+                .Select(x => new SearchResult(x.Name, x.MatchScore.Score, new FileItem(x.FullName), ImmutableDictionary.Create(Enumerable.Range(x.MatchScore.Range.StartIndex, 1 + x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex).Select(i => new KeyValuePair<int, double>(i, 0.0)))))
+                .Take(50)
+                .ToArray();
+
+            var matchedItems = matches.Select(x => x.FullName).ToArray();
+
+            scoreStopwatch.Stop();
+
+            Log.Info($"Found {matches.Length} results of {items.Length} [ scr: {scoreStopwatch.ElapsedMilliseconds} ms ]");
+
+            return new Searcher(_allItems, matchedItems, searchString, searchResults);
+        }
+    }
+
+    public static class SearchResources
+    {
+        public static string[] GetFiles()
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var paths = new[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
+                Environment.GetFolderPath(Environment.SpecialFolder.Favorites),
+                //Environment.GetFolderPath(Environment.SpecialFolder.Recent),
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                @"c:\dev",
+            };
+
+
+            var ignoredDirectories = new HashSet<string>(new[] { "node_modules", ".git", "scratch" });
+
+            var extensionContainer = new ExtensionContainer(new[] { new ExtensionInfo(".lnk"), new ExtensionInfo(".exe"), new ExtensionInfo(".sln"), new ExtensionInfo(".url"),  });
+
+            var allFiles = paths.SelectMany(x => SafeWalk.EnumerateFiles(x, ignoredDirectories));
+            var files = allFiles.Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x))).ToArray();
+
+            stopwatch.Stop();
+
+            Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
+
+            return files;
+        }
+    }
+
     public class SelectaSearcher
     {
         public SearchResult[] Search(string search)
@@ -19,24 +110,9 @@ namespace AlphaLaunch.Core.Selecta
                 return new SearchResult[0];
             }
 
-            var paths = new[]
-            {
-                Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
-                Environment.GetFolderPath(Environment.SpecialFolder.Favorites),
-                Environment.GetFolderPath(Environment.SpecialFolder.Recent),
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                @"c:\dev",
-            };
-
             var fileStopwatch = Stopwatch.StartNew();
 
-            var ignoredDirectories = new HashSet<string>(new []  { "node_modules", ".git", "scratch" });
-
-            var extensionContainer = new ExtensionContainer(new[] {new ExtensionInfo(".lnk"), new ExtensionInfo(".exe"), new ExtensionInfo(".sln"), });
-
-            var allFiles = paths.SelectMany(x => SafeWalk.EnumerateFiles(x, ignoredDirectories)).ToArray();
-            var files = allFiles.Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x))).ToArray().Select(x => new FileItem(x)).ToArray();
+            var files = SearchResources.GetFiles().Select(x => new FileItem(x)).ToArray();
 
             fileStopwatch.Stop();
 
@@ -57,11 +133,11 @@ namespace AlphaLaunch.Core.Selecta
 
             scoreStopwatch.Stop();
 
-            Log.Info($"Found {matches.Length} results. [ {scoreStopwatch.ElapsedMilliseconds + fileStopwatch.ElapsedMilliseconds} ms - scr: {scoreStopwatch.ElapsedMilliseconds} ms, idx: {fileStopwatch.ElapsedMilliseconds}ms ]");
+            Log.Info($"Found {matches.Length} results [ {scoreStopwatch.ElapsedMilliseconds + fileStopwatch.ElapsedMilliseconds} ms - scr: {scoreStopwatch.ElapsedMilliseconds} ms, idx: {fileStopwatch.ElapsedMilliseconds} ms ]");
 
             return filteredMatches;
         }
-        
+
         public MatchScore Score(string searchString, string targetString)
         {
             var firstSearchChar = searchString[0];

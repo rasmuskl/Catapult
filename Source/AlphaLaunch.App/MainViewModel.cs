@@ -19,6 +19,7 @@ namespace AlphaLaunch.App
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private readonly ListViewModel _processListModel = new ListViewModel();
+        private Searcher _selectaSeacher;
 
         public MainViewModel()
         {
@@ -94,7 +95,10 @@ namespace AlphaLaunch.App
             ActiveListModel = _mainListModel;
 
             //IEnumerable<SearchResult> items = IndexStore.Instance.Search(search).Take(10);
-            IEnumerable<SearchResult> items = new SelectaSearcher().Search(search);
+            //IEnumerable<SearchResult> items = new SelectaSearcher().Search(search);
+            _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles());
+            _selectaSeacher = _selectaSeacher.Search(search);
+            var items = _selectaSeacher.SearchResults;
 
             ActiveListModel.Items.Clear();
 
