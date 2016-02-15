@@ -21,5 +21,10 @@ namespace AlphaLaunch.Spotify
         {
             get { return typeof(SpotifyPreviousTrackAction).Name; }
         }
+
+        public object GetDetails()
+        {
+            return Name;
+        }
     }
 }

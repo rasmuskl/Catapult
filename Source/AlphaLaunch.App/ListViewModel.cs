@@ -1,18 +1,25 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App
 {
     public class ListViewModel : INotifyPropertyChanged
     {
         private int _selectedIndex;
+        private IIndexable _selectedIndexable;
 
         public ListViewModel()
         {
             Items = new ObservableCollection<SearchItemModel>();
+            Items.CollectionChanged += Items_CollectionChanged;
+        }
+
+        private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            CheckSelectedIndexableChanged();
         }
 
         public int SelectedIndex
@@ -24,6 +31,7 @@ namespace AlphaLaunch.App
                 {
                     _selectedIndex = value;
                     OnPropertyChanged("SelectedIndex");
+                    CheckSelectedIndexableChanged();
                 }
             }
         }
@@ -36,22 +44,32 @@ namespace AlphaLaunch.App
                 {
                     return Items[SelectedIndex];
                 }
-                
+
                 return null;
             }
         }
 
-        public ObservableCollection<SearchItemModel> Items { get; private set; }
+        private void CheckSelectedIndexableChanged()
+        {
+            if (_selectedIndexable == SelectedSearchItem?.TargetItem)
+            {
+                return;
+            }
+
+            _selectedIndexable = SelectedSearchItem?.TargetItem;
+            SelectedSearchItemChanged?.Invoke(_selectedIndexable);
+        }
+
+        public Action<IIndexable> SelectedSearchItemChanged = x => { };
+
+        public ObservableCollection<SearchItemModel> Items { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

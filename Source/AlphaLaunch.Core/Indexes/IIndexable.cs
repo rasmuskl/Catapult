@@ -8,5 +8,6 @@ namespace AlphaLaunch.Core.Indexes
     {
         string Name { get; }
         string BoostIdentifier { get; }
+        object GetDetails();
     }
 }

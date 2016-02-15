@@ -1,7 +1,7 @@
 ﻿<Window x:Class="AlphaLaunch.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:AlphaLaunch.App" Height="425" Width="525" WindowStyle="None" Background="Transparent" AllowsTransparency="True" BorderThickness="0"
+        xmlns:local="clr-namespace:AlphaLaunch.App" Height="425" Width="600" WindowStyle="None" Background="Transparent" AllowsTransparency="True" BorderThickness="0"
         Loaded="MainWindow_OnLoaded"
         Activated="MainWindow_OnActivated">
     <Window.Resources>
@@ -60,6 +60,6 @@
                  VerticalAlignment="Center" 
                  Padding="5,5,5,5" 
                  FontSize="24" />
-        <ListBox Name="SearchItems" ItemsSource="{Binding ActiveListModel.Items}" SelectedIndex="{Binding ActiveListModel.SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
+        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
     </StackPanel>
 </Window>

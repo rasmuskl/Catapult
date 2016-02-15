@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
@@ -14,11 +11,9 @@ namespace AlphaLaunch.App
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly ActionRegistry _actionRegistry;
-        private ListViewModel _activeListModel;
         private string _search;
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
-        private readonly ListViewModel _processListModel = new ListViewModel();
         private Searcher _selectaSeacher;
 
         public MainViewModel()
@@ -34,11 +29,6 @@ namespace AlphaLaunch.App
             RegisterAction<SpotifyStopAction>();
 
             RegisterAction<KillProcessAction>();
-
-            _mainListModel = new ListViewModel();
-            _processListModel = new ListViewModel();
-
-            _activeListModel = _mainListModel;
         }
 
         private void RegisterAction<T>() where T : IIndexable, new()
@@ -64,89 +54,80 @@ namespace AlphaLaunch.App
         
         private void UpdateSearch(string search)
         {
-            var searchItemModel = _mainListModel.SelectedSearchItem;
+            //var searchItemModel = _mainListModel.SelectedSearchItem;
 
-            if (Search.Contains(" ") && searchItemModel != null && searchItemModel.TargetItem is KillProcessAction)
-            {
-                ActiveListModel = _processListModel;
+            //if (Search.Contains(" ") && searchItemModel != null && searchItemModel.TargetItem is KillProcessAction)
+            //{
+            //    MainListModel = _processListModel;
 
-                var processes = Process
-                    .GetProcesses()
-                    .Select(x => new RunningProcessInfo(x.ProcessName, x.MainWindowTitle, x.Id));
+            //    var processes = Process
+            //        .GetProcesses()
+            //        .Select(x => new RunningProcessInfo(x.ProcessName, x.MainWindowTitle, x.Id));
 
-                var searcher = new FuzzySearcher();
+            //    var searcher = new FuzzySearcher();
 
-                searcher.IndexItems(processes);
+            //    searcher.IndexItems(processes);
 
-                var searchResults = searcher.Search(Search.Split(new[] { ' ' })[1], ImmutableDictionary.Create<string, EntryBoost>()).Take(10);
+            //    var searchResults = searcher.Search(Search.Split(new[] { ' ' })[1], ImmutableDictionary.Create<string, EntryBoost>()).Take(10);
 
-                _processListModel.Items.Clear();
+            //    _processListModel.Items.Clear();
 
-                foreach (var searchResult in searchResults)
-                {
-                    _processListModel.Items.Add(new SearchItemModel(searchResult.Name, searchResult.Score, searchResult.TargetItem, searchResult.HighlightIndexes));
-                }
+            //    foreach (var searchResult in searchResults)
+            //    {
+            //        _processListModel.Items.Add(new SearchItemModel(searchResult.Name, searchResult.Score, searchResult.TargetItem, searchResult.HighlightIndexes));
+            //    }
 
-                _processListModel.SelectedIndex = 0;
+            //    _processListModel.SelectedIndex = 0;
 
-                return;
-            }
+            //    return;
+            //}
 
-            ActiveListModel = _mainListModel;
-
-            //IEnumerable<SearchResult> items = IndexStore.Instance.Search(search).Take(10);
-            //IEnumerable<SearchResult> items = new SelectaSearcher().Search(search);
             _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles());
             _selectaSeacher = _selectaSeacher.Search(search);
             var items = _selectaSeacher.SearchResults;
 
-            ActiveListModel.Items.Clear();
+            MainListModel.Items.Clear();
 
             foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes)))
             {
-                ActiveListModel.Items.Add(item);
+                MainListModel.Items.Add(item);
             }
 
-            ActiveListModel.SelectedIndex = 0;
+            MainListModel.SelectedIndex = 0;
         }
 
-        public ListViewModel ActiveListModel
+        public ListViewModel MainListModel
         {
-            get { return _activeListModel; }
-            set
-            {
-                _activeListModel = value;
-                OnPropertyChanged("ActiveListModel");
-            }
+            get { return _mainListModel; }
         }
         
         public void OpenSelected()
         {
-            if (!_activeListModel.Items.Any())
+            if (!_mainListModel.Items.Any())
             {
                 return;
             }
 
-            if (_mainListModel.SelectedSearchItem != null)
-            {
-                var killProcessAction = _mainListModel.SelectedSearchItem.TargetItem as KillProcessAction;
+            //if (_mainListModel.SelectedSearchItem != null)
+            //{
+            //    var killProcessAction = _mainListModel.SelectedSearchItem.TargetItem as KillProcessAction;
 
-                if (killProcessAction != null)
-                {
-                    var processItem = _processListModel.SelectedSearchItem.TargetItem as RunningProcessInfo;
+            //    if (killProcessAction != null)
+            //    {
+            //        var processItem = _processListModel.SelectedSearchItem.TargetItem as RunningProcessInfo;
 
-                    if (processItem == null)
-                    {
-                        return;
-                    }
+            //        if (processItem == null)
+            //        {
+            //            return;
+            //        }
 
-                    killProcessAction.RunAction(processItem);
-                    return;
-                }
-            }
+            //        killProcessAction.RunAction(processItem);
+            //        return;
+            //    }
+            //}
 
 
-            var searchItemModel = _activeListModel.Items[_activeListModel.SelectedIndex];
+            var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
 
             var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
             if (standaloneAction != null)

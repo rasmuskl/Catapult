@@ -21,5 +21,10 @@ namespace AlphaLaunch.Spotify
         {
             get { return typeof(SpotifyPlayPauseAction).Name; }
         }
+
+        public object GetDetails()
+        {
+            return Name;
+        }
     }
 }

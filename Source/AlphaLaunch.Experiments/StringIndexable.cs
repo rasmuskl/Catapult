@@ -14,5 +14,10 @@ namespace AlphaLaunch.Experiments
 
         public string Name { get; private set; }
         public string BoostIdentifier { get { return Name; } }
+
+        public object GetDetails()
+        {
+            return Name;
+        }
     }
 }
