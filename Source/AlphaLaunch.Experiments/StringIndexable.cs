@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Experiments
@@ -18,6 +19,11 @@ namespace AlphaLaunch.Experiments
         public object GetDetails()
         {
             return Name;
+        }
+
+        public Icon GetIcon()
+        {
+            return null;
         }
     }
 }

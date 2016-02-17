@@ -1,4 +1,5 @@
-﻿using AlphaLaunch.Core.Indexes;
+﻿using System.Drawing;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core.Actions
 {
@@ -38,6 +39,11 @@ namespace AlphaLaunch.Core.Actions
         public object GetDetails()
         {
             return "Process: " + _processName;
+        }
+
+        public Icon GetIcon()
+        {
+            return null;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.IO;
 using AlphaLaunch.Core.Indexes;
 
@@ -18,6 +19,11 @@ namespace AlphaLaunch.Core
         public object GetDetails()
         {
             return new FileItemDetails(FullName);
+        }
+
+        public Icon GetIcon()
+        {
+            return Icon.ExtractAssociatedIcon(FullName);
         }
     }
 }

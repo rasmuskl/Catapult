@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
 using AlphaLaunch.Core.Actions;
 
 namespace AlphaLaunch.Spotify
@@ -25,6 +26,11 @@ namespace AlphaLaunch.Spotify
         public object GetDetails()
         {
             return Name;
+        }
+
+        public Icon GetIcon()
+        {
+            return null;
         }
     }
 }

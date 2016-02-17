@@ -11,6 +11,11 @@ namespace AlphaLaunch.App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return null;
+            }
+
             var icon = (Icon)value;
 
             using (Bitmap bmp = icon.ToBitmap())

@@ -8,6 +8,7 @@
 
         <DataTemplate x:Key="ItemTemplate">
             <StackPanel Orientation="Horizontal">
+                <Image Height="32" Width="32" Source="{Binding Path=Icon, Converter={StaticResource IconConverter}, Mode=OneTime}"></Image>
                 <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FFD9D9D9" />
                 <Label Content="{Binding Score}" Foreground="MediumSeaGreen"></Label>            
             </StackPanel>
@@ -15,6 +16,7 @@
 
         <DataTemplate x:Key="SelectedTemplate">
             <StackPanel Orientation="Horizontal">
+                <Image Height="32" Width="32" Source="{Binding Path=Icon, Converter={StaticResource IconConverter}, Mode=OneTime}"></Image>
                 <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FFD9D9D9" />
                 <Label Content="{Binding Score}" Foreground="MediumSeaGreen"></Label>
             </StackPanel>
@@ -63,3 +65,4 @@
         <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
     </StackPanel>
 </Window>
+

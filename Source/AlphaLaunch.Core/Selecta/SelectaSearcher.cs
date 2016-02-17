@@ -4,6 +4,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Indexes.Extensions;
@@ -71,7 +73,7 @@ namespace AlphaLaunch.Core.Selecta
 
     public static class SearchResources
     {
-        public static string[] GetFiles()
+        private static string[] GetFilesInternal()
         {
             var stopwatch = Stopwatch.StartNew();
 
@@ -88,16 +90,35 @@ namespace AlphaLaunch.Core.Selecta
 
             var ignoredDirectories = new HashSet<string>(new[] { "node_modules", ".git", "scratch" });
 
-            var extensionContainer = new ExtensionContainer(new[] { new ExtensionInfo(".lnk"), new ExtensionInfo(".exe"), new ExtensionInfo(".sln"), new ExtensionInfo(".url"),  });
+            var extensionContainer = new ExtensionContainer(new[] { new ExtensionInfo(".lnk"), new ExtensionInfo(".exe"), new ExtensionInfo(".sln"), new ExtensionInfo(".url"), });
 
             var allFiles = paths.SelectMany(x => SafeWalk.EnumerateFiles(x, ignoredDirectories));
             var files = allFiles.Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x))).ToArray();
 
             stopwatch.Stop();
 
-            Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
+            //Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
 
             return files;
+        }
+
+        private static string[] _files;
+        private static readonly object _lockObject = new object();
+
+        public static string[] GetFiles()
+        {
+            if (_files == null)
+            {
+                lock (_lockObject)
+                {
+                    if (_files == null)
+                    {
+                        _files = GetFilesInternal();
+                    }
+                }
+            }
+
+            return _files;
         }
     }
 

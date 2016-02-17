@@ -84,11 +84,11 @@ namespace AlphaLaunch.App
 
             _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles());
             _selectaSeacher = _selectaSeacher.Search(search);
-            var items = _selectaSeacher.SearchResults;
+            var items = _selectaSeacher.SearchResults.Take(10);
 
             MainListModel.Items.Clear();
 
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes)))
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIcon())))
             {
                 MainListModel.Items.Add(item);
             }

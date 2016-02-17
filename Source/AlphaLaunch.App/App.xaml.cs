@@ -2,10 +2,12 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using AlphaLaunch.Core.Indexes;
+using AlphaLaunch.Core.Selecta;
 using GlobalHotKey;
 
 namespace AlphaLaunch.App
@@ -24,6 +26,11 @@ namespace AlphaLaunch.App
 
             //IndexStore.Instance.Start();
 
+            Task.Factory.StartNew(() =>
+            {
+                SearchResources.GetFiles();
+            });
+            
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;
 
@@ -67,9 +74,9 @@ namespace AlphaLaunch.App
                 return;
             }
 
-            System.Windows.MessageBox.Show(exception.Message 
+            System.Windows.MessageBox.Show(exception.Message
                 + Environment.NewLine
-                + Environment.NewLine 
+                + Environment.NewLine
                 + exception.StackTrace, "Exception occured");
         }
 
@@ -104,7 +111,7 @@ namespace AlphaLaunch.App
                 _mainWindow.Topmost = true;
 
                 _logWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
-                _logWindow.Top = (SystemParameters.PrimaryScreenHeight - _logWindow.Height)/2;
+                _logWindow.Top = (SystemParameters.PrimaryScreenHeight - _logWindow.Height) / 2;
                 _logWindow.Topmost = true;
 
                 _detailsWindow.Topmost = true;

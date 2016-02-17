@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace AlphaLaunch.Core.Actions
 {
@@ -17,6 +18,11 @@ namespace AlphaLaunch.Core.Actions
         public object GetDetails()
         {
             return "Kill process";
+        }
+
+        public Icon GetIcon()
+        {
+            return null;
         }
     }
 }
