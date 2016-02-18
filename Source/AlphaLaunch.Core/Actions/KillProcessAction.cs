@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core.Actions
 {
@@ -20,9 +21,9 @@ namespace AlphaLaunch.Core.Actions
             return "Kill process";
         }
 
-        public Icon GetIcon()
+        public IIconResolver GetIconResolver()
         {
-            return null;
+            return new EmptyIconResolver();
         }
     }
 }

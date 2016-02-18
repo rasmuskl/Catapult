@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App.Converters
 {
@@ -16,7 +17,14 @@ namespace AlphaLaunch.App.Converters
                 return null;
             }
 
-            var icon = (Icon)value;
+            var iconResolver = value as IIconResolver;
+
+            var icon = iconResolver?.Resolve();
+
+            if (icon == null)
+            {
+                return null;
+            }
 
             using (Bitmap bmp = icon.ToBitmap())
             {

@@ -41,9 +41,9 @@ namespace AlphaLaunch.Core.Actions
             return "Process: " + _processName;
         }
 
-        public Icon GetIcon()
+        public IIconResolver GetIconResolver()
         {
-            return null;
+            return new EmptyIconResolver();
         }
     }
 }

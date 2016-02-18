@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Selecta;
@@ -15,6 +18,7 @@ namespace AlphaLaunch.App
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private Searcher _selectaSeacher;
+        private List<IIndexable> _actions = new List<IIndexable>();
 
         public MainViewModel()
         {
@@ -35,6 +39,8 @@ namespace AlphaLaunch.App
         {
             _actionRegistry.RegisterAction<T>();
             IndexStore.Instance.IndexAction(new T());
+
+            _actions.Add(new T());
         }
 
         public string Search
@@ -82,13 +88,13 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
-            _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles());
+            _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
             _selectaSeacher = _selectaSeacher.Search(search);
             var items = _selectaSeacher.SearchResults.Take(10);
 
             MainListModel.Items.Clear();
 
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIcon())))
+            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())))
             {
                 MainListModel.Items.Add(item);
             }

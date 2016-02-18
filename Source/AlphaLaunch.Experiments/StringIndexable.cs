@@ -21,9 +21,9 @@ namespace AlphaLaunch.Experiments
             return Name;
         }
 
-        public Icon GetIcon()
+        public IIconResolver GetIconResolver()
         {
-            return null;
+            return new EmptyIconResolver();
         }
     }
 }

@@ -12,15 +12,15 @@ namespace AlphaLaunch.App
         public IIndexable TargetItem { get; set; }
         public Guid Id { get; set; }
         public ImmutableDictionary<int, double> HighlightIndexes { get; set; }
-        public Icon Icon { get; set; }
+        public IIconResolver IconResolver { get; set; }
 
-        public SearchItemModel(string name, double score, IIndexable targetItem, ImmutableDictionary<int, double> highlightIndexes, Icon icon)
+        public SearchItemModel(string name, double score, IIndexable targetItem, ImmutableDictionary<int, double> highlightIndexes, IIconResolver iconResolver)
         {
             Name = name;
             Score = score;
             TargetItem = targetItem;
             HighlightIndexes = highlightIndexes;
-            Icon = icon;
+            IconResolver = iconResolver;
         }
     }
 }

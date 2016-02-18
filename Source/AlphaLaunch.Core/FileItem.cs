@@ -21,9 +21,9 @@ namespace AlphaLaunch.Core
             return new FileItemDetails(FullName);
         }
 
-        public Icon GetIcon()
+        public IIconResolver GetIconResolver()
         {
-            return Icon.ExtractAssociatedIcon(FullName);
+            return new FileIconResolver(FullName);
         }
     }
 }

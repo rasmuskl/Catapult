@@ -63,12 +63,15 @@
     <Compile Include="FileItem.cs" />
     <Compile Include="FileItemDetails.cs" />
     <Compile Include="Indexes\DirectoryTraverser.cs" />
+    <Compile Include="Indexes\EmptyIconResolver.cs" />
     <Compile Include="Indexes\EntryBoost.cs" />
     <Compile Include="Indexes\Extensions\ExtensionContainer.cs" />
     <Compile Include="Indexes\Extensions\ExtensionInfo.cs" />
     <Compile Include="Indexes\Extensions\ExtensionReader.cs" />
+    <Compile Include="Indexes\FileIconResolver.cs" />
     <Compile Include="Indexes\FuzzyMatcher.cs" />
     <Compile Include="Indexes\FuzzySearcher.cs" />
+    <Compile Include="Indexes\IIconResolver.cs" />
     <Compile Include="Indexes\IIndexable.cs" />
     <Compile Include="Indexes\IndexEntry.cs" />
     <Compile Include="Indexes\IndexStore.cs" />
@@ -79,6 +82,8 @@
     <Compile Include="LnkResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Selecta\SafeWalk.cs" />
+    <Compile Include="Selecta\Searcher.cs" />
+    <Compile Include="Selecta\SearchResources.cs" />
     <Compile Include="Selecta\SelectaSearcher.cs" />
   </ItemGroup>
   <ItemGroup>

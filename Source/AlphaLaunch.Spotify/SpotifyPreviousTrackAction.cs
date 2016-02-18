@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using AlphaLaunch.Core.Actions;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Spotify
 {
@@ -28,9 +29,9 @@ namespace AlphaLaunch.Spotify
             return Name;
         }
 
-        public Icon GetIcon()
+        public IIconResolver GetIconResolver()
         {
-            return null;
+            return new EmptyIconResolver();
         }
     }
 }
