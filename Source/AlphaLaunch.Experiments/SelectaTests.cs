@@ -28,14 +28,15 @@ namespace AlphaLaunch.Experiments
         [TestCase("a", "b", int.MaxValue)]
         [TestCase("ln", "length", 3)]
         [TestCase("am", "app/models", 1)]
-        //[TestCase("am", "appm/models", 2)]
-        [TestCase("spec", "spearch_spec.rb", 2)]
+        [TestCase("am", "appm/models", 1)]
+        [TestCase("spec", "spearch_spec.rb", 1)]
         [TestCase("amu", "app/models/user.rb", 1)]
-        [TestCase("lice", "LICE.rb", 2)]
-        [TestCase("vstud", "SQL Server Management Studio", 3)]
+        [TestCase("word", "Microsoft Word", 1)]
+        [TestCase("lice", "LICE.rb", 1)]
+        [TestCase("vstud", "SQL Server Management Studio", 16)]
         public void ScoreFunction(string searchString, string targetString, int expectedScore)
         {
-            var score = new SelectaSearcher().Score(searchString, targetString);
+            var score = new SelectaSearcher().Score2(searchString, targetString);
             Assert.AreEqual(expectedScore, score.Score);
         }
 

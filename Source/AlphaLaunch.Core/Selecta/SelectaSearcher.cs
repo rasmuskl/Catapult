@@ -1,4 +1,6 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
+using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core.Selecta
 {
@@ -113,6 +115,115 @@ namespace AlphaLaunch.Core.Selecta
 
             return MatchScore.Create(score, new Range(firstIndex, lastIndex), matchSet);
         }
+
+        public MatchScore Score2(string searchString, string targetString)
+        {
+            searchString = searchString.ToLowerInvariant();
+            targetString = targetString.ToLowerInvariant();
+
+            var result = GetBestMatch(searchString, targetString, null, 1, ImmutableHashSet.Create<int>(), MatchType.Normal);
+
+            return result;
+        }
+
+        private static MatchScore GetBestMatch(string searchString, string targetString, int? lastIndex, int score, ImmutableHashSet<int> matchedIndexes, MatchType lastMatch)
+        {
+            if (searchString.Length == 0)
+            {
+                return MatchScore.Create(score, new Range(0, 0), matchedIndexes);
+            }
+
+            var searchChar = searchString.First();
+
+            var bestMatch = NoMatch;
+
+            for (var i = lastIndex + 1 ?? 0; i < targetString.Length; i++)
+            {
+                if (targetString[i] == searchChar)
+                {
+                    MatchType matchType;
+                    var nextScore = score;
+
+                    if (i == lastIndex + 1)
+                    {
+                        matchType = MatchType.Sequential;
+                    }
+                    else if (i == 0 || !char.IsLetterOrDigit(targetString[i - 1]))
+                    {
+                        matchType = MatchType.Boundary;
+                    }
+                    else
+                    {
+                        matchType = MatchType.Normal;
+                    }
+
+                    if (lastMatch == MatchType.Normal)
+                    {
+                        if (lastIndex.HasValue)
+                        {
+                            nextScore += i - lastIndex.Value;
+                        }
+                    }
+                    else if (lastMatch == MatchType.Boundary || lastMatch == MatchType.Sequential)
+                    {
+                        if (matchType == MatchType.Normal)
+                        {
+                            if (lastIndex.HasValue)
+                            {
+                                nextScore += i - lastIndex.Value;
+                            }
+                        }
+                    }
+
+                    var match = GetBestMatch(searchString.Substring(1), targetString, i, nextScore, matchedIndexes.Add(i), matchType);
+
+                    if (match.Score < bestMatch.Score)
+                    {
+                        bestMatch = match;
+                    }
+                }
+            }
+
+            return bestMatch;
+        }
+
+        //private static Result MatchNextChar(string searchString, IndexEntry entry, int lastIndex, int consecutiveChars, ImmutableHashSet<int> matchedIndexes, double boost, ImmutableList<int> charIndexes)
+        //{
+        //    double maxScore = 0;
+        //    Result best = null;
+
+        //    foreach (var charIndex in charIndexes)
+        //    {
+        //        var charBoost = 0;
+
+        //        if (entry.Boundaries.Contains(charIndex - 1) || entry.CapitalLetters.Contains(charIndex))
+        //        {
+        //            charBoost += 10;
+        //        }
+
+        //        if (lastIndex == charIndex - 1)
+        //        {
+        //            consecutiveChars += 1;
+        //            charBoost += 10 * consecutiveChars;
+        //        }
+        //        else
+        //        {
+        //            consecutiveChars = 0;
+        //        }
+
+        //        var charMatchedIndexes = matchedIndexes.Add(charIndex);
+
+        //        var result = GetBestMatch(searchString.Substring(1), entry, charIndex, consecutiveChars, charMatchedIndexes, boost + charBoost);
+
+        //        if (result != null && result.Score > maxScore)
+        //        {
+        //            best = result;
+        //            maxScore = best.Score;
+        //        }
+        //    }
+
+        //    return best;
+        //}
 
         public class Range
         {

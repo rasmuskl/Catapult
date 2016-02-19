@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AlphaLaunch.Core.Actions;
-using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Selecta;
 using AlphaLaunch.Spotify;
@@ -15,7 +14,6 @@ namespace AlphaLaunch.App
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly ActionRegistry _actionRegistry;
-        private string _search;
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private Searcher _selectaSeacher;

@@ -47,7 +47,7 @@ namespace AlphaLaunch.Core.Selecta
             var scoreStopwatch = Stopwatch.StartNew();
 
             var matches = items
-                .Select(x => new { MatchScore = _selecta.Score(searchString, x.Name), Indexable = x })
+                .Select(x => new { MatchScore = _selecta.Score2(searchString, x.Name), Indexable = x })
                 .Where(x => x.MatchScore.Score < int.MaxValue)
                 .ToArray();
 
