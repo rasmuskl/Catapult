@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using AlphaLaunch.Core.Debug;
 
 namespace AlphaLaunch.App
 {
     public partial class MainWindow
     {
+        private CancellationTokenSource _cancellationTokenSource;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -16,8 +22,6 @@ namespace AlphaLaunch.App
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
         {
-            AnimateSearchItemsHeight();
-
             if (e.Key == Key.Escape)
             {
                 Hide();
@@ -42,7 +46,7 @@ namespace AlphaLaunch.App
             SearchItems.BeginAnimation(HeightProperty, doubleAnimation);
         }
 
-        private void SearchBar_OnKeyDown(object sender, KeyEventArgs e)
+        private void SearchBarPreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Down)
             {
@@ -68,6 +72,22 @@ namespace AlphaLaunch.App
         {
             SearchBar.SelectAll();
             SearchBar.Focus();
+        }
+
+        private async void SearchBar_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            var source = e.OriginalSource as TextBox;
+            await Model.UpdateSearchAsync(source?.Text ?? string.Empty, _cancellationTokenSource.Token);
+
+            if (_cancellationTokenSource.IsCancellationRequested)
+            {
+                return;
+            }
+
+            AnimateSearchItemsHeight();
         }
     }
 }

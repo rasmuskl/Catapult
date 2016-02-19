@@ -51,10 +51,10 @@
     </Window.DataContext>
     <StackPanel>
         <TextBox Name="SearchBar" 
-                 Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" 
                  Style="{StaticResource NoBorder}" 
                  PreviewKeyUp="SearchBarPreviewKeyUp" 
-                 PreviewKeyDown="SearchBar_OnKeyDown" 
+                 TextChanged="SearchBar_OnTextChanged"
+                 PreviewKeyDown="SearchBarPreviewKeyDown" 
                  Background="#FF333333" 
                  Foreground="#FF66FF00" 
                  Margin="0,0,0,0" 

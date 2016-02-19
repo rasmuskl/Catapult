@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AlphaLaunch.Core.Actions;
+using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Selecta;
 using AlphaLaunch.Spotify;
@@ -43,22 +44,7 @@ namespace AlphaLaunch.App
             _actions.Add(new T());
         }
 
-        public string Search
-        {
-            get { return _search; }
-            set
-            {
-                if (_search != value)
-                {
-                    _search = value;
-                    OnPropertyChanged("Search");
-
-                    UpdateSearch(_search);
-                }
-            }
-        }
-        
-        private void UpdateSearch(string search)
+        public async Task UpdateSearchAsync(string search, CancellationToken token)
         {
             //var searchItemModel = _mainListModel.SelectedSearchItem;
 
@@ -88,9 +74,17 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
-            _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
-            _selectaSeacher = _selectaSeacher.Search(search);
-            var items = _selectaSeacher.SearchResults.Take(10);
+            var items = await Task.Factory.StartNew(() =>
+            {
+                _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
+                _selectaSeacher = _selectaSeacher.Search(search);
+                return _selectaSeacher.SearchResults.Take(10);
+            }, token);
+
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
 
             MainListModel.Items.Clear();
 

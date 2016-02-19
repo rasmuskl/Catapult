@@ -34,6 +34,11 @@ namespace AlphaLaunch.Core.Selecta
         {
             searchString = searchString ?? string.Empty;
 
+            if (string.IsNullOrEmpty(searchString))
+            {
+                return Create(_allItems);
+            }
+
             var items = _matchedItems;
 
             if (!searchString.StartsWith(SearchString))
