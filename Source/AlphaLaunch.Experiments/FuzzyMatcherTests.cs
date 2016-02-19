@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Collections.Generic;
 using AlphaLaunch.Core.Indexes;
+using AlphaLaunch.Core.Selecta;
 using NUnit.Framework;
 using Should;
 
@@ -92,7 +93,7 @@ namespace AlphaLaunch.Experiments
         [Test]
         public void Rank_BestMatch()
         {
-            AssertRankOrder("tsw", "This Secret World", "The Sewer");
+            AssertRankOrder("tsw", "The Secret World", "The Sewer");
         }
 
         [Test]
@@ -127,11 +128,12 @@ namespace AlphaLaunch.Experiments
         private void AssertRankOrder(string searchString, string firstLong, string secondLong, ImmutableDictionary<string, EntryBoost> boostDictionary = null)
         {
             var strings = new[] { firstLong, secondLong };
-            var matcher = new FuzzyMatcher(new SearchIndex(strings.ToStringIndexables()));
-            var reverseMatcher = new FuzzyMatcher(new SearchIndex(strings.Reverse().ToStringIndexables()));
+            var matcher = Searcher.Create(strings.ToStringIndexables());
+            var reverseMatcher = Searcher.Create(strings.Reverse().ToStringIndexables());
 
-            var results = matcher.Find(searchString, boostDictionary);
-            var reversedResults = reverseMatcher.Find(searchString, boostDictionary);
+
+            var results = matcher.Search(searchString);
+            var reversedResults = reverseMatcher.Search(searchString);
 
             PrintHeader(searchString);
             PrintResults(results);
@@ -140,44 +142,37 @@ namespace AlphaLaunch.Experiments
             PrintResults(reversedResults);
 
             results.ShouldNotBeNull();
-            results.Count().ShouldEqual(2);
-            results[0].MatchedString.ShouldEqual(firstLong);
-            results[1].MatchedString.ShouldEqual(secondLong);
+            results.SearchResults.Count().ShouldEqual(2);
+            results.SearchResults[0].Name.ShouldEqual(firstLong);
+            results.SearchResults[1].Name.ShouldEqual(secondLong);
 
             reversedResults.ShouldNotBeNull();
-            reversedResults.Count().ShouldEqual(2);
-            reversedResults[0].MatchedString.ShouldEqual(firstLong);
-            reversedResults[1].MatchedString.ShouldEqual(secondLong);
+            reversedResults.SearchResults.Count().ShouldEqual(2);
+            reversedResults.SearchResults[0].Name.ShouldEqual(firstLong);
+            reversedResults.SearchResults[1].Name.ShouldEqual(secondLong);
         }
 
         private void AssertNoMatches(string searchString, string longString)
         {
-            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }.ToStringIndexables()));
+            var matcher = Searcher.Create(new[] { longString }.ToStringIndexables());
 
-            var results = matcher.Find(searchString);
+            var searcher = matcher.Search(searchString);
 
             PrintHeader(searchString);
-            PrintResults(results);
+            PrintResults(searcher);
 
-            results.ShouldNotBeNull();
-            results.Count().ShouldEqual(0);
+            searcher.SearchResults.Length.ShouldEqual(0);
         }
 
-        private static void PrintResults(IEnumerable<Result> results)
+        private static void PrintResults(Searcher searcher)
         {
-            foreach (var result in results)
+            foreach (var result in searcher.SearchResults)
             {
-                Console.WriteLine("{0} (score: {1})", result.MatchedString, result.Score);
+                Console.WriteLine("{0} (score: {1})", result.Name, result.Score);
 
-                var highlight = new string(Enumerable.Range(0, result.MatchedString.Length)
-                    .Select(x => result.MatchedIndexes.Contains(x) ? '^' : ' ')
+                var highlight = new string(Enumerable.Range(0, result.Name.Length)
+                    .Select(x => result.HighlightIndexes.Contains(x) ? '^' : ' ')
                     .ToArray());
-
-                //var charBoostScores = result.MatchedIndexes
-                //    .OrderBy(x => x.Key)
-                //    .Select(x => x.Value.ToString("0"));
-
-                //highlight += string.Format(" [ {0} ]", string.Join(", ", charBoostScores));
 
                 Console.WriteLine(highlight);
             }
@@ -185,16 +180,16 @@ namespace AlphaLaunch.Experiments
 
         private void AssertMatches(string searchString, string longString)
         {
-            var matcher = new FuzzyMatcher(new SearchIndex(new[] { longString }.ToStringIndexables()));
+            var matcher = Searcher.Create(new[] { longString }.ToStringIndexables());
 
-            var results = matcher.Find(searchString);
+            var searcher = matcher.Search(searchString);
 
             PrintHeader(searchString);
-            PrintResults(results);
+            PrintResults(searcher);
 
-            results.ShouldNotBeNull();
-            results.Count().ShouldBeGreaterThan(0);
-            results.First().MatchedString.ShouldEqual(longString);
+            searcher.ShouldNotBeNull();
+            searcher.SearchResults.Count().ShouldBeGreaterThan(0);
+            searcher.SearchResults.First().Name.ShouldEqual(longString);
         }
 
         private bool _isFirst = true;

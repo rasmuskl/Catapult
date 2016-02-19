@@ -4,6 +4,8 @@ namespace AlphaLaunch.Core.Selecta
 {
     public class SelectaSearcher
     {
+        private static readonly MatchScore NoMatch = MatchScore.Create(int.MaxValue, new Range(0, 0), ImmutableHashSet.Create<int>());
+
         public MatchScore Score(string searchString, string targetString)
         {
             var firstSearchChar = searchString[0];
@@ -11,7 +13,7 @@ namespace AlphaLaunch.Core.Selecta
 
             targetString = targetString.ToLowerInvariant();
 
-            MatchScore bestMatch = null;
+            MatchScore bestMatch = NoMatch;
 
             for (var i = 0; i < targetString.Length; i++)
             {
@@ -28,7 +30,7 @@ namespace AlphaLaunch.Core.Selecta
                     continue;
                 }
 
-                if (match.Score < (bestMatch?.Score ?? int.MaxValue))
+                if (match.Score < bestMatch.Score)
                 {
                     bestMatch = match;
                 }
@@ -68,6 +70,11 @@ namespace AlphaLaunch.Core.Selecta
         {
             var lastIndex = firstIndex;
             var lastMatch = MatchType.Undefined;
+
+            if (firstIndex == 0 || !char.IsLetterOrDigit(targetString[firstIndex - 1]))
+            {
+                lastMatch = MatchType.Boundary;
+            }
 
             foreach (var c in chars)
             {

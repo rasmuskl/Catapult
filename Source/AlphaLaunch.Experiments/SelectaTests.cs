@@ -27,10 +27,10 @@ namespace AlphaLaunch.Experiments
         [TestCase("a", "a", 1)]
         [TestCase("a", "b", int.MaxValue)]
         [TestCase("ln", "length", 3)]
-        [TestCase("am", "app/models", 2)]
+        [TestCase("am", "app/models", 1)]
         //[TestCase("am", "appm/models", 2)]
         [TestCase("spec", "spearch_spec.rb", 2)]
-        [TestCase("amu", "app/models/user.rb", 2)]
+        [TestCase("amu", "app/models/user.rb", 1)]
         [TestCase("lice", "LICE.rb", 2)]
         [TestCase("vstud", "SQL Server Management Studio", 3)]
         public void ScoreFunction(string searchString, string targetString, int expectedScore)

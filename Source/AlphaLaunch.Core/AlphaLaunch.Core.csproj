@@ -69,8 +69,6 @@
     <Compile Include="Indexes\Extensions\ExtensionInfo.cs" />
     <Compile Include="Indexes\Extensions\ExtensionReader.cs" />
     <Compile Include="Indexes\FileIconResolver.cs" />
-    <Compile Include="Indexes\FuzzyMatcher.cs" />
-    <Compile Include="Indexes\FuzzySearcher.cs" />
     <Compile Include="Indexes\IIconResolver.cs" />
     <Compile Include="Indexes\IIndexable.cs" />
     <Compile Include="Indexes\IndexEntry.cs" />

@@ -15,7 +15,7 @@ namespace AlphaLaunch.Core.Indexes
         public static readonly IndexStore Instance = new IndexStore();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly ISearcher _searcher = new FuzzySearcher();
+        //private readonly ISearcher _searcher = new FuzzySearcher();
         private JsonIndexData _indexData;
         private readonly JsonConfigLoader _loader = new JsonConfigLoader();
         private ImmutableDictionary<string, EntryBoost> _boostEntries;
@@ -52,7 +52,7 @@ namespace AlphaLaunch.Core.Indexes
             try
             {
                 _lock.EnterWriteLock();
-                _searcher.IndexItems(new[] { action });
+                //_searcher.IndexItems(new[] { action });
             }
             finally
             {
@@ -98,15 +98,15 @@ namespace AlphaLaunch.Core.Indexes
         //    _loader.SaveIndexData(_indexData, IndexJsonPath);
         //}
 
-        public IEnumerable<SearchResult> Search(string search)
-        {
-            var stopwatch = Stopwatch.StartNew();
-            var results = _searcher.Search(search, _boostEntries);
-            stopwatch.Stop();
+        //public IEnumerable<SearchResult> Search(string search)
+        //{
+        //    var stopwatch = Stopwatch.StartNew();
+        //    var results = _searcher.Search(search, _boostEntries);
+        //    stopwatch.Stop();
 
-            Log.Info("Found " + results.Count() + " results. [" + stopwatch.ElapsedMilliseconds + " ms]");
+        //    Log.Info("Found " + results.Count() + " results. [" + stopwatch.ElapsedMilliseconds + " ms]");
 
-            return results;
-        }
+        //    return results;
+        //}
     }
 }

@@ -48,7 +48,7 @@ namespace AlphaLaunch.Core.Selecta
 
             var matches = items
                 .Select(x => new { MatchScore = _selecta.Score(searchString, x.Name), Indexable = x })
-                .Where(x => x.MatchScore != null)
+                .Where(x => x.MatchScore.Score < int.MaxValue)
                 .ToArray();
 
             var searchResults = matches
