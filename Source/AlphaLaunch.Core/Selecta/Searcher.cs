@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using AlphaLaunch.Core.Debug;
@@ -50,22 +48,21 @@ namespace AlphaLaunch.Core.Selecta
 
             var matches = items
                 .Select(x => new { MatchScore = _selecta.Score(searchString, x.Name), Indexable = x })
-                .Where(x => x.MatchScore.Score != int.MaxValue)
+                .Where(x => x.MatchScore != null)
                 .ToArray();
 
             var searchResults = matches
                 .OrderBy(x => x.MatchScore.Score)
                 .ThenBy(x => x.Indexable.Name.Length)
                 .ThenBy(x => x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex)
-                .Select(x => new SearchResult(x.Indexable.Name, x.MatchScore.Score, x.Indexable, ImmutableDictionary.Create(Enumerable.Range(x.MatchScore.Range.StartIndex, 1 + x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex).Select(i => new KeyValuePair<int, double>(i, 0.0)))))
-                .Take(50)
+                .Select(x => new SearchResult(x.Indexable.Name, x.MatchScore.Score, x.Indexable, x.MatchScore.MatchSet))
                 .ToArray();
 
             var matchedItems = matches.Select(x => x.Indexable).ToArray();
 
             scoreStopwatch.Stop();
 
-            Log.Info($"Found {matches.Length} results of {items.Length} [ scr: {scoreStopwatch.ElapsedMilliseconds} ms ]");
+            Log.Info($"Found {matches.Length} results of {items.Length} for {searchString} [ scr: {scoreStopwatch.ElapsedMilliseconds} ms ]");
 
             return new Searcher(_allItems, matchedItems, searchString, searchResults);
         }

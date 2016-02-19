@@ -170,14 +170,14 @@ namespace AlphaLaunch.Experiments
                 Console.WriteLine("{0} (score: {1})", result.MatchedString, result.Score);
 
                 var highlight = new string(Enumerable.Range(0, result.MatchedString.Length)
-                    .Select(x => result.MatchedIndexes.ContainsKey(x) ? '^' : ' ')
+                    .Select(x => result.MatchedIndexes.Contains(x) ? '^' : ' ')
                     .ToArray());
 
-                var charBoostScores = result.MatchedIndexes
-                    .OrderBy(x => x.Key)
-                    .Select(x => x.Value.ToString("0"));
+                //var charBoostScores = result.MatchedIndexes
+                //    .OrderBy(x => x.Key)
+                //    .Select(x => x.Value.ToString("0"));
 
-                highlight += string.Format(" [ {0} ]", string.Join(", ", charBoostScores));
+                //highlight += string.Format(" [ {0} ]", string.Join(", ", charBoostScores));
 
                 Console.WriteLine(highlight);
             }

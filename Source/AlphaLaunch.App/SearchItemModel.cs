@@ -11,10 +11,10 @@ namespace AlphaLaunch.App
         public double Score { get; set; }
         public IIndexable TargetItem { get; set; }
         public Guid Id { get; set; }
-        public ImmutableDictionary<int, double> HighlightIndexes { get; set; }
+        public ImmutableHashSet<int> HighlightIndexes { get; set; }
         public IIconResolver IconResolver { get; set; }
 
-        public SearchItemModel(string name, double score, IIndexable targetItem, ImmutableDictionary<int, double> highlightIndexes, IIconResolver iconResolver)
+        public SearchItemModel(string name, double score, IIndexable targetItem, ImmutableHashSet<int> highlightIndexes, IIconResolver iconResolver)
         {
             Name = name;
             Score = score;

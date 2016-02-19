@@ -10,7 +10,7 @@ namespace AlphaLaunch.Core.Indexes
         private readonly IndexEntry _indexEntry;
 
         public double Score { get; private set; }
-        public ImmutableDictionary<int, double> MatchedIndexes { get; private set; }
+        public ImmutableHashSet<int> MatchedIndexes { get; private set; }
 
         public string MatchedString
         {
@@ -22,7 +22,7 @@ namespace AlphaLaunch.Core.Indexes
             get { return _indexEntry.Target; }
         }
 
-        public Result(IndexEntry indexEntry, double score, ImmutableDictionary<int, double> matchedIndexes)
+        public Result(IndexEntry indexEntry, double score, ImmutableHashSet<int> matchedIndexes)
         {
             _indexEntry = indexEntry;
             Score = score;

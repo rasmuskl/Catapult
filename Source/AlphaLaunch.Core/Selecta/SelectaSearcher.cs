@@ -1,4 +1,6 @@
-﻿namespace AlphaLaunch.Core.Selecta
+﻿using System.Collections.Immutable;
+
+namespace AlphaLaunch.Core.Selecta
 {
     public class SelectaSearcher
     {
@@ -9,8 +11,7 @@
 
             targetString = targetString.ToLowerInvariant();
 
-            var bestScore = int.MaxValue;
-            Range bestRange = null;
+            MatchScore bestMatch = null;
 
             for (var i = 0; i < targetString.Length; i++)
             {
@@ -20,37 +21,38 @@
                 }
 
                 var score = 1;
-                var match = FindEndOfMatch(targetString, restSearchChars, score, i);
+                var match = FindEndOfMatch(targetString, restSearchChars, score, i, ImmutableHashSet.Create(i));
 
                 if (match == null)
                 {
                     continue;
                 }
 
-                if (match.Score < bestScore)
+                if (match.Score < (bestMatch?.Score ?? int.MaxValue))
                 {
-                    bestScore = match.Score;
-                    bestRange = match.Range;
+                    bestMatch = match;
                 }
             }
 
-            return MatchScore.Create(bestScore, bestRange);
+            return bestMatch;
         }
 
         public class MatchScore
         {
             public Range Range { get; }
+            public ImmutableHashSet<int> MatchSet { get; }
             public int Score { get; }
 
-            private MatchScore(int score, Range range)
+            private MatchScore(int score, Range range, ImmutableHashSet<int> matchSet)
             {
                 Range = range;
+                MatchSet = matchSet;
                 Score = score;
             }
 
-            public static MatchScore Create(int score, Range range)
+            public static MatchScore Create(int score, Range range, ImmutableHashSet<int> matchSet)
             {
-                return new MatchScore(score, range);
+                return new MatchScore(score, range, matchSet);
             }
         }
 
@@ -62,7 +64,7 @@
             Boundary
         }
 
-        private MatchScore FindEndOfMatch(string targetString, string chars, int score, int firstIndex)
+        private MatchScore FindEndOfMatch(string targetString, string chars, int score, int firstIndex, ImmutableHashSet<int> matchSet)
         {
             var lastIndex = firstIndex;
             var lastMatch = MatchType.Undefined;
@@ -99,11 +101,11 @@
                 }
 
                 lastIndex = index;
+                matchSet = matchSet.Add(index);
             }
 
-            return MatchScore.Create(score, new Range(firstIndex, lastIndex));
+            return MatchScore.Create(score, new Range(firstIndex, lastIndex), matchSet);
         }
-
 
         public class Range
         {
