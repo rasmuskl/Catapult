@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using AlphaLaunch.Core.Indexes;
+using Serilog;
 
 namespace AlphaLaunch.App.Converters
 {
@@ -17,20 +19,28 @@ namespace AlphaLaunch.App.Converters
                 return null;
             }
 
-            var iconResolver = value as IIconResolver;
-
-            var icon = iconResolver?.Resolve();
-
-            if (icon == null)
+            try
             {
-                return null;
+                var iconResolver = value as IIconResolver;
+
+                var icon = iconResolver?.Resolve();
+
+                if (icon == null)
+                {
+                    return null;
+                }
+
+                using (Bitmap bmp = icon.ToBitmap())
+                {
+                    var stream = new MemoryStream();
+                    bmp.Save(stream, ImageFormat.Png);
+                    return BitmapFrame.Create(stream);
+                }
             }
-
-            using (Bitmap bmp = icon.ToBitmap())
+            catch (Exception ex)
             {
-                var stream = new MemoryStream();
-                bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                return BitmapFrame.Create(stream);
+                Log.Error(ex, "Failed to resolve icon");
+                return null;
             }
         }
 

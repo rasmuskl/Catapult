@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
+﻿using System.Diagnostics;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core.Actions

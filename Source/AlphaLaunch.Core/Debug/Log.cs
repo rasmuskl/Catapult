@@ -1,26 +1,40 @@
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using System.IO;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Formatting.Display;
 
 namespace AlphaLaunch.Core.Debug
 {
-    public static class Log
+    public class LogWindowLogEventSink : ILogEventSink
     {
+        private readonly MessageTemplateTextFormatter _formatter;
         private static readonly List<string> Buffer = new List<string>();
         private static readonly List<Action<string>> Listeners = new List<Action<string>>();
 
-        public static void Info(string line)
+        public LogWindowLogEventSink(MessageTemplateTextFormatter formatter)
         {
+            _formatter = formatter;
+        }
+
+        public void Emit(LogEvent logEvent)
+        {
+            var renderSpace = new StringWriter();
+            _formatter.Format(logEvent, renderSpace);
+            var output = renderSpace.ToString();
+
             if (Listeners.Any())
             {
                 foreach (var listener in Listeners)
                 {
-                    listener(line);
+                    listener(output);
                 }
             }
             else
             {
-                Buffer.Add(line);
+                Buffer.Add(output);
             }
         }
 

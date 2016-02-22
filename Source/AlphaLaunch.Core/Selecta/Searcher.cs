@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Linq;
 using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
+using Serilog;
 
 namespace AlphaLaunch.Core.Selecta
 {
@@ -62,7 +63,7 @@ namespace AlphaLaunch.Core.Selecta
 
             scoreStopwatch.Stop();
 
-            Log.Info($"Found {matches.Length} results of {items.Length} for {searchString} [ scr: {scoreStopwatch.ElapsedMilliseconds} ms ]");
+            Log.Information($"Found {matches.Length} results of {items.Length} for {searchString} [ scr: {scoreStopwatch.ElapsedMilliseconds} ms ]");
 
             return new Searcher(_allItems, matchedItems, searchString, searchResults);
         }

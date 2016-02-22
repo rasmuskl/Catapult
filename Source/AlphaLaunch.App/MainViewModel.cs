@@ -8,6 +8,7 @@ using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Selecta;
 using AlphaLaunch.Spotify;
+using Serilog;
 
 namespace AlphaLaunch.App
 {
@@ -17,7 +18,7 @@ namespace AlphaLaunch.App
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private Searcher _selectaSeacher;
-        private List<IIndexable> _actions = new List<IIndexable>();
+        private readonly List<IIndexable> _actions = new List<IIndexable>();
 
         public MainViewModel()
         {
@@ -32,6 +33,8 @@ namespace AlphaLaunch.App
             RegisterAction<SpotifyStopAction>();
 
             RegisterAction<KillProcessAction>();
+            RegisterAction<OpenLastLogAction>();
+            RegisterAction<OpenLogFolderAction>();
         }
 
         private void RegisterAction<T>() where T : IIndexable, new()
@@ -98,7 +101,7 @@ namespace AlphaLaunch.App
         {
             get { return _mainListModel; }
         }
-        
+
         public void OpenSelected()
         {
             if (!_mainListModel.Items.Any())
@@ -130,20 +133,36 @@ namespace AlphaLaunch.App
             var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
             if (standaloneAction != null)
             {
-                standaloneAction.RunAction();
-                //IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
+                Log.Information("Launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, standaloneAction.GetType());
+
+                try
+                {
+                    standaloneAction.RunAction();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, standaloneAction.GetType());
+                }
+
                 return;
             }
 
-            var actionList = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
 
+            var actionList = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
             var firstActionType = actionList.First();
 
-            var actionInstance = Activator.CreateInstance(firstActionType);
-            var runMethod = firstActionType.GetMethod("RunAction");
-            runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
+            try
+            {
+                var actionInstance = Activator.CreateInstance(firstActionType);
+                var runMethod = firstActionType.GetMethod("RunAction");
 
-            //IndexStore.Instance.AddBoost(Search, searchItemModel.TargetItem.BoostIdentifier);
+                Log.Information("Launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, firstActionType);
+                runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, firstActionType);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

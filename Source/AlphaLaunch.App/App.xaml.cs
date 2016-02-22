@@ -1,14 +1,15 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Selecta;
 using GlobalHotKey;
+using Serilog;
 
 namespace AlphaLaunch.App
 {
@@ -22,6 +23,13 @@ namespace AlphaLaunch.App
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            var logger = new LoggerConfiguration()
+                .WriteTo.RollingFile(@"Logs\log-{Date}.log")
+                .WriteTo.LogWindow()
+                .CreateLogger();
+
+            Log.Logger = logger;
+
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             //IndexStore.Instance.Start();
@@ -30,7 +38,7 @@ namespace AlphaLaunch.App
             {
                 SearchResources.GetFiles();
             });
-            
+
             _notifyIcon = new NotifyIcon();
             _notifyIcon.Visible = true;
 
@@ -62,6 +70,7 @@ namespace AlphaLaunch.App
 
         private void SelectedSearchItemChanged(IIndexable indexable)
         {
+
             _detailsWindow.Model.SelectedItem = indexable;
         }
 
@@ -73,6 +82,8 @@ namespace AlphaLaunch.App
             {
                 return;
             }
+
+            Log.Error(exception, "Unhandled exception");
 
             System.Windows.MessageBox.Show(exception.Message
                 + Environment.NewLine

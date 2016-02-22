@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using AlphaLaunch.Core.Debug;
 
 namespace AlphaLaunch.App
@@ -10,7 +8,7 @@ namespace AlphaLaunch.App
         public LogWindow()
         {
             InitializeComponent();
-            Log.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
+            LogWindowLogEventSink.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
         }
 
         private void AddLog(string message)

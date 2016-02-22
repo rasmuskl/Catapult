@@ -35,6 +35,14 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.10\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Serilog, Version=1.5.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.1.5.14\lib\net45\Serilog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Serilog.FullNetFx, Version=1.5.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.1.5.14\lib\net45\Serilog.FullNetFx.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable">
       <HintPath>..\packages\Microsoft.Bcl.Immutable.1.0.12-beta\lib\portable-net45+win8+wp8\System.Collections.Immutable.dll</HintPath>
@@ -55,10 +63,13 @@
     <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />
     <Compile Include="Actions\OpenAsAdminAction.cs" />
+    <Compile Include="Actions\OpenLastLogAction.cs" />
+    <Compile Include="Actions\OpenLogFolderAction.cs" />
     <Compile Include="Actions\RunningProcessInfo.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
     <Compile Include="Config\JsonIndexData.cs" />
     <Compile Include="Config\JsonUserConfiguration.cs" />
+    <Compile Include="Debug\LogWindowLoggerConfigurationExtensions.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="FileItemDetails.cs" />
