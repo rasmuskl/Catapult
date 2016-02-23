@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace AlphaLaunch.Core.Actions
 {
@@ -19,10 +16,12 @@ namespace AlphaLaunch.Core.Actions
 
             var info = new ProcessStartInfo
             {
-                FileName = fileInfo.FullName,
+                FileName = "explorer",
+                Arguments = $"\"{fileInfo.FullName}\"",
+                UseShellExecute = true,
             };
 
-            Process.Start(info);
+            Process.Start(info)?.Dispose();
         }
     }
 }

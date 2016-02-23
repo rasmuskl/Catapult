@@ -8,5 +8,7 @@ namespace AlphaLaunch.Core.Indexes
         {
             return null;
         }
+
+        public string IconKey => null;
     }
 }

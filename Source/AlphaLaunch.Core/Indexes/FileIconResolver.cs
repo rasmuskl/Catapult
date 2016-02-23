@@ -15,5 +15,7 @@ namespace AlphaLaunch.Core.Indexes
         {
             return Icon.ExtractAssociatedIcon(_fullName);
         }
+
+        public string IconKey => _fullName;
     }
 }

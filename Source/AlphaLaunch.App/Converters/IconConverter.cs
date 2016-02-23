@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -12,6 +13,8 @@ namespace AlphaLaunch.App.Converters
 {
     public class IconConverter : IValueConverter
     {
+        static readonly Dictionary<string, BitmapFrame> IconCache = new Dictionary<string, BitmapFrame>();
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
@@ -22,6 +25,14 @@ namespace AlphaLaunch.App.Converters
             try
             {
                 var iconResolver = value as IIconResolver;
+
+                var iconKey = iconResolver?.IconKey;
+
+                BitmapFrame frame;
+                if (iconKey != null && IconCache.TryGetValue(iconKey, out frame))
+                {
+                    return frame;
+                }
 
                 var icon = iconResolver?.Resolve();
 
@@ -34,7 +45,14 @@ namespace AlphaLaunch.App.Converters
                 {
                     var stream = new MemoryStream();
                     bmp.Save(stream, ImageFormat.Png);
-                    return BitmapFrame.Create(stream);
+                    var bitmapFrame = BitmapFrame.Create(stream);
+
+                    if (iconKey != null)
+                    {
+                        IconCache[iconKey] = bitmapFrame;
+                    }
+
+                    return bitmapFrame;
                 }
             }
             catch (Exception ex)
