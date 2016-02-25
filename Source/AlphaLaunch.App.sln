@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaLaunch.App", "AlphaLaunch.App\AlphaLaunch.App.csproj", "{DE66D8BD-1EB8-4A1F-86D9-2EEE4D13C6D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaLaunch.Core", "AlphaLaunch.Core\AlphaLaunch.Core.csproj", "{415649B7-E0D2-415F-8016-7D1DFCB86386}"
@@ -15,6 +17,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaLaunch.Experiments", "AlphaLaunch.Experiments\AlphaLaunch.Experiments.csproj", "{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaLaunch.Spotify", "AlphaLaunch.Spotify\AlphaLaunch.Spotify.csproj", "{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{E7F93BBE-B482-4F7D-A269-0940870F7DC3}"
+	ProjectSection(SolutionItems) = preProject
+		..\build.fsx = ..\build.fsx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -26,3 +26,7 @@ Source/*.crunchsolution.*
 Source/packages/**
 Source/*.DotSettings.user
 Source/_NCrunch*
+
+tools/FAKE
+
+.fake
