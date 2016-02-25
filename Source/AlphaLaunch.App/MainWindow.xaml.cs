@@ -14,6 +14,7 @@ namespace AlphaLaunch.App
     public partial class MainWindow
     {
         private CancellationTokenSource _cancellationTokenSource;
+        private DoubleAnimation _doubleAnimation;
 
         public MainWindow()
         {
@@ -42,8 +43,17 @@ namespace AlphaLaunch.App
             {
                 toValue = 0;
             }
-            var doubleAnimation = new DoubleAnimation(fromValue, toValue, new Duration(TimeSpan.FromMilliseconds(50)));
-            SearchItems.BeginAnimation(HeightProperty, doubleAnimation);
+
+            SearchItems.Height = toValue;
+
+            if (_doubleAnimation != null)
+            {
+                // Stop WPF animation: http://stackoverflow.com/questions/20298/how-to-stop-an-animation-in-c-sharp-wpf
+                _doubleAnimation.BeginTime = null;
+            }
+
+            _doubleAnimation = new DoubleAnimation(fromValue, toValue, new Duration(TimeSpan.FromMilliseconds(100)));
+            SearchItems.BeginAnimation(HeightProperty, _doubleAnimation);
         }
 
         private void SearchBarPreviewKeyDown(object sender, KeyEventArgs e)
