@@ -89,6 +89,11 @@ namespace AlphaLaunch.App
 
             MainListModel.Items.Clear();
 
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
             foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())))
             {
                 MainListModel.Items.Add(item);

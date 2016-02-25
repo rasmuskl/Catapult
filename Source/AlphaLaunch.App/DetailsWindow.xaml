@@ -17,7 +17,6 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type core:FileItemDetails}">
             <StackPanel VerticalAlignment="Center">
-                <Image Source="{Binding Icon, Converter={StaticResource IconConverter}, Mode=OneTime}" Height="32" Width="32"></Image>
                 <TextBox Name="FullName" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding FullName}"/>
                 <TextBox Name="ResolvePath" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding ResolvePath}"/>
             </StackPanel>

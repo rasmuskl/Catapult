@@ -6,6 +6,5 @@
              Exit="ApplicationExit">
     <Application.Resources>
         <converters:HighlightValueConverter x:Key="HighlightConverter" />
-        <converters:IconConverter x:Key="IconConverter" />
     </Application.Resources>
 </Application>

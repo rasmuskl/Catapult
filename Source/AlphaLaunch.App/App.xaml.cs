@@ -93,12 +93,7 @@ namespace AlphaLaunch.App
 
         void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if ((bool)e.NewValue)
-            {
-                _logWindow.Show();
-                _detailsWindow.Show();
-            }
-            else
+            if (!(bool)e.NewValue)
             {
                 _logWindow.Hide();
                 _detailsWindow.Hide();
@@ -124,13 +119,19 @@ namespace AlphaLaunch.App
                 _logWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
                 _logWindow.Top = (SystemParameters.PrimaryScreenHeight - _logWindow.Height) / 2;
                 _logWindow.Topmost = true;
+                _logWindow.Show();
 
                 _detailsWindow.Topmost = true;
                 _detailsWindow.Top = _mainWindow.Top - _detailsWindow.Height - 20;
                 _detailsWindow.Left = _mainWindow.Left;
+                _detailsWindow.Show();
+
+                _mainWindow.Focus();
             }
             else
             {
+                _logWindow.Hide();
+                _detailsWindow.Hide();
                 _mainWindow.Hide();
             }
         }

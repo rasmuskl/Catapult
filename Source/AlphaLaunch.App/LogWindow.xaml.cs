@@ -8,7 +8,7 @@ namespace AlphaLaunch.App
         public LogWindow()
         {
             InitializeComponent();
-            LogWindowLogEventSink.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
+            LogWindowLogEventSink.Attach(s => Status.Dispatcher.InvokeAsync(() => AddLog(s)));
         }
 
         private void AddLog(string message)
