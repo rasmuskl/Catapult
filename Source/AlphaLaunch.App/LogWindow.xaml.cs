@@ -8,12 +8,12 @@ namespace AlphaLaunch.App
         public LogWindow()
         {
             InitializeComponent();
-            LogWindowLogEventSink.Attach(s => Status.Dispatcher.InvokeAsync(() => AddLog(s)));
+            LogWindowLogEventSink.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
         }
 
         private void AddLog(string message)
         {
-            Status.Text += message + Environment.NewLine;
+            Status.AppendText(message + Environment.NewLine);
             Status.ScrollToEnd();
         }
     }

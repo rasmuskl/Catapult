@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -22,19 +21,44 @@ namespace AlphaLaunch.App.Converters
 
             var textBlock = new TextBlock();
 
+            string currentString = string.Empty;
+            bool isHighlight = false;
+
             for (var i = 0; i < searchItemModel.Name.Length; i++)
             {
                 if (searchItemModel.HighlightIndexes.Contains(i))
                 {
-                    var run = new Run(searchItemModel.Name[i].ToString());
-                    //run.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF00E5FF"));
-                    run.Foreground = Brushes.DeepSkyBlue;
-                    textBlock.Inlines.Add(run);
+                    if (!isHighlight)
+                    {
+                        textBlock.Inlines.Add(new Run(currentString));
+                        currentString = string.Empty;
+                    }
+
+                    isHighlight = true;
+                    currentString += searchItemModel.Name[i];
                 }
                 else
                 {
-                    var run = new Run(searchItemModel.Name[i].ToString());
-                    textBlock.Inlines.Add(run);
+                    if (isHighlight)
+                    {
+                        textBlock.Inlines.Add(new Run(currentString) { Foreground = Brushes.DeepSkyBlue });
+                        currentString = string.Empty;
+                    }
+
+                    isHighlight = false;
+                    currentString += searchItemModel.Name[i];
+                }
+            }
+
+            if (currentString.Any())
+            {
+                if (isHighlight)
+                {
+                    textBlock.Inlines.Add(new Run(currentString) { Foreground = Brushes.DeepSkyBlue });
+                }
+                else
+                {
+                    textBlock.Inlines.Add(new Run(currentString));
                 }
             }
 

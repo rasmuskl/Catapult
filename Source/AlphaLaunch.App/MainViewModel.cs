@@ -75,12 +75,14 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
+
             var items = await Task.Factory.StartNew(() =>
             {
                 _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
                 _selectaSeacher = _selectaSeacher.Search(search);
-                return _selectaSeacher.SearchResults.Take(10);
+                return _selectaSeacher.SearchResults.Take(10).ToArray();
             }, token);
+
 
             if (token.IsCancellationRequested)
             {
