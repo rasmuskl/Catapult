@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App
@@ -17,7 +18,6 @@ namespace AlphaLaunch.App
             set
             {
                 _selectedItem = value;
-                SelectedItemDetails = _selectedItem?.GetDetails();
                 OnPropertyChanged();
             }
         }
@@ -35,6 +35,21 @@ namespace AlphaLaunch.App
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public async Task SetSelectedAsync(IIndexable indexable)
+        {
+            if (indexable == null)
+            {
+                SelectedItem = null;
+                SelectedItemDetails = null;
+                return;
+            }
+
+            var details = await Task.Factory.StartNew(indexable.GetDetails);
+
+            SelectedItem = indexable;
+            SelectedItemDetails = details;
         }
     }
 }

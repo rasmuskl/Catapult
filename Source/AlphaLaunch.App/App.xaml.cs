@@ -68,10 +68,9 @@ namespace AlphaLaunch.App
 #endif
         }
 
-        private void SelectedSearchItemChanged(IIndexable indexable)
+        private async void SelectedSearchItemChanged(IIndexable indexable)
         {
-
-            _detailsWindow.Model.SelectedItem = indexable;
+            await _detailsWindow.Model.SetSelectedAsync(indexable);
         }
 
         public void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
