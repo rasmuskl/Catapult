@@ -75,7 +75,6 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
-
             var items = await Task.Factory.StartNew(() =>
             {
                 _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
@@ -83,21 +82,13 @@ namespace AlphaLaunch.App
                 return _selectaSeacher.SearchResults.Take(10).ToArray();
             }, token);
 
-
-            if (token.IsCancellationRequested)
-            {
-                return;
-            }
+            token.ThrowIfCancellationRequested();
 
             MainListModel.Items.Clear();
 
-            if (token.IsCancellationRequested)
-            {
-                return;
-            }
-
             foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())))
             {
+                token.ThrowIfCancellationRequested();
                 MainListModel.Items.Add(item);
             }
 

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using Serilog;
 
 namespace AlphaLaunch.App
 {
@@ -80,14 +82,24 @@ namespace AlphaLaunch.App
             _cancellationTokenSource = new CancellationTokenSource();
 
             var source = e.OriginalSource as TextBox;
-            await Model.UpdateSearchAsync(source?.Text ?? string.Empty, _cancellationTokenSource.Token);
+            await Model.UpdateSearchAsync(source?.Text ?? string.Empty, _cancellationTokenSource.Token)
+                .ContinueWith(t =>
+                {
+                    if (t.IsCanceled)
+                    {
+                        return;
+                    }
 
-            if (_cancellationTokenSource.IsCancellationRequested)
-            {
-                return;
-            }
+                    if (t.IsFaulted)
+                    {
+                        if (t.Exception != null)
+                        {
+                            Log.Error(t.Exception, "Search failed.");
+                        }
+                    }
 
-            AnimateSearchItemsHeight();
+                    AnimateSearchItemsHeight();
+                }, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }
