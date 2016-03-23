@@ -13,7 +13,7 @@ namespace AlphaLaunch.App
 
         public ListViewModel()
         {
-            Items = new ObservableCollection<SearchItemModel>();
+            Items = new SmartObservableCollection<SearchItemModel>();
             Items.CollectionChanged += Items_CollectionChanged;
         }
 
@@ -62,7 +62,7 @@ namespace AlphaLaunch.App
 
         public Action<IIndexable> SelectedSearchItemChanged = x => { };
 
-        public ObservableCollection<SearchItemModel> Items { get; }
+        public SmartObservableCollection<SearchItemModel> Items { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

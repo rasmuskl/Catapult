@@ -122,6 +122,7 @@
     <Compile Include="ListViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SearchItemModel.cs" />
+    <Compile Include="SmartObservableCollection.cs" />
     <Page Include="DetailsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
-using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core.Selecta
 {
@@ -51,7 +50,15 @@ namespace AlphaLaunch.Core.Selecta
             {
                 Range = range;
                 MatchSet = matchSet;
-                Score = score;
+
+                if (score < int.MaxValue)
+                {
+                    Score = score * 100;
+                }
+                else
+                {
+                    Score = score;
+                }
             }
 
             public static MatchScore Create(int score, Range range, ImmutableHashSet<int> matchSet)

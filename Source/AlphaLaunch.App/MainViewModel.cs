@@ -79,19 +79,14 @@ namespace AlphaLaunch.App
             {
                 _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
                 _selectaSeacher = _selectaSeacher.Search(search);
-                return _selectaSeacher.SearchResults.Take(10).ToArray();
+                var searchResults = _selectaSeacher.SearchResults.Take(10);
+                var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
+                return searchItemModels;
             }, token);
 
             token.ThrowIfCancellationRequested();
 
-            MainListModel.Items.Clear();
-
-            foreach (var item in items.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())))
-            {
-                token.ThrowIfCancellationRequested();
-                MainListModel.Items.Add(item);
-            }
-
+            MainListModel.Items.Reset(items);
             MainListModel.SelectedIndex = 0;
         }
 
