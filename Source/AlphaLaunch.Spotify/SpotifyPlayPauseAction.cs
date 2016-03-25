@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using AlphaLaunch.Core.Actions;
+using AlphaLaunch.Core.Icons;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Spotify

@@ -73,14 +73,14 @@
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="FileItemDetails.cs" />
+    <Compile Include="Icons\FileIconResolver.cs" />
+    <Compile Include="Icons\IIconResolver.cs" />
     <Compile Include="Indexes\DirectoryTraverser.cs" />
     <Compile Include="Indexes\EmptyIconResolver.cs" />
     <Compile Include="Indexes\EntryBoost.cs" />
     <Compile Include="Indexes\Extensions\ExtensionContainer.cs" />
     <Compile Include="Indexes\Extensions\ExtensionInfo.cs" />
     <Compile Include="Indexes\Extensions\ExtensionReader.cs" />
-    <Compile Include="Indexes\FileIconResolver.cs" />
-    <Compile Include="Indexes\IIconResolver.cs" />
     <Compile Include="Indexes\IIndexable.cs" />
     <Compile Include="Indexes\IndexEntry.cs" />
     <Compile Include="Indexes\IndexStore.cs" />

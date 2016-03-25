@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using AlphaLaunch.App.Annotations;
+using AlphaLaunch.Core.Icons;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.App

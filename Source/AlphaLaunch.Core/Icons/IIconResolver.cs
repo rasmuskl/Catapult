@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace AlphaLaunch.Core.Indexes
+namespace AlphaLaunch.Core.Icons
 {
     public interface IIconResolver
     {

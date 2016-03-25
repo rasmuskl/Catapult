@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using AlphaLaunch.Core.Icons;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core.Actions

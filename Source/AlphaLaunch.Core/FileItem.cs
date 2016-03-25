@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.IO;
+using AlphaLaunch.Core.Icons;
 using AlphaLaunch.Core.Indexes;
 
 namespace AlphaLaunch.Core
