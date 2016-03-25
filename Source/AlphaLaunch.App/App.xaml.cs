@@ -18,8 +18,8 @@ namespace AlphaLaunch.App
         private NotifyIcon _notifyIcon;
         private MainWindow _mainWindow;
         private HotKeyManager _hotKeyManager;
-        private LogWindow _logWindow;
-        private DetailsWindow _detailsWindow;
+        //private LogWindow _logWindow;
+        //private DetailsWindow _detailsWindow;
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
@@ -60,8 +60,8 @@ namespace AlphaLaunch.App
 
             _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
             _mainWindow.Model.MainListModel.SelectedSearchItemChanged += SelectedSearchItemChanged;
-            _logWindow = new LogWindow();
-            _detailsWindow = new DetailsWindow();
+            //_logWindow = new LogWindow();
+            //_detailsWindow = new DetailsWindow();
 
 #if DEBUG
             ToggleMainWindow();
@@ -70,7 +70,7 @@ namespace AlphaLaunch.App
 
         private async void SelectedSearchItemChanged(IIndexable indexable)
         {
-            await _detailsWindow.Model.SetSelectedAsync(indexable);
+            //await _detailsWindow.Model.SetSelectedAsync(indexable);
         }
 
         public void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -94,8 +94,8 @@ namespace AlphaLaunch.App
         {
             if (!(bool)e.NewValue)
             {
-                _logWindow.Hide();
-                _detailsWindow.Hide();
+                //_logWindow.Hide();
+                //_detailsWindow.Hide();
 
 #if DEBUG
                 Shutdown();
@@ -115,22 +115,22 @@ namespace AlphaLaunch.App
                 _mainWindow.Show();
                 _mainWindow.Topmost = true;
 
-                _logWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
-                _logWindow.Top = (SystemParameters.PrimaryScreenHeight - _logWindow.Height) / 2;
-                _logWindow.Topmost = true;
-                _logWindow.Show();
+                //_logWindow.Left = _mainWindow.Left + _mainWindow.Width + 20;
+                //_logWindow.Top = (SystemParameters.PrimaryScreenHeight - _logWindow.Height) / 2;
+                //_logWindow.Topmost = true;
+                //_logWindow.Show();
 
-                _detailsWindow.Topmost = true;
-                _detailsWindow.Top = _mainWindow.Top - _detailsWindow.Height - 20;
-                _detailsWindow.Left = _mainWindow.Left;
-                _detailsWindow.Show();
+                //_detailsWindow.Topmost = true;
+                //_detailsWindow.Top = _mainWindow.Top - _detailsWindow.Height - 20;
+                //_detailsWindow.Left = _mainWindow.Left;
+                //_detailsWindow.Show();
 
                 _mainWindow.Focus();
             }
             else
             {
-                _logWindow.Hide();
-                _detailsWindow.Hide();
+                //_logWindow.Hide();
+                //_detailsWindow.Hide();
                 _mainWindow.Hide();
             }
         }
