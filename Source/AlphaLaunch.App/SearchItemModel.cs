@@ -47,12 +47,12 @@ namespace AlphaLaunch.App
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static ConcurrentDictionary<string, BitmapFrame> _cache = new ConcurrentDictionary<string, BitmapFrame>();
+        private static readonly ConcurrentDictionary<string, BitmapFrame> IconCache = new ConcurrentDictionary<string, BitmapFrame>();
 
         private async Task LoadIconAsync(IIconResolver iconResolver)
         {
             BitmapFrame frame;
-            if (_cache.TryGetValue(TargetItem.BoostIdentifier, out frame))
+            if (IconCache.TryGetValue(TargetItem.BoostIdentifier, out frame))
             {
                 Icon = frame;
                 return;
@@ -80,7 +80,7 @@ namespace AlphaLaunch.App
                 return;
             }
 
-            _cache.AddOrUpdate(TargetItem.BoostIdentifier, bitmapFrame, (x, f) => bitmapFrame);
+            IconCache.AddOrUpdate(TargetItem.BoostIdentifier, bitmapFrame, (x, f) => bitmapFrame);
 
             Icon = bitmapFrame;
         }

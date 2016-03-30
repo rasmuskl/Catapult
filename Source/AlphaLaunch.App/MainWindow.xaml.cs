@@ -34,9 +34,12 @@ namespace AlphaLaunch.App
 
         private void AnimateSearchItemsHeight()
         {
-            var fromValue = Double.IsNaN(SearchItems.Height) ? 0 : SearchItems.Height;
-
+            var fromValue = double.IsNaN(SearchItems.Height) ? 0 : SearchItems.Height;
             var toValue = 4 + SearchItems.Items.Count * 38;
+
+            SearchItems.Height = toValue;
+            return;
+
             if (SearchItems.Items.Count == 0)
             {
                 toValue = 0;
