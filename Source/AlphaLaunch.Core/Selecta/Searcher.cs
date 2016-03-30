@@ -11,29 +11,29 @@ namespace AlphaLaunch.Core.Selecta
         private readonly IIndexable[] _allItems;
         private readonly IIndexable[] _matchedItems;
         private readonly SelectaSearcher _selecta;
-        private Func<IIndexable, int> _boosterFunc;
 
         public string SearchString { get; }
         public SearchResult[] SearchResults { get; }
 
-        public static Searcher Create(IIndexable[] allItems, Func<IIndexable, int> boosterFunc = null)
+        public static Searcher Create(IIndexable[] allItems)
         {
-            return new Searcher(allItems, allItems, string.Empty, new SearchResult[0], boosterFunc);
+            return new Searcher(allItems, allItems, string.Empty, new SearchResult[0]);
         }
 
-        private Searcher(IIndexable[] allItems, IIndexable[] matchedItems, string searchString, SearchResult[] searchResults, Func<IIndexable, int> boosterFunc = null)
+        private Searcher(IIndexable[] allItems, IIndexable[] matchedItems, string searchString, SearchResult[] searchResults)
         {
             _allItems = allItems;
             _matchedItems = matchedItems;
-            _boosterFunc = boosterFunc ?? (x => 0);
             SearchString = searchString;
             SearchResults = searchResults;
+
             _selecta = new SelectaSearcher();
         }
 
-        public Searcher Search(string searchString)
+        public Searcher Search(string searchString, Func<IIndexable, int> boosterFunc = null)
         {
             searchString = searchString ?? string.Empty;
+            boosterFunc = boosterFunc ?? (x => 0);
 
             if (string.IsNullOrEmpty(searchString))
             {
@@ -50,7 +50,7 @@ namespace AlphaLaunch.Core.Selecta
             var scoreStopwatch = Stopwatch.StartNew();
 
             var matches = items
-                .Select(x => new { MatchScore = _selecta.Score2(searchString, x.Name), Indexable = x, Boost = _boosterFunc(x) })
+                .Select(x => new { MatchScore = _selecta.Score2(searchString, x.Name), Indexable = x, Boost = boosterFunc(x) })
                 .Where(x => x.MatchScore.Score < int.MaxValue)
                 .ToArray();
 

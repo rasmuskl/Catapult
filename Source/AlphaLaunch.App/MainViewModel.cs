@@ -86,9 +86,10 @@ namespace AlphaLaunch.App
             var items = await Task.Factory.StartNew(() =>
             {
                 var frecencyData = _frecencyStorage.GetFrecencyData();
+                Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
 
-                _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray(), x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0);
-                _selectaSeacher = _selectaSeacher.Search(search);
+                _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
+                _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
                 var searchResults = _selectaSeacher.SearchResults.Take(10);
                 var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
                 return searchItemModels;
