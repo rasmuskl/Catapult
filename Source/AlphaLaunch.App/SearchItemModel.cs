@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Drawing.Imaging;
@@ -46,8 +47,17 @@ namespace AlphaLaunch.App
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private static ConcurrentDictionary<string, BitmapFrame> _cache = new ConcurrentDictionary<string, BitmapFrame>();
+
         private async Task LoadIconAsync(IIconResolver iconResolver)
         {
+            BitmapFrame frame;
+            if (_cache.TryGetValue(TargetItem.BoostIdentifier, out frame))
+            {
+                Icon = frame;
+                return;
+            }
+
             var bitmapFrame = await Task.Factory.StartNew(() =>
             {
                 var icon = iconResolver?.Resolve();
@@ -61,9 +71,7 @@ namespace AlphaLaunch.App
                 {
                     var stream = new MemoryStream();
                     bmp.Save(stream, ImageFormat.Png);
-                    var frame = BitmapFrame.Create(stream);
-
-                    return frame;
+                    return BitmapFrame.Create(stream);
                 }
             });
 
@@ -71,6 +79,8 @@ namespace AlphaLaunch.App
             {
                 return;
             }
+
+            _cache.AddOrUpdate(TargetItem.BoostIdentifier, bitmapFrame, (x, f) => bitmapFrame);
 
             Icon = bitmapFrame;
         }
