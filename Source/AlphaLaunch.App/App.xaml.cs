@@ -32,8 +32,6 @@ namespace AlphaLaunch.App
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            //IndexStore.Instance.Start();
-
             Task.Factory.StartNew(() =>
             {
                 SearchResources.GetFiles();

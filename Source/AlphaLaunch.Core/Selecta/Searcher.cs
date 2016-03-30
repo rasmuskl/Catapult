@@ -1,6 +1,6 @@
+using System;
 using System.Diagnostics;
 using System.Linq;
-using AlphaLaunch.Core.Debug;
 using AlphaLaunch.Core.Indexes;
 using Serilog;
 
@@ -11,19 +11,21 @@ namespace AlphaLaunch.Core.Selecta
         private readonly IIndexable[] _allItems;
         private readonly IIndexable[] _matchedItems;
         private readonly SelectaSearcher _selecta;
+        private Func<IIndexable, int> _boosterFunc;
 
         public string SearchString { get; }
         public SearchResult[] SearchResults { get; }
 
-        public static Searcher Create(IIndexable[] allItems)
+        public static Searcher Create(IIndexable[] allItems, Func<IIndexable, int> boosterFunc = null)
         {
-            return new Searcher(allItems, allItems, string.Empty, new SearchResult[0]);
+            return new Searcher(allItems, allItems, string.Empty, new SearchResult[0], boosterFunc);
         }
 
-        private Searcher(IIndexable[] allItems, IIndexable[] matchedItems, string searchString, SearchResult[] searchResults)
+        private Searcher(IIndexable[] allItems, IIndexable[] matchedItems, string searchString, SearchResult[] searchResults, Func<IIndexable, int> boosterFunc = null)
         {
             _allItems = allItems;
             _matchedItems = matchedItems;
+            _boosterFunc = boosterFunc ?? (x => 0);
             SearchString = searchString;
             SearchResults = searchResults;
             _selecta = new SelectaSearcher();
@@ -48,15 +50,15 @@ namespace AlphaLaunch.Core.Selecta
             var scoreStopwatch = Stopwatch.StartNew();
 
             var matches = items
-                .Select(x => new { MatchScore = _selecta.Score2(searchString, x.Name), Indexable = x })
+                .Select(x => new { MatchScore = _selecta.Score2(searchString, x.Name), Indexable = x, Boost = _boosterFunc(x) })
                 .Where(x => x.MatchScore.Score < int.MaxValue)
                 .ToArray();
 
             var searchResults = matches
-                .OrderBy(x => x.MatchScore.Score)
+                .OrderBy(x => x.MatchScore.Score - x.Boost)
                 .ThenBy(x => x.Indexable.Name.Length)
                 .ThenBy(x => x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex)
-                .Select(x => new SearchResult(x.Indexable.Name, x.MatchScore.Score, x.Indexable, x.MatchScore.MatchSet))
+                .Select(x => new SearchResult(x.Indexable.Name, x.MatchScore.Score - x.Boost, x.Indexable, x.MatchScore.MatchSet))
                 .ToArray();
 
             var matchedItems = matches.Select(x => x.Indexable).ToArray();

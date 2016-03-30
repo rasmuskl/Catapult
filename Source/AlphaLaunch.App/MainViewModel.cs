@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AlphaLaunch.Core.Actions;
+using AlphaLaunch.Core.Frecency;
 using AlphaLaunch.Core.Indexes;
 using AlphaLaunch.Core.Selecta;
 using AlphaLaunch.Spotify;
@@ -19,6 +21,7 @@ namespace AlphaLaunch.App
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private Searcher _selectaSeacher;
         private readonly List<IIndexable> _actions = new List<IIndexable>();
+        private FrecencyStorage _frecencyStorage;
 
         public MainViewModel()
         {
@@ -26,6 +29,9 @@ namespace AlphaLaunch.App
 
             _actionRegistry.RegisterAction<OpenAction>();
             _actionRegistry.RegisterAction<OpenAsAdminAction>();
+
+            var frecencyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AlphaLaunch", "frecency.json");
+            _frecencyStorage = new FrecencyStorage(frecencyPath);
 
             RegisterAction<SpotifyNextTrackAction>();
             RegisterAction<SpotifyPlayPauseAction>();
@@ -40,7 +46,7 @@ namespace AlphaLaunch.App
         private void RegisterAction<T>() where T : IIndexable, new()
         {
             _actionRegistry.RegisterAction<T>();
-            IndexStore.Instance.IndexAction(new T());
+            //IndexStore.Instance.IndexAction(new T());
 
             _actions.Add(new T());
         }
@@ -75,9 +81,13 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
+
+
             var items = await Task.Factory.StartNew(() =>
             {
-                _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
+                var frecencyData = _frecencyStorage.GetFrecencyData();
+
+                _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray(), x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0);
                 _selectaSeacher = _selectaSeacher.Search(search);
                 var searchResults = _selectaSeacher.SearchResults.Take(10);
                 var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
@@ -95,7 +105,7 @@ namespace AlphaLaunch.App
             get { return _mainListModel; }
         }
 
-        public void OpenSelected()
+        public void OpenSelected(string search)
         {
             if (!_mainListModel.Items.Any())
             {
@@ -122,6 +132,8 @@ namespace AlphaLaunch.App
 
 
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
+
+            _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search);
 
             var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
             if (standaloneAction != null)

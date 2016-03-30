@@ -73,6 +73,9 @@
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="FileItemDetails.cs" />
+    <Compile Include="Frecency\FrecencyData.cs" />
+    <Compile Include="Frecency\FrecencyEntry.cs" />
+    <Compile Include="Frecency\FrecencyStorage.cs" />
     <Compile Include="Icons\FileIconResolver.cs" />
     <Compile Include="Icons\IIconResolver.cs" />
     <Compile Include="Indexes\DirectoryTraverser.cs" />

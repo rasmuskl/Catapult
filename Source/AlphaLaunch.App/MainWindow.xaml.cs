@@ -28,7 +28,7 @@ namespace AlphaLaunch.App
             else if (e.Key == Key.Enter)
             {
                 Hide();
-                Model.OpenSelected();
+                Model.OpenSelected(SearchBar.Text);
             }
         }
 
