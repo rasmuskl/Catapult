@@ -7,9 +7,9 @@ namespace AlphaLaunch.Core.Frecency
     {
         public List<FrecencyEntry> Entries { get; private set; } = new List<FrecencyEntry>();
      
-        public void AddUse(string boostIdentifier, string searchString)
+        public void AddUse(string boostIdentifier, string searchString, int index)
         {
-            Entries.Add(new FrecencyEntry(boostIdentifier, searchString, DateTime.UtcNow));
+            Entries.Add(new FrecencyEntry(boostIdentifier, searchString, index, DateTime.UtcNow));
         }
     }
 }

@@ -81,8 +81,6 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
-
-
             var items = await Task.Factory.StartNew(() =>
             {
                 var frecencyData = _frecencyStorage.GetFrecencyData();
@@ -131,10 +129,9 @@ namespace AlphaLaunch.App
             //    }
             //}
 
-
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
 
-            _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search);
+            _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
             var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
             if (standaloneAction != null)

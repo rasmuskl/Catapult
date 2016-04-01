@@ -17,9 +17,9 @@ namespace AlphaLaunch.Core.Frecency
             _data = RestoreData();
         }
 
-        public void AddUse(string boostIdentifier, string searchString)
+        public void AddUse(string boostIdentifier, string searchString, int selectedIndex)
         {
-            _data.AddUse(boostIdentifier, searchString);
+            _data.AddUse(boostIdentifier, searchString, selectedIndex);
             SaveData();
         }
 
