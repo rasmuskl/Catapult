@@ -9,7 +9,7 @@ namespace AlphaLaunch.Core.Icons
     public class FileIconResolver : IIconResolver
     {
         private readonly string _fullName;
-
+         
         public FileIconResolver(string fullName)
         {
             _fullName = fullName;
