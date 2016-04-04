@@ -37,8 +37,13 @@ namespace AlphaLaunch.Core.Icons
             var directoryName = Path.GetDirectoryName(path);
             var fileName = Path.GetFileName(path);
 
-            var desktopFolder = GetDesktopFolder();
+            IntPtr folderPtr;
+            if (SHGetDesktopFolder(out folderPtr) != SOk)
+            {
+                return null;
+            }
 
+            var desktopFolder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
             try
             {
                 Sfgao pdwAttributes = 0;
@@ -52,33 +57,37 @@ namespace AlphaLaunch.Core.Icons
 
                 var folder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(ppv, typeof(IShellFolder));
 
-                folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fileName, ref pchEaten, out ppidl, ref pdwAttributes);
+                try
+                {
+                    folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fileName, ref pchEaten, out ppidl, ref pdwAttributes);
 
-                return ExtractIcon(folder, ppidl);
+                    try
+                    {
+                        return ExtractIcon(folder, ppidl);
+                    }
+                    finally
+                    {
+                        Marshal.Release(ppidl);
+                    }
+                }
+                finally
+                {
+                    Marshal.Release(ppv);
+                    Marshal.ReleaseComObject(folder);
+                }
             }
             finally
             {
+                Marshal.Release(folderPtr);
                 Marshal.ReleaseComObject(desktopFolder);
             }
         }
 
         [DllImport("shell32.dll")]
-        private static extern Int32 SHGetDesktopFolder(out IntPtr ppshf);
+        public static extern Int32 SHGetDesktopFolder(out IntPtr ppshf);
 
         private const int SOk = 0;
         private const int MaxPath = 260;
-
-        public static IShellFolder GetDesktopFolder()
-        {
-            IntPtr folderPtr;
-
-            if (SHGetDesktopFolder(out folderPtr) == SOk)
-            {
-                return (IShellFolder)Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
-            }
-
-            return null;
-        }
 
         private static Icon ExtractIcon(IShellFolder parentFolder, IntPtr pidl)
         {
@@ -114,10 +123,19 @@ namespace AlphaLaunch.Core.Icons
                     return null;
                 }
 
-                return Icon.FromHandle(largeIconHandle);
+                try
+                {
+                    return Icon.FromHandle(largeIconHandle);
+                }
+                finally
+                {
+                    Marshal.Release(largeIconHandle);
+                    Marshal.Release(smallIconHandle);
+                }
             }
             finally
             {
+                Marshal.Release(extractIconPtr);
                 Marshal.ReleaseComObject(iconExtractor);
             }
         }
