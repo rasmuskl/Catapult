@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Win32;
 
 namespace AlphaLaunch.Core.Icons
 {
     public class FileIconResolver : IIconResolver
     {
         private readonly string _fullName;
-         
+
         public FileIconResolver(string fullName)
         {
             _fullName = fullName;
@@ -17,6 +21,31 @@ namespace AlphaLaunch.Core.Icons
 
         public Icon Resolve()
         {
+            if (".url".Equals(Path.GetExtension(_fullName), StringComparison.InvariantCultureIgnoreCase))
+            {
+                var lines = File.ReadAllLines(_fullName);
+
+                string iconPath = null;
+                int iconIndex = 0;
+
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("IconIndex="))
+                    {
+                        iconIndex = int.Parse(line.Substring("IconIndex=".Length));
+                    }
+                    else if (line.StartsWith("IconFile="))
+                    {
+                        iconPath = line.Substring("IconFile=".Length);
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(iconPath))
+                {
+                    return Icons.ExtractOne(iconPath, iconIndex, Icons.SystemIconSize.Large);
+                }
+            }
+
             var icon = ShellIcons.GetIcon(_fullName);
 
             if (icon != null)
@@ -353,4 +382,95 @@ namespace AlphaLaunch.Core.Icons
         Forparsing = 0x8000
     }
 
+    public static class Icons
+    {
+        public class IconNotFoundException : Exception
+        {
+            public IconNotFoundException(string fileName, int index)
+                : base($"Icon with Id = {index} wasn't found in file {fileName}")
+            {
+            }
+        }
+
+        public class UnableToExtractIconsException : Exception
+        {
+            public UnableToExtractIconsException(string fileName, int firstIconIndex, int iconCount)
+                : base(string.Format("Tryed to extract {2} icons starting from the one with id {1} from the \"{0}\" file but failed", fileName, firstIconIndex, iconCount))
+            {
+            }
+        }
+      
+        [DllImport("Shell32", CharSet = CharSet.Auto)]
+        static extern int ExtractIconEx(
+            [MarshalAs(UnmanagedType.LPTStr)]
+            string lpszFile,
+            int nIconIndex,
+            IntPtr[] phIconLarge,
+            IntPtr[] phIconSmall,
+            int nIcons);
+
+        public enum SystemIconSize
+        {
+            Large = 0x000000000,
+            Small = 0x000000001
+        }
+
+        public static void ExtractEx(string fileName, List<Icon> largeIcons, List<Icon> smallIcons, int firstIconIndex, int iconCount)
+        {
+            IntPtr[] smallIconsPtrs = null;
+            IntPtr[] largeIconsPtrs = null;
+
+            if (smallIcons != null)
+            {
+                smallIconsPtrs = new IntPtr[iconCount];
+            }
+            if (largeIcons != null)
+            {
+                largeIconsPtrs = new IntPtr[iconCount];
+            }
+
+            int apiResult = ExtractIconEx(fileName, firstIconIndex, largeIconsPtrs, smallIconsPtrs, iconCount);
+            if (apiResult != iconCount)
+            {
+                throw new UnableToExtractIconsException(fileName, firstIconIndex, iconCount);
+            }
+
+            smallIcons?.AddRange(smallIconsPtrs.Select(Icon.FromHandle));
+            largeIcons?.AddRange(largeIconsPtrs.Select(Icon.FromHandle));
+        }
+
+        public static List<Icon> ExtractEx(string fileName, SystemIconSize size, int firstIconIndex, int iconCount)
+        {
+            List<Icon> iconList = new List<Icon>();
+
+            switch (size)
+            {
+                case SystemIconSize.Large:
+                    ExtractEx(fileName, iconList, null, firstIconIndex, iconCount);
+                    break;
+
+                case SystemIconSize.Small:
+                    ExtractEx(fileName, null, iconList, firstIconIndex, iconCount);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(size));
+            }
+
+            return iconList;
+        }
+
+        public static Icon ExtractOne(string fileName, int index, SystemIconSize size)
+        {
+            try
+            {
+                List<Icon> iconList = ExtractEx(fileName, size, index, 1);
+                return iconList[0];
+            }
+            catch (UnableToExtractIconsException)
+            {
+                throw new IconNotFoundException(fileName, index);
+            }
+        }
+    }
 }
