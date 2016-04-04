@@ -30,7 +30,6 @@ namespace AlphaLaunch.Core.Icons
         public string IconKey => _fullName;
     }
 
-    // TODO - Look at releasing COM objects?
     public static class ShellIcons
     {
         public static Icon GetIcon(string path)
@@ -38,29 +37,33 @@ namespace AlphaLaunch.Core.Icons
             var directoryName = Path.GetDirectoryName(path);
             var fileName = Path.GetFileName(path);
 
-
             var desktopFolder = GetDesktopFolder();
 
-            Sfgao pdwAttributes = 0;
-            uint pchEaten = 0;
-            IntPtr ppidl;
-            desktopFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, directoryName, ref pchEaten, out ppidl, ref pdwAttributes);
+            try
+            {
+                Sfgao pdwAttributes = 0;
+                uint pchEaten = 0;
+                IntPtr ppidl;
+                desktopFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, directoryName, ref pchEaten, out ppidl, ref pdwAttributes);
 
+                Guid iidShellFolder = new Guid("000214E6-0000-0000-C000-000000000046");
+                IntPtr ppv;
+                desktopFolder.BindToObject(ppidl, IntPtr.Zero, iidShellFolder, out ppv);
 
-            Guid iidShellFolder = new Guid("000214E6-0000-0000-C000-000000000046");
-            IntPtr ppv;
-            desktopFolder.BindToObject(ppidl, IntPtr.Zero, iidShellFolder, out ppv);
+                var folder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(ppv, typeof(IShellFolder));
 
-            var folder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(ppv, typeof(IShellFolder));
+                folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fileName, ref pchEaten, out ppidl, ref pdwAttributes);
 
-            folder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero, fileName, ref pchEaten, out ppidl, ref pdwAttributes);
-
-            return ExtractIcon(folder, ppidl);
+                return ExtractIcon(folder, ppidl);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(desktopFolder);
+            }
         }
 
         [DllImport("shell32.dll")]
-        private static extern Int32 SHGetDesktopFolder(
-            out IntPtr ppshf);
+        private static extern Int32 SHGetDesktopFolder(out IntPtr ppshf);
 
         private const int SOk = 0;
         private const int MaxPath = 260;
@@ -68,10 +71,12 @@ namespace AlphaLaunch.Core.Icons
         public static IShellFolder GetDesktopFolder()
         {
             IntPtr folderPtr;
+
             if (SHGetDesktopFolder(out folderPtr) == SOk)
             {
                 return (IShellFolder)Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
             }
+
             return null;
         }
 
@@ -86,27 +91,35 @@ namespace AlphaLaunch.Core.Icons
             }
 
             var iconExtractor = (IExtractIcon)Marshal.GetTypedObjectForIUnknown(extractIconPtr, typeof(IExtractIcon));
-            var location = new StringBuilder(MaxPath, MaxPath);
-            int iconIndex;
-            var flags = ExtractIconuFlags.GilForshell;
-            ExtractIconpwFlags pwFlags;
 
-            if (iconExtractor.GetIconLocation(flags, location, location.Capacity, out iconIndex, out pwFlags) != SOk)
+            try
             {
-                return null;
+                var location = new StringBuilder(MaxPath, MaxPath);
+                int iconIndex;
+                var flags = ExtractIconuFlags.GilForshell;
+                ExtractIconpwFlags pwFlags;
+
+                if (iconExtractor.GetIconLocation(flags, location, location.Capacity, out iconIndex, out pwFlags) != SOk)
+                {
+                    return null;
+                }
+
+                string path = location.ToString();
+                IntPtr largeIconHandle;
+                IntPtr smallIconHandle;
+                uint iconSize = 32 + (16 << 16);
+
+                if (iconExtractor.Extract(path, (uint)iconIndex, out largeIconHandle, out smallIconHandle, iconSize) != SOk)
+                {
+                    return null;
+                }
+
+                return Icon.FromHandle(largeIconHandle);
             }
-
-            string path = location.ToString();
-            IntPtr largeIconHandle;
-            IntPtr smallIconHandle;
-            uint iconSize = 32 + (16 << 16);
-
-            if (iconExtractor.Extract(path, (uint)iconIndex, out largeIconHandle, out smallIconHandle, iconSize) != SOk)
+            finally
             {
-                return null;
+                Marshal.ReleaseComObject(iconExtractor);
             }
-
-            return Icon.FromHandle(largeIconHandle);
         }
     }
 
