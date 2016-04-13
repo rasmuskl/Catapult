@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Frecency;
 using AlphaLaunch.Core.Indexes;
@@ -21,7 +23,9 @@ namespace AlphaLaunch.App
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private Searcher _selectaSeacher;
         private readonly List<IIndexable> _actions = new List<IIndexable>();
-        private FrecencyStorage _frecencyStorage;
+        private readonly FrecencyStorage _frecencyStorage;
+
+
 
         public MainViewModel()
         {
@@ -41,6 +45,8 @@ namespace AlphaLaunch.App
             RegisterAction<KillProcessAction>();
             RegisterAction<OpenLastLogAction>();
             RegisterAction<OpenLogFolderAction>();
+
+            StartIntentService(Dispatcher.CurrentDispatcher);
         }
 
         private void RegisterAction<T>() where T : IIndexable, new()
@@ -51,8 +57,8 @@ namespace AlphaLaunch.App
             _actions.Add(new T());
         }
 
-        public async Task UpdateSearchAsync(string search, CancellationToken token)
-        {
+        //public async Task UpdateSearchAsync(string search, CancellationToken token)
+        //{
             //var searchItemModel = _mainListModel.SelectedSearchItem;
 
             //if (Search.Contains(" ") && searchItemModel != null && searchItemModel.TargetItem is KillProcessAction)
@@ -81,23 +87,29 @@ namespace AlphaLaunch.App
             //    return;
             //}
 
-            var items = await Task.Factory.StartNew(() =>
-            {
-                var frecencyData = _frecencyStorage.GetFrecencyData();
-                Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
+            //var items = await Task.Factory.StartNew(() =>
+            //{
+            //    var frecencyData = _frecencyStorage.GetFrecencyData();
+            //    Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
 
-                _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
-                _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
-                var searchResults = _selectaSeacher.SearchResults.Take(10);
-                var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
-                return searchItemModels;
-            }, token);
+            //    _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
+            //    _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
+            //    var searchResults = _selectaSeacher.SearchResults.Take(10);
+            //    var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
+            //    return searchItemModels;
+            //}, token);
 
-            token.ThrowIfCancellationRequested();
+            //token.ThrowIfCancellationRequested();
 
-            MainListModel.Items.Reset(items);
+            //UpdateSearchItems(items);
+        //}
+
+        private void UpdateSearchItems(SearchItemModel[] searchItemModels)
+        {
+            MainListModel.Items.Reset(searchItemModels);
             MainListModel.SelectedIndex = 0;
         }
+
 
         public ListViewModel MainListModel
         {
@@ -172,12 +184,60 @@ namespace AlphaLaunch.App
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
-            if (handler != null)
+        private BlockingCollection<IIntent> _queue;
+        private Dispatcher _dispatcher;
+
+        public void StartIntentService(Dispatcher dispatcher)
+        {
+            _queue = new BlockingCollection<IIntent>(new ConcurrentQueue<IIntent>());
+            _dispatcher = dispatcher;
+
+            var thread = new Thread(Process) { IsBackground = true };
+            thread.Start();
+        }
+
+        public void AddIntent(IIntent intent)
+        {
+            _queue.Add(intent);
+        }
+
+        private void Process()
+        {
+            foreach (var intent in _queue.GetConsumingEnumerable())
             {
-                handler(this, new PropertyChangedEventArgs(propertyName));
+                if (intent is SearchIntent)
+                {
+                    var searchIntent = intent as SearchIntent;
+
+                    var frecencyData = _frecencyStorage.GetFrecencyData();
+                    Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
+
+                    _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
+                    _selectaSeacher = _selectaSeacher.Search(searchIntent.Search, boosterFunc);
+                    var searchResults = _selectaSeacher.SearchResults.Take(10);
+                    var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
+
+                    _dispatcher.Invoke(() => UpdateSearchItems(searchItemModels));
+                }
             }
         }
+
+    }
+
+    public class SearchIntent : IIntent
+    {
+        public string Search { get; set; }
+
+        public SearchIntent(string search)
+        {
+            Search = search;
+        }
+    }
+
+    public interface IIntent
+    {
     }
 }

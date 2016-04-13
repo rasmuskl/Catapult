@@ -1,22 +1,22 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
-using Serilog;
 
 namespace AlphaLaunch.App
 {
     public partial class MainWindow
     {
-        private CancellationTokenSource _cancellationTokenSource;
-        private DoubleAnimation _doubleAnimation;
-
         public MainWindow()
         {
             InitializeComponent();
+
+            Model.MainListModel.Items.CollectionChanged += Items_CollectionChanged;
+        }
+
+        private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            SearchItems.Height = 4 + SearchItems.Items.Count * 38;
         }
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
@@ -30,25 +30,6 @@ namespace AlphaLaunch.App
                 Hide();
                 Model.OpenSelected(SearchBar.Text);
             }
-        }
-
-        private void AnimateSearchItemsHeight()
-        {
-            var fromValue = double.IsNaN(SearchItems.Height) ? 0 : SearchItems.Height;
-            var toValue = 4 + SearchItems.Items.Count * 38;
-
-            SearchItems.Height = toValue;
-            return;
-
-            if (SearchItems.Items.Count == 0)
-            {
-                toValue = 0;
-            }
-
-            SearchItems.Height = toValue;
-
-            _doubleAnimation = new DoubleAnimation(fromValue, toValue, new Duration(TimeSpan.FromMilliseconds(100)));
-            SearchItems.BeginAnimation(HeightProperty, _doubleAnimation);
         }
 
         private void SearchBarPreviewKeyDown(object sender, KeyEventArgs e)
@@ -79,30 +60,10 @@ namespace AlphaLaunch.App
             SearchBar.Focus();
         }
 
-        private async void SearchBar_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void SearchBar_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new CancellationTokenSource();
-
             var source = e.OriginalSource as TextBox;
-            await Model.UpdateSearchAsync(source?.Text ?? string.Empty, _cancellationTokenSource.Token)
-                .ContinueWith(t =>
-                {
-                    if (t.IsCanceled)
-                    {
-                        return;
-                    }
-
-                    if (t.IsFaulted)
-                    {
-                        if (t.Exception != null)
-                        {
-                            Log.Error(t.Exception, "Search failed.");
-                        }
-                    }
-
-                    AnimateSearchItemsHeight();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+            Model.AddIntent(new SearchIntent(source?.Text ?? string.Empty));
         }
     }
 }
