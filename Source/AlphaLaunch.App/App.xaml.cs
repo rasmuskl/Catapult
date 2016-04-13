@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -96,7 +97,7 @@ namespace AlphaLaunch.App
                 //_detailsWindow.Hide();
 
 #if DEBUG
-                Shutdown();
+                _mainWindow.Model.AddIntent(new ShutdownIntent(Shutdown));
 #endif
             }
         }

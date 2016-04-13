@@ -59,49 +59,49 @@ namespace AlphaLaunch.App
 
         //public async Task UpdateSearchAsync(string search, CancellationToken token)
         //{
-            //var searchItemModel = _mainListModel.SelectedSearchItem;
+        //var searchItemModel = _mainListModel.SelectedSearchItem;
 
-            //if (Search.Contains(" ") && searchItemModel != null && searchItemModel.TargetItem is KillProcessAction)
-            //{
-            //    MainListModel = _processListModel;
+        //if (Search.Contains(" ") && searchItemModel != null && searchItemModel.TargetItem is KillProcessAction)
+        //{
+        //    MainListModel = _processListModel;
 
-            //    var processes = Process
-            //        .GetProcesses()
-            //        .Select(x => new RunningProcessInfo(x.ProcessName, x.MainWindowTitle, x.Id));
+        //    var processes = Process
+        //        .GetProcesses()
+        //        .Select(x => new RunningProcessInfo(x.ProcessName, x.MainWindowTitle, x.Id));
 
-            //    var searcher = new FuzzySearcher();
+        //    var searcher = new FuzzySearcher();
 
-            //    searcher.IndexItems(processes);
+        //    searcher.IndexItems(processes);
 
-            //    var searchResults = searcher.Search(Search.Split(new[] { ' ' })[1], ImmutableDictionary.Create<string, EntryBoost>()).Take(10);
+        //    var searchResults = searcher.Search(Search.Split(new[] { ' ' })[1], ImmutableDictionary.Create<string, EntryBoost>()).Take(10);
 
-            //    _processListModel.Items.Clear();
+        //    _processListModel.Items.Clear();
 
-            //    foreach (var searchResult in searchResults)
-            //    {
-            //        _processListModel.Items.Add(new SearchItemModel(searchResult.Name, searchResult.Score, searchResult.TargetItem, searchResult.HighlightIndexes));
-            //    }
+        //    foreach (var searchResult in searchResults)
+        //    {
+        //        _processListModel.Items.Add(new SearchItemModel(searchResult.Name, searchResult.Score, searchResult.TargetItem, searchResult.HighlightIndexes));
+        //    }
 
-            //    _processListModel.SelectedIndex = 0;
+        //    _processListModel.SelectedIndex = 0;
 
-            //    return;
-            //}
+        //    return;
+        //}
 
-            //var items = await Task.Factory.StartNew(() =>
-            //{
-            //    var frecencyData = _frecencyStorage.GetFrecencyData();
-            //    Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
+        //var items = await Task.Factory.StartNew(() =>
+        //{
+        //    var frecencyData = _frecencyStorage.GetFrecencyData();
+        //    Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
 
-            //    _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
-            //    _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
-            //    var searchResults = _selectaSeacher.SearchResults.Take(10);
-            //    var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
-            //    return searchItemModels;
-            //}, token);
+        //    _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
+        //    _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
+        //    var searchResults = _selectaSeacher.SearchResults.Take(10);
+        //    var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
+        //    return searchItemModels;
+        //}, token);
 
-            //token.ThrowIfCancellationRequested();
+        //token.ThrowIfCancellationRequested();
 
-            //UpdateSearchItems(items);
+        //UpdateSearchItems(items);
         //}
 
         private void UpdateSearchItems(SearchItemModel[] searchItemModels)
@@ -116,7 +116,7 @@ namespace AlphaLaunch.App
             get { return _mainListModel; }
         }
 
-        public void OpenSelected(string search)
+        private void OpenSelected(string search)
         {
             if (!_mainListModel.Items.Any())
             {
@@ -222,9 +222,71 @@ namespace AlphaLaunch.App
 
                     _dispatcher.Invoke(() => UpdateSearchItems(searchItemModels));
                 }
+                else if (intent is ExecuteIntent)
+                {
+                    var executeIntent = intent as ExecuteIntent;
+
+                    OpenSelected(executeIntent.Search);
+                }
+                else if (intent is MoveSelectionIntent)
+                {
+                    var moveSelectionIntent = intent as MoveSelectionIntent;
+
+                    _dispatcher.Invoke(() =>
+                    {
+                        if (moveSelectionIntent.Direction == MoveDirection.Down)
+                        {
+                            MainListModel.SelectedIndex = Math.Min(MainListModel.Items.Count, MainListModel.SelectedIndex + 1);
+                        }
+                        else
+                        {
+                            MainListModel.SelectedIndex = Math.Max(0, MainListModel.SelectedIndex - 1);
+                        }
+                    });
+                }
+                else if (intent is ShutdownIntent)
+                {
+                    var shutdownIntent = intent as ShutdownIntent;
+                    _dispatcher.Invoke(shutdownIntent.ShutdownAction);
+                }
             }
         }
+    }
 
+    public class ExecuteIntent : IIntent
+    {
+        public string Search { get; set; }
+
+        public ExecuteIntent(string search)
+        {
+            Search = search;
+        }
+    }
+
+    public class ShutdownIntent : IIntent
+    {
+        public Action ShutdownAction { get; }
+
+        public ShutdownIntent(Action shutdownAction)
+        {
+            ShutdownAction = shutdownAction;
+        }
+    }
+
+    public class MoveSelectionIntent : IIntent
+    {
+        public MoveDirection Direction { get; set; }
+
+        public MoveSelectionIntent(MoveDirection direction)
+        {
+            Direction = direction;
+        }
+    }
+
+    public enum MoveDirection
+    {
+        Up,
+        Down
     }
 
     public class SearchIntent : IIntent
@@ -239,5 +301,6 @@ namespace AlphaLaunch.App
 
     public interface IIntent
     {
+
     }
 }

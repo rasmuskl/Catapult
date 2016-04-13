@@ -27,8 +27,8 @@ namespace AlphaLaunch.App
             }
             else if (e.Key == Key.Enter)
             {
+                Model.AddIntent(new ExecuteIntent(SearchBar.Text));
                 Hide();
-                Model.OpenSelected(SearchBar.Text);
             }
         }
 
@@ -36,11 +36,11 @@ namespace AlphaLaunch.App
         {
             if (e.Key == Key.Down)
             {
-                Model.MainListModel.SelectedIndex = Math.Min(Model.MainListModel.Items.Count, Model.MainListModel.SelectedIndex + 1);
+                Model.AddIntent(new MoveSelectionIntent(MoveDirection.Down));
             }
             else if (e.Key == Key.Up)
             {
-                Model.MainListModel.SelectedIndex = Math.Max(0, Model.MainListModel.SelectedIndex - 1);
+                Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up));
             }
         }
 
