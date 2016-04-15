@@ -12,6 +12,12 @@ namespace AlphaLaunch.App
             InitializeComponent();
 
             Model.MainListModel.Items.CollectionChanged += Items_CollectionChanged;
+            Model.StackPushed += Model_StackPushed;
+        }
+
+        private void Model_StackPushed()
+        {
+            SearchBar.Text = string.Empty;
         }
 
         private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -41,6 +47,11 @@ namespace AlphaLaunch.App
             else if (e.Key == Key.Up)
             {
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up));
+            }
+            else if (e.Key == Key.Tab)
+            {
+                e.Handled = true;
+                Model.AddIntent(new PushStackIntent(SearchBar.Text));
             }
         }
 

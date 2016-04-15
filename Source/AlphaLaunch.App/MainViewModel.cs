@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -22,14 +23,16 @@ namespace AlphaLaunch.App
         private readonly ListViewModel _mainListModel = new ListViewModel();
         private readonly List<IIndexable> _actions = new List<IIndexable>();
         private readonly FrecencyStorage _frecencyStorage;
-        private readonly Stack<SearchFrame> _stack = new Stack<SearchFrame>();
+        private readonly Stack<ISearchFrame> _stack = new Stack<ISearchFrame>();
+        private readonly Stack<IIndexable> _selectedIndexables = new Stack<IIndexable>();
+
+        public event Action StackPushed;
 
         public MainViewModel()
         {
             _actionRegistry = new ActionRegistry();
 
             _actionRegistry.RegisterAction<OpenAction>();
-            _actionRegistry.RegisterAction<OpenAsAdminAction>();
 
             var frecencyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AlphaLaunch", "frecency.json");
             _frecencyStorage = new FrecencyStorage(frecencyPath);
@@ -42,9 +45,12 @@ namespace AlphaLaunch.App
             RegisterAction<KillProcessAction>();
             RegisterAction<OpenLastLogAction>();
             RegisterAction<OpenLogFolderAction>();
-            RegisterAction<GoogleAction>();
 
-            _stack.Push(new SearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
+            RegisterAction<GoogleAction>();
+            RegisterAction<PathOfExileWikiAction>();
+            RegisterAction<WikipediaAction>();
+
+            _stack.Push(new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
 
             StartIntentService(Dispatcher.CurrentDispatcher);
         }
@@ -75,7 +81,24 @@ namespace AlphaLaunch.App
 
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
 
-            _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
+            if (_selectedIndexables.Any())
+            {
+                var closedGenericType = GetInstanceOfGenericType(typeof(IAction<>), _selectedIndexables.Peek());
+
+                if (closedGenericType != null && closedGenericType.GetGenericArguments()[0] == typeof(string))
+                {
+                    if (searchItemModel.TargetItem is StringIndexable)
+                    {
+                        var stringIndexable = searchItemModel.TargetItem as StringIndexable;
+                        var action = (IAction<string>)_selectedIndexables.Peek();
+
+                        _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
+
+                        action.RunAction(stringIndexable.Name);
+                        return;
+                    }
+                }
+            }
 
             var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
             if (standaloneAction != null)
@@ -84,6 +107,7 @@ namespace AlphaLaunch.App
 
                 try
                 {
+                    _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
                     standaloneAction.RunAction();
                 }
                 catch (Exception ex)
@@ -102,6 +126,8 @@ namespace AlphaLaunch.App
                 var actionInstance = Activator.CreateInstance(firstActionType);
                 var runMethod = firstActionType.GetMethod("RunAction");
 
+                _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
+
                 Log.Information("Launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, firstActionType);
                 runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
             }
@@ -110,6 +136,53 @@ namespace AlphaLaunch.App
                 Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, firstActionType);
             }
         }
+
+        private void PushStack(string search)
+        {
+            if (!_mainListModel.Items.Any())
+            {
+                return;
+            }
+
+            var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
+
+            var genericActionType = typeof(IAction<>);
+
+            var closedGenericType = GetInstanceOfGenericType(genericActionType, searchItemModel.TargetItem);
+
+            if (closedGenericType != null)
+            {
+                _stack.Push(new StringSearchFrame());
+                _selectedIndexables.Push(searchItemModel.TargetItem);
+                StackPushed?.Invoke();
+            }
+        }
+
+        static Type GetInstanceOfGenericType(Type genericType, object instance)
+        {
+            Type type = instance.GetType();
+
+            while (type != null)
+            {
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == genericType)
+                {
+                    return type;
+                }
+
+                foreach (var i in type.GetInterfaces())
+                {
+                    if (i.IsGenericType && i.GetGenericTypeDefinition() == genericType)
+                    {
+                        return i;
+                    }
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -169,6 +242,15 @@ namespace AlphaLaunch.App
                         }
                     });
                 }
+                else if (intent is PushStackIntent)
+                {
+                    var pushStackIntent = intent as PushStackIntent;
+
+                    _dispatcher.Invoke(() =>
+                    {
+                        PushStack(pushStackIntent.Search);
+                    });
+                }
                 else if (intent is ShutdownIntent)
                 {
                     var shutdownIntent = intent as ShutdownIntent;
@@ -178,11 +260,16 @@ namespace AlphaLaunch.App
         }
     }
 
-    public class SearchFrame
+    public interface ISearchFrame
+    {
+        SearchItemModel[] PerformSearch(string search, FrecencyStorage frecencyStorage);
+    }
+
+    public class IndexableSearchFrame : ISearchFrame
     {
         private Searcher _selectaSeacher;
 
-        public SearchFrame(IIndexable[] indexables)
+        public IndexableSearchFrame(IIndexable[] indexables)
         {
             _selectaSeacher = Searcher.Create(indexables);
         }
@@ -197,11 +284,29 @@ namespace AlphaLaunch.App
         }
     }
 
+    public class StringSearchFrame : ISearchFrame
+    {
+        public SearchItemModel[] PerformSearch(string search, FrecencyStorage frecencyStorage)
+        {
+            return new[] { new SearchItemModel(search, 0, new StringIndexable(search), ImmutableHashSet.Create<int>(), null) };
+        }
+    }
+
     public class ExecuteIntent : IIntent
     {
         public string Search { get; set; }
 
         public ExecuteIntent(string search)
+        {
+            Search = search;
+        }
+    }
+
+    public class PushStackIntent : IIntent
+    {
+        public string Search { get; set; }
+
+        public PushStackIntent(string search)
         {
             Search = search;
         }

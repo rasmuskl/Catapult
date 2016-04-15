@@ -63,10 +63,12 @@
     <Compile Include="Actions\IItemSink.cs" />
     <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />
-    <Compile Include="Actions\OpenAsAdminAction.cs" />
     <Compile Include="Actions\OpenLastLogAction.cs" />
     <Compile Include="Actions\OpenLogFolderAction.cs" />
+    <Compile Include="Actions\PathOfExileWikiAction.cs" />
     <Compile Include="Actions\RunningProcessInfo.cs" />
+    <Compile Include="Actions\StringIndexable.cs" />
+    <Compile Include="Actions\WikipediaAction.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
     <Compile Include="Config\JsonIndexData.cs" />
     <Compile Include="Config\JsonUserConfiguration.cs" />

@@ -56,7 +56,6 @@
     <Compile Include="IconTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectaTests.cs" />
-    <Compile Include="StringIndexable.cs" />
     <Compile Include="TestExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
