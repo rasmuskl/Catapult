@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 using AlphaLaunch.Core.Actions;
 using AlphaLaunch.Core.Frecency;
@@ -21,11 +20,9 @@ namespace AlphaLaunch.App
         private readonly ActionRegistry _actionRegistry;
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
-        private Searcher _selectaSeacher;
         private readonly List<IIndexable> _actions = new List<IIndexable>();
         private readonly FrecencyStorage _frecencyStorage;
-
-
+        private readonly Stack<SearchFrame> _stack = new Stack<SearchFrame>();
 
         public MainViewModel()
         {
@@ -45,6 +42,9 @@ namespace AlphaLaunch.App
             RegisterAction<KillProcessAction>();
             RegisterAction<OpenLastLogAction>();
             RegisterAction<OpenLogFolderAction>();
+            RegisterAction<GoogleAction>();
+
+            _stack.Push(new SearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
 
             StartIntentService(Dispatcher.CurrentDispatcher);
         }
@@ -52,64 +52,14 @@ namespace AlphaLaunch.App
         private void RegisterAction<T>() where T : IIndexable, new()
         {
             _actionRegistry.RegisterAction<T>();
-            //IndexStore.Instance.IndexAction(new T());
-
             _actions.Add(new T());
         }
-
-        //public async Task UpdateSearchAsync(string search, CancellationToken token)
-        //{
-        //var searchItemModel = _mainListModel.SelectedSearchItem;
-
-        //if (Search.Contains(" ") && searchItemModel != null && searchItemModel.TargetItem is KillProcessAction)
-        //{
-        //    MainListModel = _processListModel;
-
-        //    var processes = Process
-        //        .GetProcesses()
-        //        .Select(x => new RunningProcessInfo(x.ProcessName, x.MainWindowTitle, x.Id));
-
-        //    var searcher = new FuzzySearcher();
-
-        //    searcher.IndexItems(processes);
-
-        //    var searchResults = searcher.Search(Search.Split(new[] { ' ' })[1], ImmutableDictionary.Create<string, EntryBoost>()).Take(10);
-
-        //    _processListModel.Items.Clear();
-
-        //    foreach (var searchResult in searchResults)
-        //    {
-        //        _processListModel.Items.Add(new SearchItemModel(searchResult.Name, searchResult.Score, searchResult.TargetItem, searchResult.HighlightIndexes));
-        //    }
-
-        //    _processListModel.SelectedIndex = 0;
-
-        //    return;
-        //}
-
-        //var items = await Task.Factory.StartNew(() =>
-        //{
-        //    var frecencyData = _frecencyStorage.GetFrecencyData();
-        //    Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
-
-        //    _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
-        //    _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
-        //    var searchResults = _selectaSeacher.SearchResults.Take(10);
-        //    var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
-        //    return searchItemModels;
-        //}, token);
-
-        //token.ThrowIfCancellationRequested();
-
-        //UpdateSearchItems(items);
-        //}
 
         private void UpdateSearchItems(SearchItemModel[] searchItemModels)
         {
             MainListModel.Items.Reset(searchItemModels);
             MainListModel.SelectedIndex = 0;
         }
-
 
         public ListViewModel MainListModel
         {
@@ -122,24 +72,6 @@ namespace AlphaLaunch.App
             {
                 return;
             }
-
-            //if (_mainListModel.SelectedSearchItem != null)
-            //{
-            //    var killProcessAction = _mainListModel.SelectedSearchItem.TargetItem as KillProcessAction;
-
-            //    if (killProcessAction != null)
-            //    {
-            //        var processItem = _processListModel.SelectedSearchItem.TargetItem as RunningProcessInfo;
-
-            //        if (processItem == null)
-            //        {
-            //            return;
-            //        }
-
-            //        killProcessAction.RunAction(processItem);
-            //        return;
-            //    }
-            //}
 
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
 
@@ -161,7 +93,6 @@ namespace AlphaLaunch.App
 
                 return;
             }
-
 
             var actionList = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
             var firstActionType = actionList.First();
@@ -212,13 +143,7 @@ namespace AlphaLaunch.App
                 {
                     var searchIntent = intent as SearchIntent;
 
-                    var frecencyData = _frecencyStorage.GetFrecencyData();
-                    Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
-
-                    _selectaSeacher = _selectaSeacher ?? Searcher.Create(SearchResources.GetFiles().Concat(_actions).ToArray());
-                    _selectaSeacher = _selectaSeacher.Search(searchIntent.Search, boosterFunc);
-                    var searchResults = _selectaSeacher.SearchResults.Take(10);
-                    var searchItemModels = searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
+                    var searchItemModels = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
 
                     _dispatcher.Invoke(() => UpdateSearchItems(searchItemModels));
                 }
@@ -250,6 +175,25 @@ namespace AlphaLaunch.App
                     _dispatcher.Invoke(shutdownIntent.ShutdownAction);
                 }
             }
+        }
+    }
+
+    public class SearchFrame
+    {
+        private Searcher _selectaSeacher;
+
+        public SearchFrame(IIndexable[] indexables)
+        {
+            _selectaSeacher = Searcher.Create(indexables);
+        }
+
+        public SearchItemModel[] PerformSearch(string search, FrecencyStorage frecencyStorage)
+        {
+            var frecencyData = frecencyStorage.GetFrecencyData();
+            Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
+            _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
+            var searchResults = _selectaSeacher.SearchResults.Take(10);
+            return searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
         }
     }
 

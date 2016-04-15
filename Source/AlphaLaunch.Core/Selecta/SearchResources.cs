@@ -10,7 +10,7 @@ namespace AlphaLaunch.Core.Selecta
 {
     public static class SearchResources
     {
-        private static readonly Lazy<FileItem[]> _fileFunc = new Lazy<FileItem[]>(GetFilesInternal, LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly Lazy<FileItem[]> FileFunc = new Lazy<FileItem[]>(GetFilesInternal, LazyThreadSafetyMode.ExecutionAndPublication);
 
         private static FileItem[] GetFilesInternal()
         {
@@ -21,8 +21,8 @@ namespace AlphaLaunch.Core.Selecta
                 Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
                 Environment.GetFolderPath(Environment.SpecialFolder.Favorites),
-                //Environment.GetFolderPath(Environment.SpecialFolder.Recent),
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 @"c:\dev",
             };
 
@@ -46,7 +46,7 @@ namespace AlphaLaunch.Core.Selecta
 
         public static FileItem[] GetFiles()
         {
-            return _fileFunc.Value;
+            return FileFunc.Value;
         }
     }
 }

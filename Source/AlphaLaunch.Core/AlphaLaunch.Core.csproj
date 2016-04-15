@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ActionRegistry.cs" />
+    <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />
     <Compile Include="Actions\IItemSink.cs" />

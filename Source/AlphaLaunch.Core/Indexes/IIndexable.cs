@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using AlphaLaunch.Core.Icons;
+﻿using AlphaLaunch.Core.Icons;
 
 namespace AlphaLaunch.Core.Indexes
 {
