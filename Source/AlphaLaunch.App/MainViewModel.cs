@@ -94,6 +94,11 @@ namespace AlphaLaunch.App
 
                         _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
+                        _stack.Clear();
+                        _selectedIndexables.Clear();
+                        _stack.Push(new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
+                        StackPushed?.Invoke();
+
                         action.RunAction(stringIndexable.Name);
                         return;
                     }
