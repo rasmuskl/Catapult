@@ -229,7 +229,10 @@ namespace AlphaLaunch.App
                 {
                     var executeIntent = intent as ExecuteIntent;
 
-                    OpenSelected(executeIntent.Search);
+                    _dispatcher.Invoke(() =>
+                    {
+                        OpenSelected(executeIntent.Search);
+                    });
                 }
                 else if (intent is MoveSelectionIntent)
                 {
