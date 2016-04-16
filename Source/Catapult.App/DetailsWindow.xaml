@@ -1,0 +1,33 @@
+﻿<Window x:Class="Catapult.App.DetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:app="clr-namespace:Catapult.App"
+        xmlns:core="clr-namespace:Catapult.Core;assembly=Catapult.Core"
+        Title="Details" Height="100" Width="600" Background="Transparent" AllowsTransparency="True" WindowStyle="None" ShowInTaskbar="False">
+    <Window.DataContext>
+        <app:DetailsViewModel x:Name="Model" />
+    </Window.DataContext>
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type core:FileItem}">
+            <StackPanel>
+                <TextBox Name="Name" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding Name}"/>
+                <TextBox Name="FullName" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding FullName}"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type core:FileItemDetails}">
+            <StackPanel VerticalAlignment="Center">
+                <TextBox Name="FullName" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding FullName}"/>
+                <TextBox Name="ResolvePath" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding ResolvePath}"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type system:String}">
+            <StackPanel>
+                <TextBox Name="Name" TextWrapping="Wrap" Background="#BB333333" Foreground="#FF66FF00" Text="{Binding Mode=OneWay}"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <ContentControl Content="{Binding SelectedItemDetails}"></ContentControl>
+    </Grid>
+</Window>
