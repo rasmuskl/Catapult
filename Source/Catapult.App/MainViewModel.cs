@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Windows.Threading;
 using Catapult.Core;
@@ -12,6 +13,8 @@ using Catapult.Core.Frecency;
 using Catapult.Core.Indexes;
 using Catapult.Core.Selecta;
 using Catapult.Spotify;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace Catapult.App
@@ -224,7 +227,24 @@ namespace Catapult.App
 
                     var searchItemModels = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
 
-                    _dispatcher.Invoke(() => UpdateSearchItems(searchItemModels));
+                    var itemModels = new List<SearchItemModel>();
+
+                    var firstIndexable = _selectedIndexables.FirstOrDefault();
+                    if (firstIndexable is GoogleAction && !string.IsNullOrWhiteSpace(searchIntent.Search))
+                    {
+                        using (var webClient = new WebClient())
+                        {
+                            var suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeUriString(searchIntent.Search));
+                            var suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
+
+                            foreach (var suggestion in suggestions.Children<JToken>())
+                            {
+                                itemModels.Add(new SearchItemModel(suggestion.ToString(), 0, new StringIndexable(suggestion.ToString()), ImmutableHashSet.Create<int>(), null));
+                            }
+                        }
+                    }
+
+                    _dispatcher.Invoke(() => UpdateSearchItems(searchItemModels.Concat(itemModels).ToArray()));
                 }
                 else if (intent is ExecuteIntent)
                 {
