@@ -1,6 +1,4 @@
-using System.Deployment.Application;
 using System.IO;
-using System.IO.IsolatedStorage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -14,7 +12,7 @@ namespace Catapult.Core.Config
 
             if (fileContents == null)
             {
-                return new JsonUserConfiguration();
+                return JsonUserConfiguration.BuildDefaultSettings();
             }
 
             return JsonConvert.DeserializeObject<JsonUserConfiguration>(fileContents);
@@ -46,40 +44,17 @@ namespace Catapult.Core.Config
 
         private void WriteEntireFile(string file, string contents)
         {
-            var scope = GetIsolatedStorageFileScope();
-
-            using (var stream = scope.OpenFile(file, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                using (var writer = new StreamWriter(stream))
-                {
-                    writer.Write(contents);
-                }
-            }
+            File.WriteAllText(file, contents);
         }
 
         private string ReadEntireFile(string file)
         {
-            var scope = GetIsolatedStorageFileScope();
-
-            if (!scope.FileExists(file))
+            if (!File.Exists(file))
             {
                 return null;
             }
-            
-            using (var stream = scope.OpenFile(file, FileMode.Open, FileAccess.Read))
-            {
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        }
 
-        private static IsolatedStorageFile GetIsolatedStorageFileScope()
-        {
-            return ApplicationDeployment.IsNetworkDeployed
-                ? IsolatedStorageFile.GetUserStoreForApplication()
-                : IsolatedStorageFile.GetUserStoreForDomain();
+            return File.ReadAllText(file);
         }
     }
 }

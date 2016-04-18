@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Catapult.Core;
+using Catapult.Core.Config;
 using Catapult.Core.Debug;
 using Catapult.Core.Indexes;
 using Catapult.Core.Selecta;
@@ -32,8 +35,15 @@ namespace Catapult.App
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
+            var loader = new JsonConfigLoader();
+
+            var configuration = loader.LoadUserConfig(CatapultPaths.ConfigPath);
+            loader.SaveUserConfig(configuration, CatapultPaths.ConfigPath);
+
             Task.Factory.StartNew(() =>
             {
+                //IndexStore.Instance.Start();
+                SearchResources.SetConfig(configuration);
                 SearchResources.GetFiles();
             });
 

@@ -9,6 +9,11 @@ namespace Catapult.Core.Selecta
     {
         public static IEnumerable<string> EnumerateFiles(string path, HashSet<string> ignoredDirectories)
         {
+            if (!Directory.Exists(path))
+            {
+                return Enumerable.Empty<string>();
+            }
+
             try
             {
                 return Directory.EnumerateDirectories(path)

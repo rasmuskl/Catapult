@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Threading;
+using Catapult.Core;
 using Catapult.Core.Actions;
 using Catapult.Core.Frecency;
 using Catapult.Core.Indexes;
@@ -34,7 +34,7 @@ namespace Catapult.App
 
             _actionRegistry.RegisterAction<OpenAction>();
 
-            var frecencyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Catapult", "frecency.json");
+            var frecencyPath = CatapultPaths.FrecencyPath;
             _frecencyStorage = new FrecencyStorage(frecencyPath);
 
             RegisterAction<SpotifyNextTrackAction>();
@@ -45,6 +45,7 @@ namespace Catapult.App
             RegisterAction<KillProcessAction>();
             RegisterAction<OpenLastLogAction>();
             RegisterAction<OpenLogFolderAction>();
+            RegisterAction<OpenConfigAction>();
 
             RegisterAction<GoogleAction>();
             RegisterAction<PathOfExileWikiAction>();

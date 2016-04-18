@@ -6,18 +6,17 @@ namespace Catapult.Core.Indexes
 {
     public class SearchIndex
     {
-        public SearchIndex(IEnumerable<IIndexable> inputObjects = null)
+        public SearchIndex()
         {
-            Entries = ImmutableList.Create<IndexEntry>();
-            AppendToIndex(inputObjects);
+            Entries = ImmutableDictionary.Create<string, ImmutableList<IndexEntry>>();
         }
 
-        public void AppendToIndex(IEnumerable<IIndexable> inputStrings)
-        {
-            inputStrings = inputStrings ?? Enumerable.Empty<IIndexable>();
-            Entries = Entries.AddRange(inputStrings.Select(x => new IndexEntry(x.Name, x)));
-        }
+        public ImmutableDictionary<string, ImmutableList<IndexEntry>> Entries { get; }
 
-        public ImmutableList<IndexEntry> Entries { get; private set; }
+        public void AppendToIndex(string key, IEnumerable<IIndexable> items)
+        {
+            items = items ?? Enumerable.Empty<IIndexable>();
+            Entries.SetItem(key, ImmutableList.Create(items.Select(x => new IndexEntry(x.Name, x)).ToArray()));
+        }
     }
 }

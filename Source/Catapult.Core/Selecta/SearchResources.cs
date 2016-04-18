@@ -3,50 +3,63 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using Catapult.Core.Config;
 using Catapult.Core.Indexes.Extensions;
 
 namespace Catapult.Core.Selecta
 {
     public static class SearchResources
     {
-        private static readonly Lazy<FileItem[]> FileFunc = new Lazy<FileItem[]>(GetFilesInternal, LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly object LockObject = new object();
+        private static FileItem[] _files;
+
+        private static string[] _paths;
+        private static HashSet<string> _ignoredDirectories;
+        private static ExtensionContainer _extensionContainer;
+
+        public static void SetConfig(JsonUserConfiguration config)
+        {
+            _paths = config.Paths;
+            _ignoredDirectories = new HashSet<string>(config.IgnoredDirectories);
+            _extensionContainer = new ExtensionContainer(config.Extensions.Select(x => new ExtensionInfo(x)));
+        }
 
         private static FileItem[] GetFilesInternal()
         {
-            var stopwatch = Stopwatch.StartNew();
-
-            var paths = new[]
+            if (_files != null)
             {
-                Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
-                Environment.GetFolderPath(Environment.SpecialFolder.Favorites),
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                @"c:\dev",
-            };
+                return _files;
+            }
 
+            lock (LockObject)
+            {
+                if (_files != null)
+                {
+                    return _files;
+                }
 
-            var ignoredDirectories = new HashSet<string>(new[] { "node_modules", ".git", "scratch" });
+                var stopwatch = Stopwatch.StartNew();
+                
 
-            var extensionContainer = new ExtensionContainer(new[] { new ExtensionInfo(".lnk"), new ExtensionInfo(".exe"), new ExtensionInfo(".sln"), new ExtensionInfo(".url"), });
+                var allFiles = _paths.SelectMany(x => SafeWalk.EnumerateFiles(x, _ignoredDirectories));
+                var fileItems = allFiles
+                    .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
+                    .Select(x => new FileItem(x))
+                    .ToArray();
 
-            var allFiles = paths.SelectMany(x => SafeWalk.EnumerateFiles(x, ignoredDirectories));
-            var fileItems = allFiles
-                .Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x)))
-                .Select(x => new FileItem(x))
-                .ToArray();
+                stopwatch.Stop();
 
-            stopwatch.Stop();
+                //Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
 
-            //Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
+                _files = fileItems;
+            }
 
-            return fileItems;
+            return _files;
         }
 
         public static FileItem[] GetFiles()
         {
-            return FileFunc.Value;
+            return GetFilesInternal();
         }
     }
 }
