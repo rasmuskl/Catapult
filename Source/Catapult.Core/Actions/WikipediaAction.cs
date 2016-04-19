@@ -14,7 +14,7 @@ namespace Catapult.Core.Actions
 
         public void RunAction(string search)
         {
-            Process.Start("https://wikipedia.org/wiki/Special:Search?search=" + Uri.EscapeUriString(search));
+            Process.Start("https://wikipedia.org/wiki/Special:Search?search=" + Uri.EscapeDataString(search));
         }
 
         public string Name => "Wikipedia search";

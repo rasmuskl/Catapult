@@ -14,7 +14,7 @@ namespace Catapult.Core.Actions
 
         public void RunAction(string search)
         {
-            Process.Start("https://www.google.com/search?q=" + Uri.EscapeUriString(search));
+            Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(search));
         }
 
         public string Name => "Google search";

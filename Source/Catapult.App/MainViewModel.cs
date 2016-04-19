@@ -234,12 +234,12 @@ namespace Catapult.App
                     {
                         using (var webClient = new WebClient())
                         {
-                            var suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeUriString(searchIntent.Search));
+                            var suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeDataString(searchIntent.Search));
                             var suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
 
-                            foreach (var suggestion in suggestions.Children<JToken>())
+                            foreach (var suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new [] { searchIntent.Search }).Distinct())
                             {
-                                itemModels.Add(new SearchItemModel(suggestion.ToString(), 0, new StringIndexable(suggestion.ToString()), ImmutableHashSet.Create<int>(), null));
+                                itemModels.Add(new SearchItemModel(suggestion, 0, new StringIndexable(suggestion), ImmutableHashSet.Create<int>(), null));
                             }
                         }
                     }

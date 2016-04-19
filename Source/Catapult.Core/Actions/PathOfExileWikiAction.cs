@@ -14,7 +14,7 @@ namespace Catapult.Core.Actions
 
         public void RunAction(string search)
         {
-            Process.Start("http://pathofexile.gamepedia.com/index.php?search=" + Uri.EscapeUriString(search));
+            Process.Start("http://pathofexile.gamepedia.com/index.php?search=" + Uri.EscapeDataString(search));
         }
 
         public string Name => "Path of Exile wiki search";
