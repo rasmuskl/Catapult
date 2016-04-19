@@ -8,19 +8,23 @@
     <Window.Resources>
 
         <DataTemplate x:Key="ItemTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Image Height="32" Width="32" Source="{Binding Path=Icon}"></Image>
+            <DockPanel LastChildFill="True">
+                <Image DockPanel.Dock="Left" Height="32" Width="32" Source="{Binding Path=Icon}"></Image>
+                <DockPanel DockPanel.Dock="Right">
+                    <Label DockPanel.Dock="Bottom" FontSize="10" VerticalContentAlignment="Bottom" Content="{Binding Score}" Foreground="#555"></Label>
+                </DockPanel>
                 <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FFD9D9D9" />
-                <Label Content="{Binding Score}" Foreground="MediumSeaGreen"></Label>            
-            </StackPanel>
+            </DockPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="SelectedTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Image Height="32" Width="32" Source="{Binding Path=Icon}"></Image>
+            <DockPanel LastChildFill="True">
+                <Image DockPanel.Dock="Left" Height="32" Width="32" Source="{Binding Path=Icon}"></Image>
+                <DockPanel DockPanel.Dock="Right">
+                    <Label DockPanel.Dock="Bottom" FontSize="10" VerticalContentAlignment="Bottom" Content="{Binding Score}" Foreground="#888"></Label>
+                </DockPanel>
                 <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#FFD9D9D9" />
-                <Label Content="{Binding Score}" Foreground="MediumSeaGreen"></Label>
-            </StackPanel>
+            </DockPanel>
         </DataTemplate>
 
         <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
@@ -30,10 +34,6 @@
                     <Setter Property="ContentTemplate" Value="{StaticResource SelectedTemplate}" />
                 </Trigger>
             </Style.Triggers>
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#111" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#111" />
-            </Style.Resources>
         </Style>
         <Style TargetType="{x:Type TextBox}" x:Key="NoBorder">
             <Setter Property="Template">
@@ -63,7 +63,7 @@
                  VerticalAlignment="Center" 
                  Padding="5,5,5,5" 
                  FontSize="24" />
-        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
+        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" Margin="0,0,0,0" FontSize="18" Background="#FF333333" HorizontalContentAlignment="Stretch" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
     </StackPanel>
 </Window>
 
