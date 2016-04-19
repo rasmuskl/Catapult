@@ -35,6 +35,11 @@ namespace Catapult.App
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
+            if (!Directory.Exists(CatapultPaths.DataPath))
+            {
+                Directory.CreateDirectory(CatapultPaths.DataPath);
+            }
+
             var loader = new JsonConfigLoader();
 
             var configuration = loader.LoadUserConfig(CatapultPaths.ConfigPath);
