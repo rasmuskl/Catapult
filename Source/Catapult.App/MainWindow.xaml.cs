@@ -22,7 +22,14 @@ namespace Catapult.App
 
         private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            SearchItems.Height = 4 + SearchItems.Items.Count * 38;
+            if (SearchItems.Items.Count == 0)
+            {
+                SearchItems.Height = 0;
+            }
+            else
+            {
+                SearchItems.Height = 4 + SearchItems.Items.Count * 38;
+            }
         }
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
