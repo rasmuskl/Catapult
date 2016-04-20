@@ -54,9 +54,17 @@ namespace Catapult.App
             RegisterAction<PathOfExileWikiAction>();
             RegisterAction<WikipediaAction>();
 
-            _stack.Push(new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
+            Reset();
 
             StartIntentService(Dispatcher.CurrentDispatcher);
+        }
+
+        public void Reset()
+        {
+            _stack.Clear();
+            _selectedIndexables.Clear();
+            _stack.Push(new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
+            StackPushed?.Invoke();
         }
 
         private void RegisterAction<T>() where T : IIndexable, new()
@@ -98,10 +106,7 @@ namespace Catapult.App
 
                         _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
-                        _stack.Clear();
-                        _selectedIndexables.Clear();
-                        _stack.Push(new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
-                        StackPushed?.Invoke();
+                        Reset();
 
                         action.RunAction(stringIndexable.Name);
                         return;
@@ -285,6 +290,10 @@ namespace Catapult.App
                     var shutdownIntent = intent as ShutdownIntent;
                     _dispatcher.Invoke(shutdownIntent.ShutdownAction);
                 }
+                else if (intent is ClearIntent)
+                {
+                    _dispatcher.Invoke(Reset);
+                }
             }
         }
     }
@@ -319,6 +328,11 @@ namespace Catapult.App
         {
             return new[] { new SearchItemModel(search, 0, new StringIndexable(search), ImmutableHashSet.Create<int>(), null) };
         }
+    }
+
+    public class ClearIntent : IIntent
+    {
+        
     }
 
     public class ExecuteIntent : IIntent

@@ -36,6 +36,7 @@ namespace Catapult.App
         {
             if (e.Key == Key.Escape)
             {
+                Model.AddIntent(new ClearIntent());
                 Hide();
             }
             else if (e.Key == Key.Enter)
