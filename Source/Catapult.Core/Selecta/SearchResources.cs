@@ -39,11 +39,11 @@ namespace Catapult.Core.Selecta
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                
 
                 var allFiles = _paths.SelectMany(x => SafeWalk.EnumerateFiles(x, _ignoredDirectories));
                 var fileItems = allFiles
                     .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
+                    .Distinct()
                     .Select(x => new FileItem(x))
                     .ToArray();
 
