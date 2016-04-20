@@ -94,7 +94,6 @@
     <Compile Include="Indexes\IndexStore.cs" />
     <Compile Include="Indexes\ISearcher.cs" />
     <Compile Include="Indexes\Result.cs" />
-    <Compile Include="Indexes\SearchIndex.cs" />
     <Compile Include="Indexes\SearchResult.cs" />
     <Compile Include="LnkResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

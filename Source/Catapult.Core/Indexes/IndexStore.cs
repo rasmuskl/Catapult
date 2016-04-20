@@ -1,62 +1,38 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
-using Catapult.Core.Config;
+using Catapult.Core.Indexes.Extensions;
+using Catapult.Core.Selecta;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Catapult.Core.Indexes
 {
-    public class IndexStore
+    public class FileIndexStore
     {
-        public static readonly IndexStore Instance = new IndexStore();
+        public static readonly FileIndexStore Instance = new FileIndexStore();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly JsonConfigLoader _loader = new JsonConfigLoader();
-        private const string ConfigJsonPath = "config.json";
-        private readonly DirectoryTraverser _directoryTraverser = new DirectoryTraverser();
-        private readonly SearchIndex _searchIndex = new SearchIndex();
+        private FileIndexData _indexData = new FileIndexData();
 
-        private IndexStore()
+        private FileIndexStore()
         {
+            TryRestoreIndex();
         }
 
-        public void Start()
-        {
-            IndexDirectory("Start menu", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
-            IndexDirectory("Common start menu", Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu));
-            IndexDirectory("Favorites", Environment.GetFolderPath(Environment.SpecialFolder.Favorites));
-            IndexDirectory("Desktop", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            IndexDirectory("Documents", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-
-            var config = _loader.LoadUserConfig(ConfigJsonPath);
-            _loader.SaveUserConfig(config, ConfigJsonPath);
-
-            foreach (var path in config.Paths)
-            {
-                IndexDirectory(path, path);
-            }
-        }
-
-        public void IndexAction(IIndexable action)
-        {
-            try
-            {
-                _lock.EnterWriteLock();
-                _searchIndex.AppendToIndex(action.BoostIdentifier, new[] { action });
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
-        }
-
-        private void IndexDirectory(string name, string path)
+        public void IndexDirectory(string path, HashSet<string> ignoredDirectories, ExtensionContainer extensionContainer)
         {
             var traverseDirectoriesWatch = Stopwatch.StartNew();
 
-            var directory = new DirectoryInfo(path);
-            var fileItems = _directoryTraverser.GetFiles(directory);
+            var allFiles = SafeWalk.EnumerateFiles(path, ignoredDirectories);
+
+            var paths = allFiles
+                .Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x)))
+                .Distinct()
+                .ToArray();
 
             traverseDirectoriesWatch.Stop();
 
@@ -65,7 +41,8 @@ namespace Catapult.Core.Indexes
             try
             {
                 _lock.EnterWriteLock();
-                _searchIndex.AppendToIndex(name, fileItems);
+                _indexData.Update(path, paths);
+                SaveIndex();
             }
             finally
             {
@@ -78,7 +55,78 @@ namespace Catapult.Core.Indexes
             var indexMs = indexWatch.ElapsedMilliseconds;
             var totalMs = indexWatch.ElapsedMilliseconds + traverseDirectoriesWatch.ElapsedMilliseconds;
 
-            Log.Information("Index " + name + " - " + fileItems.Count + " items. [ " + totalMs + " ms, tra: " + traverseMs + " ms, idx: " + indexMs + " ms ]");
+            Log.Information("Index " + path + " - " + paths.Length + " items. [ " + totalMs + " ms, tra: " + traverseMs + " ms, idx: " + indexMs + " ms ]");
         }
+
+        public string[] GetIndexedPaths(string path)
+        {
+            return _indexData.GetPaths(path);
+        }
+
+        private void TryRestoreIndex()
+        {
+            try
+            {
+                if (!File.Exists(CatapultPaths.IndexPath))
+                {
+                    return;
+                }
+
+                var indexJson = File.ReadAllText(CatapultPaths.IndexPath);
+                _indexData = JsonConvert.DeserializeObject<FileIndexData>(indexJson);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Index restore failed.", ex);
+            }
+        }
+
+        private void SaveIndex()
+        {
+            if (!Directory.Exists(CatapultPaths.DataPath))
+            {
+                Directory.CreateDirectory(CatapultPaths.DataPath);
+            }
+
+            var indexJson = JsonConvert.SerializeObject(_indexData);
+            File.WriteAllText(CatapultPaths.IndexPath, indexJson);
+        }
+    }
+
+    public class FileIndexData
+    {
+        public Dictionary<string, PathIndexData> Data { get; set; } = new Dictionary<string, PathIndexData>();
+
+        public void Update(string path, string[] filePaths)
+        {
+            PathIndexData data;
+
+            if (!Data.TryGetValue(path, out data))
+            {
+                data = new PathIndexData();
+                Data[path] = data;
+            }
+
+            data.FilePaths = filePaths;
+            data.LastIndexedUtc = DateTime.UtcNow;
+        }
+
+        public string[] GetPaths(string path)
+        {
+            PathIndexData data;
+
+            if (!Data.TryGetValue(path, out data))
+            {
+                return null;
+            }
+
+            return data.FilePaths;
+        }
+    }
+
+    public class PathIndexData
+    {
+        public string[] FilePaths { get; set; }
+        public DateTime LastIndexedUtc { get; set; }
     }
 }

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Catapult.Core.Config;
+using Catapult.Core.Indexes;
 using Catapult.Core.Indexes.Extensions;
+using Serilog;
 
 namespace Catapult.Core.Selecta
 {
@@ -40,7 +43,26 @@ namespace Catapult.Core.Selecta
 
                 var stopwatch = Stopwatch.StartNew();
 
-                var allFiles = _paths.SelectMany(x => SafeWalk.EnumerateFiles(x, _ignoredDirectories));
+                var allFiles = new List<string>();
+                var toBeIndexed = new List<string>();
+
+                foreach (var path in _paths)
+                {
+                    var indexedPaths = FileIndexStore.Instance.GetIndexedPaths(path);
+
+                    if (indexedPaths == null)
+                    {
+                        FileIndexStore.Instance.IndexDirectory(path, _ignoredDirectories, _extensionContainer);
+                        indexedPaths = FileIndexStore.Instance.GetIndexedPaths(path);
+                    }
+                    else
+                    {
+                        toBeIndexed = new List<string>();
+                    }
+
+                    allFiles.AddRange(indexedPaths);
+                }
+
                 var fileItems = allFiles
                     .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
                     .Distinct()
@@ -50,6 +72,21 @@ namespace Catapult.Core.Selecta
                 stopwatch.Stop();
 
                 //Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
+
+                ThreadPool.QueueUserWorkItem(o =>
+                {
+                    try
+                    {
+                        foreach (var indexPath in toBeIndexed)
+                        {
+                            FileIndexStore.Instance.IndexDirectory(indexPath, _ignoredDirectories, _extensionContainer);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Delayed indexing failed.", ex);
+                    }
+                });
 
                 _files = fileItems;
             }
