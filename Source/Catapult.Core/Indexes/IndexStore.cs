@@ -58,6 +58,11 @@ namespace Catapult.Core.Indexes
             Log.Information("Index " + path + " - " + paths.Length + " items. [ " + totalMs + " ms, tra: " + traverseMs + " ms, idx: " + indexMs + " ms ]");
         }
 
+        public bool IsIndexed(string path)
+        {
+            return _indexData.HasPath(path);
+        }
+
         public string[] GetIndexedPaths(string path)
         {
             return _indexData.GetPaths(path);
@@ -109,6 +114,11 @@ namespace Catapult.Core.Indexes
 
             data.FilePaths = filePaths;
             data.LastIndexedUtc = DateTime.UtcNow;
+        }
+
+        public bool HasPath(string path)
+        {
+            return Data.ContainsKey(path);
         }
 
         public string[] GetPaths(string path)

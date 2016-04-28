@@ -29,11 +29,6 @@ namespace Catapult.Core.Selecta
 
         private static FileItem[] GetFilesInternal()
         {
-            if (_files != null)
-            {
-                return _files;
-            }
-
             lock (LockObject)
             {
                 if (_files != null)
@@ -41,37 +36,23 @@ namespace Catapult.Core.Selecta
                     return _files;
                 }
 
-                var stopwatch = Stopwatch.StartNew();
-
-                var allFiles = new List<string>();
                 var toBeIndexed = new List<string>();
 
                 foreach (var path in _paths)
                 {
-                    var indexedPaths = FileIndexStore.Instance.GetIndexedPaths(path);
+                    var indexedPaths = FileIndexStore.Instance.IsIndexed(path);
 
-                    if (indexedPaths == null)
+                    if (!indexedPaths)
                     {
                         FileIndexStore.Instance.IndexDirectory(path, _ignoredDirectories, _extensionContainer);
-                        indexedPaths = FileIndexStore.Instance.GetIndexedPaths(path);
                     }
                     else
                     {
                         toBeIndexed.Add(path);
                     }
-
-                    allFiles.AddRange(indexedPaths);
                 }
 
-                var fileItems = allFiles
-                    .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
-                    .Distinct()
-                    .Select(x => new FileItem(x))
-                    .ToArray();
-
-                stopwatch.Stop();
-
-                //Log.Info($"Traversed {files.Length} files in {stopwatch.ElapsedMilliseconds} ms");
+                var fileItems = BuildFileItems(_paths);
 
                 ThreadPool.QueueUserWorkItem(o =>
                 {
@@ -86,12 +67,36 @@ namespace Catapult.Core.Selecta
                     {
                         Log.Error("Delayed indexing failed.", ex);
                     }
+
+                    lock (LockObject)
+                    {
+                        _files = BuildFileItems(_paths);
+                        Log.Information("Delayed indexing complete.");
+                    }
                 });
 
                 _files = fileItems;
             }
 
             return _files;
+        }
+
+        private static FileItem[] BuildFileItems(string[] paths)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var allFiles = paths.SelectMany(x => FileIndexStore.Instance.GetIndexedPaths(x));
+
+            var fileItems = allFiles
+                .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
+                .Distinct()
+                .Select(x => new FileItem(x))
+                .ToArray();
+
+            stopwatch.Stop();
+
+            Log.Information("Built {count} FileItems for index in {time} ms", fileItems.Length, stopwatch.ElapsedMilliseconds);
+            return fileItems;
         }
 
         public static FileItem[] GetFiles()
