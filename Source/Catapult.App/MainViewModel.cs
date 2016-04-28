@@ -58,6 +58,13 @@ namespace Catapult.App
             Reset();
 
             StartIntentService(Dispatcher.CurrentDispatcher);
+
+            StackPushed += MainViewModel_StackPushed;
+        }
+
+        private void MainViewModel_StackPushed()
+        {
+            ContextItems.Reset(_selectedIndexables.Select(x => x.Name));
         }
 
         public void Reset()
@@ -84,6 +91,8 @@ namespace Catapult.App
         {
             get { return _mainListModel; }
         }
+
+        public SmartObservableCollection<string> ContextItems { get; set; } = new SmartObservableCollection<string>();
 
         private void OpenSelected(string search)
         {

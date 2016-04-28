@@ -51,6 +51,29 @@
         <app:MainViewModel x:Name="Model" />
     </Window.DataContext>
     <StackPanel>
+        <ListBox Name="ContextItems" Background="Transparent" BorderThickness="0" ItemsSource="{Binding ContextItems}" FontSize="16" Height="30">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True"></WrapPanel>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="IsHitTestVisible" Value="False" />
+                    <Setter Property="Background" Value="#FF66FF00" />
+                    <Style.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Style.Resources>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
         <TextBox Name="SearchBar" 
                  Style="{StaticResource NoBorder}" 
                  PreviewKeyUp="SearchBarPreviewKeyUp" 
