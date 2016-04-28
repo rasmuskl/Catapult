@@ -60,6 +60,7 @@
     <Compile Include="Actions\ContainingFolderAction.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
+    <Compile Include="Actions\IAction1.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />
     <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />

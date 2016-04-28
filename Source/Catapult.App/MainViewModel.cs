@@ -93,17 +93,34 @@ namespace Catapult.App
             }
 
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
+            var targetItem = searchItemModel.TargetItem;
 
             if (_selectedIndexables.Any())
             {
-                var closedGenericType = GetInstanceOfGenericType(typeof(IAction<>), _selectedIndexables.Peek());
+                var lastSelectedIndexable = _selectedIndexables.Peek();
 
-                if (closedGenericType != null && closedGenericType.GetGenericArguments()[0] == typeof(string))
+                IAction selectedAction = targetItem as IAction;
+                IIndexable selectedIndexable = lastSelectedIndexable;
+
+                if (selectedAction == null && lastSelectedIndexable is IAction)
                 {
-                    if (searchItemModel.TargetItem is StringIndexable)
+                    selectedAction = (IAction)lastSelectedIndexable;
+                    selectedIndexable = targetItem;
+                }
+
+                if (selectedAction == null)
+                {
+                    throw new Exception("No action selected.");
+                }
+
+                var closedGenericType = GetInstanceOfGenericType(typeof(IAction<>), selectedAction);
+
+                if (closedGenericType != null)
+                {
+                    if (selectedIndexable is StringIndexable)
                     {
-                        var stringIndexable = searchItemModel.TargetItem as StringIndexable;
-                        var action = (IAction<string>)_selectedIndexables.Peek();
+                        var stringIndexable = selectedIndexable as StringIndexable;
+                        var action = (IAction<string>)selectedAction;
 
                         _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
@@ -112,28 +129,41 @@ namespace Catapult.App
                         action.RunAction(stringIndexable.Name);
                         return;
                     }
+
+                    if (selectedIndexable is FileItem)
+                    {
+                        var fileItem = selectedIndexable as FileItem;
+                        var action = (IAction<FileItem>)selectedAction;
+
+                        _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
+
+                        Reset();
+
+                        action.RunAction(fileItem);
+                        return;
+                    }
                 }
             }
 
-            var standaloneAction = searchItemModel.TargetItem as IStandaloneAction;
+            var standaloneAction = targetItem as IStandaloneAction;
             if (standaloneAction != null)
             {
-                Log.Information("Launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, standaloneAction.GetType());
+                Log.Information("Launching {@TargetItem} with {ActionType}", targetItem, standaloneAction.GetType());
 
                 try
                 {
-                    _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
+                    _frecencyStorage.AddUse(targetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
                     standaloneAction.RunAction();
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, standaloneAction.GetType());
+                    Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", targetItem, standaloneAction.GetType());
                 }
 
                 return;
             }
 
-            var actionList = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
+            var actionList = _actionRegistry.GetActionFor(targetItem.GetType());
             var firstActionType = actionList.First();
 
             try
@@ -141,14 +171,14 @@ namespace Catapult.App
                 var actionInstance = Activator.CreateInstance(firstActionType);
                 var runMethod = firstActionType.GetMethod("RunAction");
 
-                _frecencyStorage.AddUse(searchItemModel.TargetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
+                _frecencyStorage.AddUse(targetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
-                Log.Information("Launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, firstActionType);
-                runMethod.Invoke(actionInstance, new[] { searchItemModel.TargetItem });
+                Log.Information("Launching {@TargetItem} with {ActionType}", targetItem, firstActionType);
+                runMethod.Invoke(actionInstance, new[] { targetItem });
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", searchItemModel.TargetItem, firstActionType);
+                Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", targetItem, firstActionType);
             }
         }
 
@@ -161,13 +191,30 @@ namespace Catapult.App
 
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
 
-            var genericActionType = typeof(IAction<>);
-
-            var closedGenericType = GetInstanceOfGenericType(genericActionType, searchItemModel.TargetItem);
-
-            if (closedGenericType != null)
+            if (searchItemModel.TargetItem is IAction)
             {
-                _stack.Push(new StringSearchFrame());
+                var genericActionType = typeof(IAction<>);
+
+                var closedGenericType = GetInstanceOfGenericType(genericActionType, searchItemModel.TargetItem);
+
+                if (closedGenericType != null && closedGenericType == typeof(IAction<string>))
+                {
+                    _stack.Push(new StringSearchFrame());
+                    _selectedIndexables.Push(searchItemModel.TargetItem);
+                    StackPushed?.Invoke();
+                }
+            }
+            else
+            {
+                var actionTypes = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
+
+                if (!actionTypes.Any())
+                {
+                    return;
+                }
+
+                var indexables = actionTypes.Select(Activator.CreateInstance).OfType<IIndexable>().ToArray();
+                _stack.Push(new IndexableSearchFrame(indexables));
                 _selectedIndexables.Push(searchItemModel.TargetItem);
                 StackPushed?.Invoke();
             }
@@ -243,7 +290,7 @@ namespace Catapult.App
                             var suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeDataString(searchIntent.Search));
                             var suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
 
-                            foreach (var suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new [] { searchIntent.Search }).Distinct())
+                            foreach (var suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new[] { searchIntent.Search }).Distinct())
                             {
                                 itemModels.Add(new SearchItemModel(suggestion, 0, new StringIndexable(suggestion), ImmutableHashSet.Create<int>(), null));
                             }
@@ -333,7 +380,7 @@ namespace Catapult.App
 
     public class ClearIntent : IIntent
     {
-        
+
     }
 
     public class ExecuteIntent : IIntent
