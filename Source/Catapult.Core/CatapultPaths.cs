@@ -9,5 +9,6 @@ namespace Catapult.Core
         public static string ConfigPath => Path.Combine(DataPath, "config.json");
         public static string IndexPath => Path.Combine(DataPath, "index.json");
         public static string FrecencyPath => Path.Combine(DataPath, "frecency.json");
+        public static string LogPath => Path.Combine(DataPath, "logs");
     }
 }

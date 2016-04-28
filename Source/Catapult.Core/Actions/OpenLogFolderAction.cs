@@ -10,14 +10,12 @@ namespace Catapult.Core.Actions
     {
         public void RunAction()
         {
-            var logFolder = Path.Combine(Environment.CurrentDirectory, "Logs");
-
-            if (!Directory.Exists(logFolder))
+            if (!Directory.Exists(CatapultPaths.LogPath))
             {
                 return;
             }
             
-            Process.Start(logFolder);
+            Process.Start(CatapultPaths.LogPath);
         }
 
         public string Name => "Catapult: Open log folder";

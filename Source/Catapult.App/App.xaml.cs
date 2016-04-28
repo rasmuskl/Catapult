@@ -27,7 +27,7 @@ namespace Catapult.App
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
             var logger = new LoggerConfiguration()
-                .WriteTo.RollingFile(@"Logs\log-{Date}.log")
+                .WriteTo.RollingFile(Path.Combine(CatapultPaths.LogPath, "log-{Date}.log"))
                 .WriteTo.LogWindow()
                 .CreateLogger();
 

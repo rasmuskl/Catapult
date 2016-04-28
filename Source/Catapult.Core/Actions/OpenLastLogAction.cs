@@ -11,14 +11,12 @@ namespace Catapult.Core.Actions
     {
         public void RunAction()
         {
-            var logFolder = Path.Combine(Environment.CurrentDirectory, "Logs");
-
-            if (!Directory.Exists(logFolder))
+            if (!Directory.Exists(CatapultPaths.LogPath))
             {
                 return;
             }
 
-            var directoryInfo = new DirectoryInfo(logFolder);
+            var directoryInfo = new DirectoryInfo(CatapultPaths.LogPath);
 
             var lastLogFile = directoryInfo.GetFiles("*.log")
                 .OrderByDescending(x => x.LastWriteTimeUtc)
