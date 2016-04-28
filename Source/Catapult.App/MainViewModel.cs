@@ -254,7 +254,6 @@ namespace Catapult.App
             return null;
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -340,6 +339,8 @@ namespace Catapult.App
                     _dispatcher.Invoke(() =>
                     {
                         PushStack(pushStackIntent.Search);
+                        var searchItemModels = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
+                        UpdateSearchItems(searchItemModels.ToArray());
                     });
                 }
                 else if (intent is ShutdownIntent)

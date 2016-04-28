@@ -35,11 +35,6 @@ namespace Catapult.Core.Selecta
             searchString = searchString ?? string.Empty;
             boosterFunc = boosterFunc ?? (x => 0);
 
-            if (string.IsNullOrEmpty(searchString))
-            {
-                return Create(_allItems);
-            }
-
             var items = _matchedItems;
 
             if (!searchString.StartsWith(SearchString))
