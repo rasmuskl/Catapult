@@ -14,7 +14,7 @@ namespace Catapult.Core.Selecta
     public static class SearchResources
     {
         private static readonly object LockObject = new object();
-        private static FileItem[] _files;
+        private static volatile FileItem[] _files;
 
         private static string[] _paths;
         private static HashSet<string> _ignoredDirectories;
@@ -57,7 +57,7 @@ namespace Catapult.Core.Selecta
                     }
                     else
                     {
-                        toBeIndexed = new List<string>();
+                        toBeIndexed.Add(path);
                     }
 
                     allFiles.AddRange(indexedPaths);

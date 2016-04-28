@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
@@ -6,14 +8,24 @@ namespace Catapult.Core
 {
     public class FileItem : IIndexable
     {
+        private static readonly HashSet<string> HiddenExtensions = new HashSet<string>(new[] { ".lnk", ".url" }, StringComparer.InvariantCultureIgnoreCase);
+
         public string FullName { get; set; }
         public string Name { get; set; }
-        public string BoostIdentifier { get { return FullName; } }
+        public string BoostIdentifier => FullName;
 
         public FileItem(string fullName)
         {
             FullName = fullName;
-            Name = Path.GetFileName(fullName);
+
+            if (HiddenExtensions.Contains(Path.GetExtension(FullName)))
+            {
+                Name = Path.GetFileNameWithoutExtension(FullName);
+            }
+            else
+            {
+                Name = Path.GetFileName(FullName);
+            }
         }
 
         public object GetDetails()
