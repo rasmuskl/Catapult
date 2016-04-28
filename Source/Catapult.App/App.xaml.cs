@@ -57,8 +57,10 @@ namespace Catapult.App
 
             _hotKeyManager = new HotKeyManager();
 
+#if !DEBUG
             _hotKeyManager.Register(new HotKey(Key.Space, ModifierKeys.Alt));
             _hotKeyManager.KeyPressed += KeyHookKeyEvent;
+#endif
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico"))
             {
