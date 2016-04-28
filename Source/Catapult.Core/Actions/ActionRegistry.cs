@@ -12,21 +12,21 @@ namespace Catapult.Core.Actions
         {
             var actionType = typeof(TAction);
 
-            var itemSinkTypes = actionType.GetInterfaces()
-                .Where(x => x.Name == typeof(IItemSink<>).Name)
+            var actionTypes = actionType.GetInterfaces()
+                .Where(x => x.Name == typeof(IAction<>).Name)
                 .SelectMany(x => x.GenericTypeArguments)
                 .ToImmutableList();
 
-            foreach (var itemSinkType in itemSinkTypes)
+            foreach (var type in actionTypes)
             {
                 ImmutableList<Type> existingActionTypes;
-                if (_actionMappings.TryGetValue(itemSinkType, out existingActionTypes))
+                if (_actionMappings.TryGetValue(type, out existingActionTypes))
                 {
-                    _actionMappings = _actionMappings.SetItem(itemSinkType, existingActionTypes.Add(actionType));
+                    _actionMappings = _actionMappings.SetItem(type, existingActionTypes.Add(actionType));
                 }
                 else
                 {
-                    _actionMappings = _actionMappings.SetItem(itemSinkType, ImmutableList.Create(actionType));
+                    _actionMappings = _actionMappings.SetItem(type, ImmutableList.Create(actionType));
                 }
             }
         }

@@ -57,10 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ActionRegistry.cs" />
+    <Compile Include="Actions\ContainingFolderAction.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />
-    <Compile Include="Actions\IItemSink.cs" />
     <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />
     <Compile Include="Actions\OpenConfigAction.cs" />

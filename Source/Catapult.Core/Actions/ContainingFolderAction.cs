@@ -4,13 +4,15 @@ using Catapult.Core.Icons;
 
 namespace Catapult.Core.Actions
 {
-    public class OpenAction : IAction<FileItem>
+    public class ContainingFolderAction : IAction<FileItem>
     {
         public void RunAction(FileItem item)
         {
-            var fileInfo = new FileInfo(item.FullName);
+            var directoryName = Path.GetDirectoryName(item.FullName);
 
-            if (!fileInfo.Exists)
+            var directoryInfo = new DirectoryInfo(directoryName);
+
+            if (!directoryInfo.Exists)
             {
                 return;
             }
@@ -18,18 +20,19 @@ namespace Catapult.Core.Actions
             var info = new ProcessStartInfo
             {
                 FileName = "explorer",
-                Arguments = $"\"{fileInfo.FullName}\"",
+                Arguments = $"\"{directoryInfo.FullName}\"",
                 UseShellExecute = true,
             };
 
             Process.Start(info)?.Dispose();
         }
 
-        public string Name => "Open";
-        public string BoostIdentifier => "Open";
+        public string Name => "Containing Folder";
+        public string BoostIdentifier => "Containing Folder";
+
         public object GetDetails()
         {
-            return "Open";
+            return "Containing folder";
         }
 
         public IIconResolver GetIconResolver()

@@ -36,6 +36,7 @@ namespace Catapult.App
             _actionRegistry = new ActionRegistry();
 
             _actionRegistry.RegisterAction<OpenAction>();
+            _actionRegistry.RegisterAction<ContainingFolderAction>();
 
             var frecencyPath = CatapultPaths.FrecencyPath;
             _frecencyStorage = new FrecencyStorage(frecencyPath);
