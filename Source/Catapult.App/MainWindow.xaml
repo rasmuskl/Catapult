@@ -51,7 +51,7 @@
         <app:MainViewModel x:Name="Model" />
     </Window.DataContext>
     <StackPanel>
-        <ListBox Name="ContextItems" Background="Transparent" BorderThickness="0" ItemsSource="{Binding ContextItems}" FontSize="16" Height="30">
+        <ListBox Name="ContextItems" Background="Transparent" BorderThickness="0" ItemsSource="{Binding ContextItems}" FontSize="16" Height="30" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel IsItemsHost="True"></WrapPanel>

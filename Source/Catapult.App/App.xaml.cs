@@ -138,7 +138,7 @@ namespace Catapult.App
                 //_detailsWindow.Left = _mainWindow.Left;
                 //_detailsWindow.Show();
 
-                _mainWindow.Focus();
+                _mainWindow.Activate();
             }
             else
             {
