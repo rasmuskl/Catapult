@@ -5,16 +5,16 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class PathOfExileWikiAction : IStandaloneAction, IAction<string>
+    public class PathOfExileWikiAction : IStandaloneAction, IAction<StringIndexable>
     {
         public void RunAction()
         {
             Process.Start("http://pathofexile.gamepedia.com/");
         }
 
-        public void RunAction(string search)
+        public void RunAction(StringIndexable stringIndexable)
         {
-            Process.Start("http://pathofexile.gamepedia.com/index.php?search=" + Uri.EscapeDataString(search));
+            Process.Start("http://pathofexile.gamepedia.com/index.php?search=" + Uri.EscapeDataString(stringIndexable.Name));
         }
 
         public string Name => "Path of Exile wiki search";

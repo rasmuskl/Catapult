@@ -126,13 +126,13 @@ namespace Catapult.App
                     if (selectedIndexable is StringIndexable)
                     {
                         var stringIndexable = selectedIndexable as StringIndexable;
-                        var action = (IAction<string>)selectedAction;
+                        var action = (IAction<StringIndexable>)selectedAction;
 
                         _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
                         Reset();
 
-                        action.RunAction(stringIndexable.Name);
+                        action.RunAction(stringIndexable);
                         return;
                     }
 
@@ -203,7 +203,7 @@ namespace Catapult.App
 
                 var closedGenericType = GetInstanceOfGenericType(genericActionType, searchItemModel.TargetItem);
 
-                if (closedGenericType != null && closedGenericType == typeof(IAction<string>))
+                if (closedGenericType != null && closedGenericType == typeof(IAction<StringIndexable>))
                 {
                     _stack.Push(new StringSearchFrame());
                     _selectedIndexables.Push(searchItemModel.TargetItem);

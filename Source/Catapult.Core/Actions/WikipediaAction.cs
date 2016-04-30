@@ -5,16 +5,16 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class WikipediaAction : IStandaloneAction, IAction<string>
+    public class WikipediaAction : IStandaloneAction, IAction<StringIndexable>
     {
         public void RunAction()
         {
             Process.Start("https://wikipedia.org/");
         }
 
-        public void RunAction(string search)
+        public void RunAction(StringIndexable stringIndexable)
         {
-            Process.Start("https://wikipedia.org/wiki/Special:Search?search=" + Uri.EscapeDataString(search));
+            Process.Start("https://wikipedia.org/wiki/Special:Search?search=" + Uri.EscapeDataString(stringIndexable.Name));
         }
 
         public string Name => "Wikipedia search";

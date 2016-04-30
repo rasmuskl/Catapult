@@ -11,6 +11,7 @@ namespace Catapult.Core.Actions
         }
 
         public string Name { get; }
+
         public string BoostIdentifier => Name;
 
         public object GetDetails()

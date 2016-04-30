@@ -5,16 +5,16 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class GoogleAction : IStandaloneAction, IAction<string>
+    public class GoogleAction : IStandaloneAction, IAction<StringIndexable>
     {
         public void RunAction()
         {
             Process.Start("https://www.google.com/");
         }
 
-        public void RunAction(string search)
+        public void RunAction(StringIndexable stringIndexable)
         {
-            Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(search));
+            Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(stringIndexable.Name));
         }
 
         public string Name => "Google search";
