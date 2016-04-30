@@ -10,8 +10,8 @@ namespace Catapult.Core.Actions
             Name = name;
         }
 
-        public string Name { get; private set; }
-        public string BoostIdentifier { get { return Name; } }
+        public string Name { get; }
+        public string BoostIdentifier => Name;
 
         public object GetDetails()
         {

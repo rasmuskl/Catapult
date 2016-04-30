@@ -87,10 +87,7 @@ namespace Catapult.App
             MainListModel.SelectedIndex = 0;
         }
 
-        public ListViewModel MainListModel
-        {
-            get { return _mainListModel; }
-        }
+        public ListViewModel MainListModel => _mainListModel;
 
         public SmartObservableCollection<string> ContextItems { get; set; } = new SmartObservableCollection<string>();
 
