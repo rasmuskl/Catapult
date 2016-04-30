@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
 using Catapult.Core;
 using Catapult.Core.Config;
 using Catapult.Core.Debug;
