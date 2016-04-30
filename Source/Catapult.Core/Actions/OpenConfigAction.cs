@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class OpenConfigAction : IStandaloneAction
+    public class OpenConfigAction : IndexableBase, IStandaloneAction
     {
         public void RunAction()
         {
@@ -17,17 +16,6 @@ namespace Catapult.Core.Actions
             Process.Start(CatapultPaths.ConfigPath);
         }
 
-        public string Name => "Catapult: Open config file";
-        public string BoostIdentifier => "CatapulthOpenConfigFile";
-
-        public object GetDetails()
-        {
-            return "Open config file";
-        }
-
-        public IIconResolver GetIconResolver()
-        {
-            return new EmptyIconResolver();
-        }
+        public override string Name => "Catapult: Open config file";
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class KillProcessAction : IAction<RunningProcessInfo>
+    public class KillProcessAction : IndexableBase, IAction<RunningProcessInfo>
     {
         public void RunAction(RunningProcessInfo runningProcessInfo)
         {
@@ -12,17 +11,6 @@ namespace Catapult.Core.Actions
             process.Kill();
         }
 
-        public string Name { get { return "Kill process"; } }
-        public string BoostIdentifier { get { return "Kill process"; } }
-
-        public object GetDetails()
-        {
-            return "Kill process";
-        }
-
-        public IIconResolver GetIconResolver()
-        {
-            return new EmptyIconResolver();
-        }
+        public override string Name => "Kill process";
     }
 }

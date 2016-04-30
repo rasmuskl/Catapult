@@ -84,6 +84,7 @@
     <Compile Include="Frecency\FrecencyStorage.cs" />
     <Compile Include="Icons\FileIconResolver.cs" />
     <Compile Include="Icons\IIconResolver.cs" />
+    <Compile Include="Indexes\IndexableBase.cs" />
     <Compile Include="Indexes\DirectoryTraverser.cs" />
     <Compile Include="Indexes\EmptyIconResolver.cs" />
     <Compile Include="Indexes\EntryBoost.cs" />

@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using Catapult.Core.Icons;
+using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class ContainingFolderAction : IAction<FileItem>
+    public class ContainingFolderAction : IndexableBase, IAction<FileItem>
     {
         public void RunAction(FileItem item)
         {
@@ -27,17 +27,6 @@ namespace Catapult.Core.Actions
             Process.Start(info)?.Dispose();
         }
 
-        public string Name => "Containing Folder";
-        public string BoostIdentifier => "Containing Folder";
-
-        public object GetDetails()
-        {
-            return "Containing folder";
-        }
-
-        public IIconResolver GetIconResolver()
-        {
-            return null;
-        }
+        public override string Name => "Containing Folder";
     }
 }

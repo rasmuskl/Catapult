@@ -1,13 +1,11 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class OpenLastLogAction : IStandaloneAction
+    public class OpenLastLogAction : IndexableBase, IStandaloneAction
     {
         public void RunAction()
         {
@@ -30,17 +28,6 @@ namespace Catapult.Core.Actions
             Process.Start(lastLogFile.FullName);
         }
 
-        public string Name => "Catapult: Open last log";
-        public string BoostIdentifier => "CatapulthOpenLastLog";
-
-        public object GetDetails()
-        {
-            return "Open last debug log";
-        }
-
-        public IIconResolver GetIconResolver()
-        {
-            return new EmptyIconResolver();
-        }
+        public override string Name => "Catapult: Open last log";
     }
 }
