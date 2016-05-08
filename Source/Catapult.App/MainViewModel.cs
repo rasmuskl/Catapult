@@ -283,7 +283,7 @@ namespace Catapult.App
                 {
                     var searchIntent = intent as SearchIntent;
 
-                    var searchItemModels = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
+                    var searchResults = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
 
                     var itemModels = new List<SearchItemModel>();
 
@@ -302,7 +302,7 @@ namespace Catapult.App
                         }
                     }
 
-                    _dispatcher.Invoke(() => UpdateSearchItems(searchItemModels.Concat(itemModels).ToArray()));
+                    _dispatcher.Invoke(() => UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Concat(itemModels).ToArray()));
                 }
                 else if (intent is ExecuteIntent)
                 {
@@ -336,8 +336,8 @@ namespace Catapult.App
                     _dispatcher.Invoke(() =>
                     {
                         PushStack(pushStackIntent.Search);
-                        var searchItemModels = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                        UpdateSearchItems(searchItemModels.ToArray());
+                        var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
+                        UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
                     });
                 }
                 else if (intent is ShutdownIntent)
@@ -350,38 +350,6 @@ namespace Catapult.App
                     _dispatcher.Invoke(Reset);
                 }
             }
-        }
-    }
-
-    public interface ISearchFrame
-    {
-        SearchItemModel[] PerformSearch(string search, FrecencyStorage frecencyStorage);
-    }
-
-    public class IndexableSearchFrame : ISearchFrame
-    {
-        private Searcher _selectaSeacher;
-
-        public IndexableSearchFrame(IIndexable[] indexables)
-        {
-            _selectaSeacher = Searcher.Create(indexables);
-        }
-
-        public SearchItemModel[] PerformSearch(string search, FrecencyStorage frecencyStorage)
-        {
-            var frecencyData = frecencyStorage.GetFrecencyData();
-            Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
-            _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
-            var searchResults = _selectaSeacher.SearchResults.Take(10);
-            return searchResults.Select(x => new SearchItemModel(x.Name, x.Score, x.TargetItem, x.HighlightIndexes, x.TargetItem.GetIconResolver())).ToArray();
-        }
-    }
-
-    public class StringSearchFrame : ISearchFrame
-    {
-        public SearchItemModel[] PerformSearch(string search, FrecencyStorage frecencyStorage)
-        {
-            return new[] { new SearchItemModel(search, 0, new StringIndexable(search), ImmutableHashSet.Create<int>(), null) };
         }
     }
 

@@ -26,10 +26,18 @@ namespace Catapult.App
             InitIcon = LoadIconAsync(iconResolver);
         }
 
+        public SearchItemModel(SearchResult result) : this(result.Name, result.Score, result.TargetItem, result.HighlightIndexes, result.TargetItem?.GetIconResolver())
+        {
+        }
+
         public string Name { get; set; }
+
         public double Score { get; set; }
+
         public IIndexable TargetItem { get; set; }
+
         public Guid Id { get; set; }
+
         public ImmutableHashSet<int> HighlightIndexes { get; set; }
 
         public BitmapFrame Icon

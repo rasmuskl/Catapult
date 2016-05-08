@@ -61,6 +61,8 @@
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\IAction1.cs" />
+    <Compile Include="Actions\IndexableSearchFrame.cs" />
+    <Compile Include="Actions\ISearchFrame.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />
     <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Actions\PathOfExileWikiAction.cs" />
     <Compile Include="Actions\RunningProcessInfo.cs" />
     <Compile Include="Actions\StringIndexable.cs" />
+    <Compile Include="Actions\StringSearchFrame.cs" />
     <Compile Include="Actions\WikipediaAction.cs" />
     <Compile Include="CatapultPaths.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
