@@ -42,5 +42,13 @@ namespace Catapult.Core.Actions
 
             return ImmutableList.Create<Type>();
         }
+
+
+        public ImmutableList<Type> GetTypesFor(Type actionType)
+        {
+            return _actionMappings.Where(x => x.Value.Contains(actionType))
+                .Select(x => x.Key)
+                .ToImmutableList();
+        }
     }
 }

@@ -25,5 +25,20 @@ namespace Catapult.Tests
             actions.Any(x => x == typeof(OpenAction)).ShouldBeTrue();
             actions.Any(x => x == typeof(ContainingFolderAction)).ShouldBeTrue();
         }
+
+        [Test]
+        public void GetActionFor_GoogleAction()
+        {
+            var actionRegistry = new ActionRegistry();
+
+            actionRegistry.RegisterAction<OpenAction>();
+            actionRegistry.RegisterAction<ContainingFolderAction>();
+            actionRegistry.RegisterAction<GoogleAction>();
+
+            var types = actionRegistry.GetTypesFor(typeof(GoogleAction));
+
+            types.Count.ShouldEqual(1);
+            types.Any(x => x == typeof(StringIndexable)).ShouldBeTrue();
+        }
     }
 }
