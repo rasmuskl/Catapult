@@ -11,7 +11,6 @@ using Catapult.Core;
 using Catapult.Core.Actions;
 using Catapult.Core.Frecency;
 using Catapult.Core.Indexes;
-using Catapult.Core.Selecta;
 using Catapult.Spotify;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +23,6 @@ namespace Catapult.App
         private readonly ActionRegistry _actionRegistry;
 
         private readonly ListViewModel _mainListModel = new ListViewModel();
-        private readonly List<IIndexable> _actions = new List<IIndexable>();
         private readonly FrecencyStorage _frecencyStorage;
         private readonly Stack<ISearchFrame> _stack = new Stack<ISearchFrame>();
         private readonly Stack<IIndexable> _selectedIndexables = new Stack<IIndexable>();
@@ -41,19 +39,19 @@ namespace Catapult.App
             var frecencyPath = CatapultPaths.FrecencyPath;
             _frecencyStorage = new FrecencyStorage(frecencyPath);
 
-            RegisterAction<SpotifyNextTrackAction>();
-            RegisterAction<SpotifyPlayPauseAction>();
-            RegisterAction<SpotifyPreviousTrackAction>();
-            RegisterAction<SpotifyStopAction>();
+            _actionRegistry.RegisterAction<SpotifyNextTrackAction>();
+            _actionRegistry.RegisterAction<SpotifyPlayPauseAction>();
+            _actionRegistry.RegisterAction<SpotifyPreviousTrackAction>();
+            _actionRegistry.RegisterAction<SpotifyStopAction>();
 
-            RegisterAction<KillProcessAction>();
-            RegisterAction<OpenLastLogAction>();
-            RegisterAction<OpenLogFolderAction>();
-            RegisterAction<OpenConfigAction>();
+            _actionRegistry.RegisterAction<KillProcessAction>();
+            _actionRegistry.RegisterAction<OpenLastLogAction>();
+            _actionRegistry.RegisterAction<OpenLogFolderAction>();
+            _actionRegistry.RegisterAction<OpenConfigAction>();
 
-            RegisterAction<GoogleAction>();
-            RegisterAction<PathOfExileWikiAction>();
-            RegisterAction<WikipediaAction>();
+            _actionRegistry.RegisterAction<GoogleAction>();
+            _actionRegistry.RegisterAction<PathOfExileWikiAction>();
+            _actionRegistry.RegisterAction<WikipediaAction>();
 
             Reset();
 
@@ -71,14 +69,8 @@ namespace Catapult.App
         {
             _stack.Clear();
             _selectedIndexables.Clear();
-            _stack.Push(new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray()));
+            _stack.Push(_actionRegistry.GetSearchFrame(null));
             StackPushed?.Invoke();
-        }
-
-        private void RegisterAction<T>() where T : IIndexable, new()
-        {
-            _actionRegistry.RegisterAction<T>();
-            _actions.Add(new T());
         }
 
         private void UpdateSearchItems(SearchItemModel[] searchItemModels)
@@ -195,35 +187,18 @@ namespace Catapult.App
                 return;
             }
 
-            var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
+            SearchItemModel searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
+            Type itemType = searchItemModel.TargetItem.GetType();
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(itemType);
 
-            if (searchItemModel.TargetItem is IAction)
+            if (searchFrame == null)
             {
-                var genericActionType = typeof(IAction<>);
-
-                var closedGenericType = GetInstanceOfGenericType(genericActionType, searchItemModel.TargetItem);
-
-                if (closedGenericType != null && closedGenericType == typeof(IAction<StringIndexable>))
-                {
-                    _stack.Push(new StringSearchFrame());
-                    _selectedIndexables.Push(searchItemModel.TargetItem);
-                    StackPushed?.Invoke();
-                }
+                return;
             }
-            else
-            {
-                var actionTypes = _actionRegistry.GetActionFor(searchItemModel.TargetItem.GetType());
-
-                if (!actionTypes.Any())
-                {
-                    return;
-                }
-
-                var indexables = actionTypes.Select(Activator.CreateInstance).OfType<IIndexable>().ToArray();
-                _stack.Push(new IndexableSearchFrame(indexables));
-                _selectedIndexables.Push(searchItemModel.TargetItem);
-                StackPushed?.Invoke();
-            }
+            
+            _stack.Push(searchFrame);
+            _selectedIndexables.Push(searchItemModel.TargetItem);
+            StackPushed?.Invoke();
         }
 
         static Type GetInstanceOfGenericType(Type genericType, object instance)
