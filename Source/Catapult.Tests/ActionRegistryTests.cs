@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Catapult.Core;
 using Catapult.Core.Actions;
+using Catapult.Core.Indexes;
 using NUnit.Framework;
 using Should;
 
@@ -11,50 +13,84 @@ namespace Catapult.Tests
     [TestFixture]
     public class ActionRegistryTests
     {
-        [Test]
-        public void GetActionFor_FileItem()
+        private ActionRegistry _actionRegistry;
+
+        [SetUp]
+        public void BeforeEachTest()
         {
-            var actionRegistry = new ActionRegistry();
+            _actionRegistry = new ActionRegistry();
 
-            actionRegistry.RegisterAction<OpenAction>();
-            actionRegistry.RegisterAction<ContainingFolderAction>();
-            actionRegistry.RegisterAction<GoogleAction>();
-
-            ImmutableList<Type> actions = actionRegistry.GetActionFor(typeof(FileItem));
-
-            actions.Count.ShouldEqual(2);
-
-            actions.Any(x => x == typeof(OpenAction)).ShouldBeTrue();
-            actions.Any(x => x == typeof(ContainingFolderAction)).ShouldBeTrue();
+            _actionRegistry.RegisterAction<OpenAction>();
+            _actionRegistry.RegisterAction<ContainingFolderConverter>();
+            _actionRegistry.RegisterAction<GoogleAction>();
         }
 
         [Test]
+        public void GetActionFor_FileItem()
+        {
+            ImmutableList<ActionMapping> actions = _actionRegistry.GetActionForInType(typeof(FileItem));
+
+            actions.Count.ShouldEqual(1);
+
+            actions.Any(x => x.ActionType == typeof(OpenAction)).ShouldBeTrue();
+        }
+        
+        [Test]
         public void GetActionFor_GoogleAction()
         {
-            var actionRegistry = new ActionRegistry();
-
-            actionRegistry.RegisterAction<OpenAction>();
-            actionRegistry.RegisterAction<ContainingFolderAction>();
-            actionRegistry.RegisterAction<GoogleAction>();
-
-            ImmutableList<Type> types = actionRegistry.GetTypesFor(typeof(GoogleAction));
+            ImmutableList<ActionMapping> types = _actionRegistry.GetTypesFor(typeof(GoogleAction));
 
             types.Count.ShouldEqual(1);
-            types.Any(x => x == typeof(StringIndexable)).ShouldBeTrue();
+            types.Any(x => x.InType == typeof(StringIndexable)).ShouldBeTrue();
         }
 
         [Test]
         public void GetSearchFrame_GoogleAction()
         {
-            var actionRegistry = new ActionRegistry();
-
-            actionRegistry.RegisterAction<OpenAction>();
-            actionRegistry.RegisterAction<ContainingFolderAction>();
-            actionRegistry.RegisterAction<GoogleAction>();
-
-            ISearchFrame searchFrame = actionRegistry.GetSearchFrame(typeof(GoogleAction));
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(new IIndexable[] { new GoogleAction() });
 
             searchFrame.ShouldBeType<StringSearchFrame>();
+        }
+
+        [Test]
+        public void GetSearchFrame_FileItem()
+        {
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(new IIndexable[] { new FileItem(Assembly.GetExecutingAssembly().Location) });
+
+            var indexableSearchFrame = searchFrame.ShouldBeType<IndexableSearchFrame>();
+
+            indexableSearchFrame.Indexables.Length.ShouldEqual(2);
+            indexableSearchFrame.Indexables.OfType<ContainingFolderConverter>().Count().ShouldEqual(1);
+        }
+
+        [Test]
+        public void GetSearchFrame_FileItem_ContainingFolder()
+        {
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(new IIndexable[] { new FileItem(Assembly.GetExecutingAssembly().Location), new ContainingFolderConverter() });
+
+            var indexableSearchFrame = searchFrame.ShouldBeType<IndexableSearchFrame>();
+
+            indexableSearchFrame.Indexables.Length.ShouldEqual(2);
+            indexableSearchFrame.Indexables.OfType<OpenAction>().Count().ShouldEqual(1);
+            indexableSearchFrame.Indexables.OfType<ContainingFolderConverter>().Count().ShouldEqual(1);
+        }
+
+        [Test]
+        public void Launch_FileItem()
+        {
+            Launchable launchable = _actionRegistry.Launch(new IIndexable[] { new FileItem(Assembly.GetExecutingAssembly().Location) });
+
+            launchable.Action.ShouldBeType<OpenAction>();
+            launchable.Target.ShouldBeType<FileItem>();
+        }
+
+        [Test]
+        public void Launch_FileItem_ContainingFolder()
+        {
+            Launchable launchable = _actionRegistry.Launch(new IIndexable[] { new FileItem(Assembly.GetExecutingAssembly().Location), new ContainingFolderConverter() });
+
+            launchable.Action.ShouldBeType<OpenAction>();
+            launchable.Target.ShouldBeType<FolderItem>();
         }
     }
 }

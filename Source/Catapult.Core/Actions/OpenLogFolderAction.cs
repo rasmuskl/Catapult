@@ -8,7 +8,7 @@ namespace Catapult.Core.Actions
 {
     public class OpenLogFolderAction : IStandaloneAction
     {
-        public void RunAction()
+        public void Run()
         {
             if (!Directory.Exists(CatapultPaths.LogPath))
             {

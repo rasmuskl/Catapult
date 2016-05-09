@@ -7,12 +7,12 @@ namespace Catapult.Core.Actions
 {
     public class WikipediaAction : IStandaloneAction, IAction<StringIndexable>
     {
-        public void RunAction()
+        public void Run()
         {
             Process.Start("https://wikipedia.org/");
         }
 
-        public void RunAction(StringIndexable stringIndexable)
+        public void Run(StringIndexable stringIndexable)
         {
             Process.Start("https://wikipedia.org/wiki/Special:Search?search=" + Uri.EscapeDataString(stringIndexable.Name));
         }

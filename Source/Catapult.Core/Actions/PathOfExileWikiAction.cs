@@ -7,12 +7,12 @@ namespace Catapult.Core.Actions
 {
     public class PathOfExileWikiAction : IStandaloneAction, IAction<StringIndexable>
     {
-        public void RunAction()
+        public void Run()
         {
             Process.Start("http://pathofexile.gamepedia.com/");
         }
 
-        public void RunAction(StringIndexable stringIndexable)
+        public void Run(StringIndexable stringIndexable)
         {
             Process.Start("http://pathofexile.gamepedia.com/index.php?search=" + Uri.EscapeDataString(stringIndexable.Name));
         }

@@ -5,7 +5,7 @@ namespace Catapult.Core.Actions
 {
     public class KillProcessAction : IndexableBase, IAction<RunningProcessInfo>
     {
-        public void RunAction(RunningProcessInfo runningProcessInfo)
+        public void Run(RunningProcessInfo runningProcessInfo)
         {
             var process = Process.GetProcessById(runningProcessInfo.ProcessId);
             process.Kill();

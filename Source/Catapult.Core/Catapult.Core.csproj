@@ -60,8 +60,8 @@
     <Compile Include="Actions\ContainingFolderAction.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
-    <Compile Include="Actions\IAction1.cs" />
     <Compile Include="Actions\IAutocomplete.cs" />
+    <Compile Include="Actions\IConvert.cs" />
     <Compile Include="Actions\IndexableSearchFrame.cs" />
     <Compile Include="Actions\ISearchFrame.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />
@@ -83,6 +83,7 @@
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
     <Compile Include="FileItemDetails.cs" />
+    <Compile Include="FolderItem.cs" />
     <Compile Include="Frecency\FrecencyData.cs" />
     <Compile Include="Frecency\FrecencyEntry.cs" />
     <Compile Include="Frecency\FrecencyStorage.cs" />

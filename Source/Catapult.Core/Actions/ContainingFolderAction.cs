@@ -4,27 +4,30 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class ContainingFolderAction : IndexableBase, IAction<FileItem>
+    public class ContainingFolderConverter : IndexableBase, IConvert<FileItem, FolderItem>, IConvert<FolderItem, FolderItem>
     {
-        public void RunAction(FileItem item)
+        public FolderItem Convert(FileItem item)
         {
-            var directoryName = Path.GetDirectoryName(item.FullName);
+            return GetFolderItem(item.FullName);
+        }
+
+        public FolderItem Convert(FolderItem item)
+        {
+            return GetFolderItem(item.FullName);
+        }
+
+        private static FolderItem GetFolderItem(string fullName)
+        {
+            var directoryName = Path.GetDirectoryName(fullName);
 
             var directoryInfo = new DirectoryInfo(directoryName);
 
             if (!directoryInfo.Exists)
             {
-                return;
+                return null;
             }
 
-            var info = new ProcessStartInfo
-            {
-                FileName = "explorer",
-                Arguments = $"\"{directoryInfo.FullName}\"",
-                UseShellExecute = true,
-            };
-
-            Process.Start(info)?.Dispose();
+            return new FolderItem(directoryName);
         }
 
         public override string Name => "Containing Folder";

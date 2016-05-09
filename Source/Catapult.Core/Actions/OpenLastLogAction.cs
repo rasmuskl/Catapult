@@ -7,7 +7,7 @@ namespace Catapult.Core.Actions
 {
     public class OpenLastLogAction : IndexableBase, IStandaloneAction
     {
-        public void RunAction()
+        public void Run()
         {
             if (!Directory.Exists(CatapultPaths.LogPath))
             {

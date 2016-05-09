@@ -6,7 +6,7 @@ namespace Catapult.Core.Actions
 {
     public class OpenConfigAction : IndexableBase, IStandaloneAction
     {
-        public void RunAction()
+        public void Run()
         {
             if (!File.Exists(CatapultPaths.ConfigPath))
             {

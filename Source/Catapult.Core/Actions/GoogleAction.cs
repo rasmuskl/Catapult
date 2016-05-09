@@ -12,12 +12,12 @@ namespace Catapult.Core.Actions
 {
     public class GoogleAction : IndexableBase, IStandaloneAction, IAction<StringIndexable>, IAutocomplete
     {
-        public void RunAction()
+        public void Run()
         {
             Process.Start("https://www.google.com/");
         }
 
-        public void RunAction(StringIndexable stringIndexable)
+        public void Run(StringIndexable stringIndexable)
         {
             Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(stringIndexable.Name));
         }

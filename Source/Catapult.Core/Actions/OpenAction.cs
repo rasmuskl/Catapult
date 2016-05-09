@@ -4,9 +4,9 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class OpenAction : IndexableBase, IAction<FileItem>
+    public class OpenAction : IndexableBase, IAction<FileItem>, IAction<FolderItem>
     {
-        public void RunAction(FileItem item)
+        public void Run(FileItem item)
         {
             var fileInfo = new FileInfo(item.FullName);
 
@@ -15,10 +15,27 @@ namespace Catapult.Core.Actions
                 return;
             }
 
+            Launch(fileInfo.FullName);
+        }
+
+        public void Run(FolderItem item)
+        {
+            var directoryInfo = new DirectoryInfo(item.FullName);
+
+            if (!directoryInfo.Exists)
+            {
+                return;
+            }
+
+            Launch(directoryInfo.FullName);
+        }
+
+        private static void Launch(string fullName)
+        {
             var info = new ProcessStartInfo
             {
                 FileName = "explorer",
-                Arguments = $"\"{fileInfo.FullName}\"",
+                Arguments = $"\"{fullName}\"",
                 UseShellExecute = true,
             };
 

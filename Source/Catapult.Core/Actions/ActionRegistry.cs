@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Catapult.Core.Indexes;
 using Catapult.Core.Selecta;
 
@@ -9,60 +10,62 @@ namespace Catapult.Core.Actions
 {
     public class ActionRegistry
     {
-        private ImmutableDictionary<Type, ImmutableList<Type>> _actionMappings = ImmutableDictionary.Create<Type, ImmutableList<Type>>();
+        private ImmutableList<ActionMapping> _actionMappings = ImmutableList.Create<ActionMapping>();
+        private ImmutableList<ConvertMapping> _convertMappings = ImmutableList.Create<ConvertMapping>();
         private readonly List<IIndexable> _actions = new List<IIndexable>();
 
-        public void RegisterAction<TAction>() where TAction : IIndexable, new()
+        public void RegisterAction<T>() where T : IIndexable, new()
         {
-            var actionType = typeof(TAction);
+            _actions.Add(new T());
 
-            var actionTypes = actionType.GetInterfaces()
-                .Where(x => x.Name == typeof(IAction<>).Name)
-                .SelectMany(x => x.GenericTypeArguments)
+            var actionType = typeof(T);
+
+            ImmutableList<ActionMapping> actionTypesOne = actionType.GetInterfaces()
+                .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IAction<>))
+                .Select(x => new ActionMapping(actionType, x.GenericTypeArguments[0]))
                 .ToImmutableList();
 
-            _actions.Add(new TAction());
+            _actionMappings = _actionMappings.AddRange(actionTypesOne);
 
-            foreach (var type in actionTypes)
-            {
-                ImmutableList<Type> existingActionTypes;
-                if (_actionMappings.TryGetValue(type, out existingActionTypes))
-                {
-                    _actionMappings = _actionMappings.SetItem(type, existingActionTypes.Add(actionType));
-                }
-                else
-                {
-                    _actionMappings = _actionMappings.SetItem(type, ImmutableList.Create(actionType));
-                }
-            }
+            ImmutableList<ConvertMapping> convertTypes = actionType.GetInterfaces()
+                .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IConvert<,>))
+                .Select(x => new ConvertMapping(actionType, x.GenericTypeArguments[0], x.GenericTypeArguments[1]))
+                .ToImmutableList();
+
+            _convertMappings = _convertMappings.AddRange(convertTypes);
         }
 
-        public ImmutableList<Type> GetActionFor(Type itemType)
+        public ImmutableList<ActionMapping> GetActionForInType(Type itemType)
         {
-            ImmutableList<Type> actionTypeList;
-
-            if (_actionMappings.TryGetValue(itemType, out actionTypeList))
-            {
-                return actionTypeList;
-            }
-
-            return ImmutableList.Create<Type>();
-        }
-
-
-        public ImmutableList<Type> GetTypesFor(Type actionType)
-        {
-            return _actionMappings.Where(x => x.Value.Contains(actionType))
-                .Select(x => x.Key)
+            return _actionMappings
+                .Where(x => x.InType == itemType)
                 .ToImmutableList();
         }
 
-        public ISearchFrame GetSearchFrame(Type type)
+        public ImmutableList<ConvertMapping> GetConvertForInType(Type itemType)
         {
-            if (type == null)
+            return _convertMappings
+                .Where(x => x.InType == itemType)
+                .ToImmutableList();
+        }
+
+        public ImmutableList<ActionMapping> GetTypesFor(Type actionType)
+        {
+            return _actionMappings
+                .Where(x => x.ActionType == actionType)
+                .ToImmutableList();
+        }
+
+        public ISearchFrame GetSearchFrame(IIndexable[] indexables)
+        {
+            indexables = indexables?.Where(x => x != null).ToArray() ?? new IIndexable[0];
+
+            if (!indexables.Any())
             {
                 return new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray());
             }
+
+            Type type = indexables.First().GetType();
 
             var closedActionType = GetInstanceOfGenericType(typeof(IAction<>), type);
 
@@ -70,22 +73,113 @@ namespace Catapult.Core.Actions
             {
                 if (typeof(IAutocomplete).IsAssignableFrom(type))
                 {
-                    IAutocomplete instance = (IAutocomplete)Activator.CreateInstance(type);
-                    return new StringSearchFrame(instance.GetAutocompleteResults);
+                    IAutocomplete autocomplete = (IAutocomplete)Activator.CreateInstance(type);
+                    return new StringSearchFrame(autocomplete.GetAutocompleteResults);
                 }
 
                 return new StringSearchFrame(null);
             }
 
-            var actionTypes = GetActionFor(type);
+            var targetTypes = new Type[0];
+
+            foreach (IIndexable indexable in indexables)
+            {
+                if (indexable is IAction)
+                {
+                    if (targetTypes.Any())
+                    {
+                        return null;
+                    }
+
+                    var actionParameterTypes = indexable.GetType().GetInterfaces()
+                        .Where(x => x.IsGenericTypeDefinition && x.GetGenericTypeDefinition() == typeof(IAction<>))
+                        .Select(x => x.GenericTypeArguments[0])
+                        .ToArray();
+
+                    targetTypes = actionParameterTypes;
+                }
+                else if (indexable is IConvert)
+                {
+                    if (targetTypes.Length == 1)
+                    {
+                        var convertParameterTypes = indexable.GetType().GetInterfaces()
+                           .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IConvert<,>) && x.GenericTypeArguments[0] == targetTypes[0])
+                           .Select(x => x.GenericTypeArguments[1])
+                           .ToArray();
+
+                        targetTypes = convertParameterTypes;
+                    }
+                }
+                else
+                {
+                    targetTypes = new[] { indexable.GetType() };
+                }
+            }
+
+            var actionTypes = targetTypes
+                .SelectMany(x => GetActionForInType(x).Select(y => y.ActionType))
+                .ToArray();
+
+            var convertTypes = targetTypes
+                .SelectMany(x => GetConvertForInType(x).Select(y => y.ConvertType))
+                .ToArray();
 
             if (actionTypes.Any())
             {
-                var indexables = actionTypes.Select(Activator.CreateInstance).OfType<IIndexable>().ToArray();
-                return new IndexableSearchFrame(indexables);
+                var matchedIndexables = actionTypes.Concat(convertTypes).Select(Activator.CreateInstance).OfType<IIndexable>().ToArray();
+                return new IndexableSearchFrame(matchedIndexables);
             }
 
-            return new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray());
+            return null;
+        }
+
+        public Launchable Launch(IIndexable[] indexables)
+        {
+            IIndexable action = null;
+            IIndexable target = null;
+
+            foreach (IIndexable indexable in indexables)
+            {
+                if (indexable is IAction)
+                {
+                    action = indexable;
+                    continue;
+                }
+                else if (indexable is IConvert)
+                {
+                    if (target == null)
+                    {
+                        throw new NotSupportedException("Converts before target are not supported yet.");
+                    }
+
+                    var convertParameterTypes = indexable.GetType().GetInterfaces()
+                        .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IConvert<,>) && x.GenericTypeArguments[0] == target.GetType())
+                        .Select(x => x.GenericTypeArguments[1])
+                        .ToArray();
+
+                    if (convertParameterTypes.Length != 1)
+                    {
+                        throw new InvalidOperationException("Unexpected convert parameter type count: " +
+                                                            convertParameterTypes.Length);
+                    }
+
+                    target = (IIndexable)indexable.GetType()
+                        .GetMethod("Convert", new[] { target.GetType() })
+                        .Invoke(indexable, new[] { target });
+                }
+                else
+                {
+                    target = indexable;
+                }
+            }
+
+            if (target != null && action == null)
+            {
+                var actionList = GetActionForInType(target.GetType());
+                action = (IIndexable)Activator.CreateInstance(actionList.First().ActionType);
+            }
+
+            return new Launchable(action, target);
         }
 
         static Type GetInstanceOfGenericType(Type genericType, Type instanceType)
@@ -110,5 +204,43 @@ namespace Catapult.Core.Actions
 
             return null;
         }
+    }
+
+    public class Launchable
+    {
+        public IIndexable Action { get; set; }
+        public IIndexable Target { get; set; }
+
+        public Launchable(IIndexable action, IIndexable target)
+        {
+            Action = action;
+            Target = target;
+        }
+    }
+
+    public class ActionMapping
+    {
+        public ActionMapping(Type actionType, Type inType)
+        {
+            ActionType = actionType;
+            InType = inType;
+        }
+
+        public Type ActionType { get; }
+        public Type InType { get; }
+    }
+
+    public class ConvertMapping
+    {
+        public ConvertMapping(Type convertType, Type inType, Type outType)
+        {
+            ConvertType = convertType;
+            InType = inType;
+            OutType = outType;
+        }
+
+        public Type ConvertType { get; }
+        public Type InType { get; }
+        public Type OutType { get; }
     }
 }

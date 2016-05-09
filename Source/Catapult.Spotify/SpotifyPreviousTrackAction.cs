@@ -5,7 +5,7 @@ namespace Catapult.Spotify
 {
     public class SpotifyPreviousTrackAction : IndexableBase, IStandaloneAction
     {
-        public void RunAction()
+        public void Run()
         {
             new SpotifyClient().PreviousTrack();
         }

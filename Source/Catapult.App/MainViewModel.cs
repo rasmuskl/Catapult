@@ -30,7 +30,7 @@ namespace Catapult.App
             _actionRegistry = new ActionRegistry();
 
             _actionRegistry.RegisterAction<OpenAction>();
-            _actionRegistry.RegisterAction<ContainingFolderAction>();
+            _actionRegistry.RegisterAction<ContainingFolderConverter>();
 
             var frecencyPath = CatapultPaths.FrecencyPath;
             _frecencyStorage = new FrecencyStorage(frecencyPath);
@@ -88,58 +88,8 @@ namespace Catapult.App
 
             var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
             var targetItem = searchItemModel.TargetItem;
-
-            if (_selectedIndexables.Any())
-            {
-                var lastSelectedIndexable = _selectedIndexables.Peek();
-
-                IAction selectedAction = targetItem as IAction;
-                IIndexable selectedIndexable = lastSelectedIndexable;
-
-                if (selectedAction == null && lastSelectedIndexable is IAction)
-                {
-                    selectedAction = (IAction)lastSelectedIndexable;
-                    selectedIndexable = targetItem;
-                }
-
-                if (selectedAction == null)
-                {
-                    throw new Exception("No action selected.");
-                }
-
-                var closedGenericType = GetInstanceOfGenericType(typeof(IAction<>), selectedAction);
-
-                if (closedGenericType != null)
-                {
-                    if (selectedIndexable is StringIndexable)
-                    {
-                        var stringIndexable = selectedIndexable as StringIndexable;
-                        var action = (IAction<StringIndexable>)selectedAction;
-
-                        _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
-
-                        Reset();
-
-                        action.RunAction(stringIndexable);
-                        return;
-                    }
-
-                    if (selectedIndexable is FileItem)
-                    {
-                        var fileItem = selectedIndexable as FileItem;
-                        var action = (IAction<FileItem>)selectedAction;
-
-                        _frecencyStorage.AddUse(action.BoostIdentifier, search, _mainListModel.SelectedIndex);
-
-                        Reset();
-
-                        action.RunAction(fileItem);
-                        return;
-                    }
-                }
-            }
-
             var standaloneAction = targetItem as IStandaloneAction;
+
             if (standaloneAction != null)
             {
                 Log.Information("Launching {@TargetItem} with {ActionType}", targetItem, standaloneAction.GetType());
@@ -147,7 +97,7 @@ namespace Catapult.App
                 try
                 {
                     _frecencyStorage.AddUse(targetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
-                    standaloneAction.RunAction();
+                    standaloneAction.Run();
                 }
                 catch (Exception ex)
                 {
@@ -157,22 +107,33 @@ namespace Catapult.App
                 return;
             }
 
-            var actionList = _actionRegistry.GetActionFor(targetItem.GetType());
-            var firstActionType = actionList.First();
+            var launchable = _actionRegistry.Launch(_selectedIndexables.Reverse().Concat(new[] { targetItem }).ToArray());
+
+            if (launchable?.Action == null)
+            {
+                throw new Exception("Unable to find action.");
+            }
+
+            if (launchable.Target == null)
+            {
+                throw new Exception("Unable to find target.");
+            }
 
             try
             {
-                var actionInstance = Activator.CreateInstance(firstActionType);
-                var runMethod = firstActionType.GetMethod("RunAction");
+                _frecencyStorage.AddUse(launchable.Action.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
-                _frecencyStorage.AddUse(targetItem.BoostIdentifier, search, _mainListModel.SelectedIndex);
+                Reset();
 
-                Log.Information("Launching {@TargetItem} with {ActionType}", targetItem, firstActionType);
-                runMethod.Invoke(actionInstance, new[] { targetItem });
+                Log.Information("Launching {@TargetItem} with {ActionType}", launchable.Target, launchable.Action);
+
+                launchable.Action.GetType()
+                    .GetMethod("Run", new[] { launchable.Target.GetType() })
+                    .Invoke(launchable.Action, new[] { launchable.Target });
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", targetItem, firstActionType);
+                Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", launchable.Target, launchable.Action);
             }
         }
 
@@ -184,42 +145,16 @@ namespace Catapult.App
             }
 
             SearchItemModel searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
-            Type itemType = searchItemModel.TargetItem.GetType();
-            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(itemType);
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(_selectedIndexables.Reverse().Concat(new [] { searchItemModel.TargetItem }).ToArray());
 
             if (searchFrame == null)
             {
                 return;
             }
-            
+
             _stack.Push(searchFrame);
             _selectedIndexables.Push(searchItemModel.TargetItem);
             StackPushed?.Invoke();
-        }
-
-        static Type GetInstanceOfGenericType(Type genericType, object instance)
-        {
-            Type type = instance.GetType();
-
-            while (type != null)
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == genericType)
-                {
-                    return type;
-                }
-
-                foreach (var i in type.GetInterfaces())
-                {
-                    if (i.IsGenericType && i.GetGenericTypeDefinition() == genericType)
-                    {
-                        return i;
-                    }
-                }
-
-                type = type.BaseType;
-            }
-
-            return null;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

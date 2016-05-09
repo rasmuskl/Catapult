@@ -9,9 +9,11 @@ namespace Catapult.Core.Actions
     public class IndexableSearchFrame : ISearchFrame
     {
         private Searcher _selectaSeacher;
+        public IIndexable[] Indexables { get; }
 
         public IndexableSearchFrame(IIndexable[] indexables)
         {
+            Indexables = indexables;
             _selectaSeacher = Searcher.Create(indexables);
         }
 
