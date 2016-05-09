@@ -61,6 +61,7 @@
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\IAction1.cs" />
+    <Compile Include="Actions\IAutocomplete.cs" />
     <Compile Include="Actions\IndexableSearchFrame.cs" />
     <Compile Include="Actions\ISearchFrame.cs" />
     <Compile Include="Actions\IStandaloneAction.cs" />

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Windows.Threading;
 using Catapult.Core;
@@ -12,8 +10,6 @@ using Catapult.Core.Actions;
 using Catapult.Core.Frecency;
 using Catapult.Core.Indexes;
 using Catapult.Spotify;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace Catapult.App
@@ -260,24 +256,7 @@ namespace Catapult.App
 
                     var searchResults = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
 
-                    var itemModels = new List<SearchItemModel>();
-
-                    var firstIndexable = _selectedIndexables.FirstOrDefault();
-                    if (firstIndexable is GoogleAction && !string.IsNullOrWhiteSpace(searchIntent.Search))
-                    {
-                        using (var webClient = new WebClient())
-                        {
-                            var suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeDataString(searchIntent.Search));
-                            var suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
-
-                            foreach (var suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new[] { searchIntent.Search }).Distinct())
-                            {
-                                itemModels.Add(new SearchItemModel(suggestion, 0, new StringIndexable(suggestion), ImmutableHashSet.Create<int>(), null));
-                            }
-                        }
-                    }
-
-                    _dispatcher.Invoke(() => UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Concat(itemModels).ToArray()));
+                    _dispatcher.Invoke(() => UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray()));
                 }
                 else if (intent is ExecuteIntent)
                 {
