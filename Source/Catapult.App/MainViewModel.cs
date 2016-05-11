@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Threading;
@@ -137,6 +138,69 @@ namespace Catapult.App
             }
         }
 
+        public void PerformFastAction(FastAction fastAction)
+        {
+            if (!_mainListModel.Items.Any())
+            {
+                return;
+            }
+
+            var searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
+            var targetItem = searchItemModel.TargetItem;
+
+            var fileItem = targetItem as FileItem;
+            var folderItem = targetItem as FolderItem;
+
+            var path = fileItem?.FullName ?? folderItem?.FullName;
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
+            if (fastAction == FastAction.Left)
+            {
+                var parentPath = Path.GetDirectoryName(path);
+                
+                if (_stack.Peek() is FileNavigationSearchFrame)
+                {
+                    if (!Directory.Exists(Path.GetDirectoryName(parentPath)))
+                    {
+                        return;
+                    }
+
+                    _stack.Push(new FileNavigationSearchFrame(Path.GetDirectoryName(parentPath), parentPath));
+                }
+                else
+                {
+                    if (!Directory.Exists(parentPath))
+                    {
+                        return;
+                    }
+
+                    _stack.Push(new FileNavigationSearchFrame(parentPath, path));
+                }
+
+                StackPushed?.Invoke();
+
+                var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
+                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Take(10).ToArray());
+            }
+            else if (fastAction == FastAction.Right)
+            {
+                if (folderItem == null)
+                {
+                    return;
+                }
+
+                _stack.Push(new FileNavigationSearchFrame(folderItem.FullName, null));
+                StackPushed?.Invoke();
+
+                var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
+                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Take(10).ToArray());
+            }
+        }
+
         private void PushStack(string search)
         {
             if (!_mainListModel.Items.Any())
@@ -145,7 +209,7 @@ namespace Catapult.App
             }
 
             SearchItemModel searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
-            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(_selectedIndexables.Reverse().Concat(new [] { searchItemModel.TargetItem }).ToArray());
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(_selectedIndexables.Reverse().Concat(new[] { searchItemModel.TargetItem }).ToArray());
 
             if (searchFrame == null)
             {
@@ -229,6 +293,15 @@ namespace Catapult.App
                         UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
                     });
                 }
+                else if (intent is FastActionIntent)
+                {
+                    var fastActionIntent = intent as FastActionIntent;
+
+                    _dispatcher.Invoke(() =>
+                    {
+                        PerformFastAction(fastActionIntent.FastAction);
+                    });
+                }
                 else if (intent is ShutdownIntent)
                 {
                     var shutdownIntent = intent as ShutdownIntent;
@@ -265,6 +338,22 @@ namespace Catapult.App
         {
             Search = search;
         }
+    }
+
+    public class FastActionIntent : IIntent
+    {
+        public FastAction FastAction { get; set; }
+
+        public FastActionIntent(FastAction fastAction)
+        {
+            FastAction = fastAction;
+        }
+    }
+
+    public enum FastAction
+    {
+        Left,
+        Right
     }
 
     public class ShutdownIntent : IIntent

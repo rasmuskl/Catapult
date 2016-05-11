@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Actions\ActionRegistry.cs" />
     <Compile Include="Actions\ContainingFolderAction.cs" />
+    <Compile Include="Actions\FileNavigationSearchFrame.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\IAutocomplete.cs" />

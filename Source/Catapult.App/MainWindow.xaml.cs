@@ -59,6 +59,16 @@ namespace Catapult.App
             {
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up));
             }
+            else if (e.Key == Key.Left)
+            {
+                e.Handled = true;
+                Model.AddIntent(new FastActionIntent(FastAction.Left));
+            }
+            else if (e.Key == Key.Right)
+            {
+                e.Handled = true;
+                Model.AddIntent(new FastActionIntent(FastAction.Right));
+            }
             else if (e.Key == Key.Tab)
             {
                 e.Handled = true;
