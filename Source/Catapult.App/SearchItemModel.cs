@@ -17,20 +17,22 @@ namespace Catapult.App
     {
         private BitmapFrame _icon;
 
-        public SearchItemModel(string name, double score, IIndexable targetItem, ImmutableHashSet<int> highlightIndexes, IIconResolver iconResolver)
+        public SearchItemModel(string name, string details, double score, IIndexable targetItem, ImmutableHashSet<int> highlightIndexes, IIconResolver iconResolver)
         {
             Name = name;
+            Details = details;
             Score = score;
             TargetItem = targetItem;
             HighlightIndexes = highlightIndexes;
             InitIcon = LoadIconAsync(iconResolver);
         }
 
-        public SearchItemModel(SearchResult result) : this(result.Name, result.Score, result.TargetItem, result.HighlightIndexes, result.TargetItem?.GetIconResolver())
+        public SearchItemModel(SearchResult result) : this(result.Name, result.TargetItem.Details, result.Score, result.TargetItem, result.HighlightIndexes, result.TargetItem?.GetIconResolver())
         {
         }
 
         public string Name { get; set; }
+        public string Details { get; set; }
 
         public double Score { get; set; }
 

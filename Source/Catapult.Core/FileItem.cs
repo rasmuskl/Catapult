@@ -12,6 +12,7 @@ namespace Catapult.Core
 
         public string FullName { get; set; }
         public string Name { get; set; }
+        public string Details { get; set; }
         public string BoostIdentifier => FullName;
 
         public FileItem(string fullName)
@@ -26,6 +27,8 @@ namespace Catapult.Core
             {
                 Name = Path.GetFileName(FullName);
             }
+
+            Details = Path.GetDirectoryName(FullName);
         }
 
         public object GetDetails()

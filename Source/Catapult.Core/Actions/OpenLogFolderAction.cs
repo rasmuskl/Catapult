@@ -19,6 +19,8 @@ namespace Catapult.Core.Actions
         }
 
         public string Name => "Catapult: Open log folder";
+        public string Details => string.Empty;
+
         public string BoostIdentifier => "CatapultOpenLogFolder";
 
         public object GetDetails()

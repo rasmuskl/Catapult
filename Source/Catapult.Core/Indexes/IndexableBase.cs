@@ -5,6 +5,7 @@ namespace Catapult.Core.Indexes
     public abstract class IndexableBase : IIndexable
     {
         public abstract string Name { get; }
+        public virtual string Details => string.Empty;
         public virtual string BoostIdentifier => $"{GetType().Name}-{Name}";
 
         public virtual object GetDetails()

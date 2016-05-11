@@ -18,6 +18,8 @@ namespace Catapult.Core.Actions
         }
 
         public string Name => "Wikipedia search";
+        public string Details => string.Empty;
+        
         public string BoostIdentifier => Name;
 
         public object GetDetails()

@@ -8,12 +8,14 @@ namespace Catapult.Core
     {
         public string FullName { get; set; }
         public string Name { get; set; }
+        public string Details { get; set; }
         public string BoostIdentifier => FullName;
 
         public FolderItem(string fullName)
         {
             FullName = fullName;
             Name = Path.GetFileName(FullName);
+            Details = Path.GetDirectoryName(fullName);
         }
 
         public object GetDetails()

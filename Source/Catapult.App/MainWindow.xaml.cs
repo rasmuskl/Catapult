@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -28,8 +29,10 @@ namespace Catapult.App
             }
             else
             {
-                SearchItems.Height = 4 + SearchItems.Items.Count * 38;
+                SearchItems.Height = 4 + SearchItems.Items.Count * 52;
             }
+
+            Height = 300 + SearchItems.Height;
         }
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
