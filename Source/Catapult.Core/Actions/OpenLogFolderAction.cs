@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using Catapult.Core.Icons;
 using Catapult.Core.Indexes;

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Actions\ActionRegistry.cs" />
     <Compile Include="Actions\ContainingFolderAction.cs" />
+    <Compile Include="Actions\DisableRunAtStartUpAction.cs" />
     <Compile Include="Actions\FileNavigationSearchFrame.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Actions\OpenLogFolderAction.cs" />
     <Compile Include="Actions\PathOfExileWikiAction.cs" />
     <Compile Include="Actions\RunningProcessInfo.cs" />
+    <Compile Include="Actions\StartWithWindowsAction.cs" />
     <Compile Include="Actions\StringIndexable.cs" />
     <Compile Include="Actions\StringSearchFrame.cs" />
     <Compile Include="Actions\WikipediaAction.cs" />

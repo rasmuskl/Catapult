@@ -45,6 +45,8 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<OpenLastLogAction>();
             _actionRegistry.RegisterAction<OpenLogFolderAction>();
             _actionRegistry.RegisterAction<OpenConfigAction>();
+            _actionRegistry.RegisterAction<EnableRunAtStartUpAction>();
+            _actionRegistry.RegisterAction<DisableRunAtStartUpAction>();
 
             _actionRegistry.RegisterAction<GoogleAction>();
             _actionRegistry.RegisterAction<PathOfExileWikiAction>();
