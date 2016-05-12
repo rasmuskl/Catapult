@@ -90,13 +90,27 @@ namespace Catapult.Core.Selecta
             var fileItems = allFiles
                 .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
                 .Distinct()
-                .Select(x => new FileItem(x))
+                .Select(BuildFileItem)
+                .Where(x => x != null)
                 .ToArray();
 
             stopwatch.Stop();
 
             Log.Information("Built {count} FileItems for index in {time} ms", fileItems.Length, stopwatch.ElapsedMilliseconds);
             return fileItems;
+        }
+
+        private static FileItem BuildFileItem(string fullName)
+        {
+            try
+            {
+                return new FileItem(fullName);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to build FileItem for {FullName}", fullName);
+                return null;
+            }
         }
 
         public static FileItem[] GetFiles()
