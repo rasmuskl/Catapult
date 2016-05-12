@@ -21,7 +21,7 @@ namespace Catapult.Core.Actions
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(_title))
+                if (_title.IsNullOrWhiteSpace())
                 {
                     return $"{_processName} [{_processId}]";
                 }

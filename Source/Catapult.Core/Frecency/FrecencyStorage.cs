@@ -19,6 +19,11 @@ namespace Catapult.Core.Frecency
 
         public void AddUse(string boostIdentifier, string searchString, int selectedIndex)
         {
+            if (boostIdentifier.IsNullOrWhiteSpace())
+            {
+                return;
+            }
+
             _data.AddUse(boostIdentifier, searchString, selectedIndex);
             SaveData();
         }

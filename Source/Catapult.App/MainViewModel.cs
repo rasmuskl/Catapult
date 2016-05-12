@@ -52,6 +52,8 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<PathOfExileWikiAction>();
             _actionRegistry.RegisterAction<WikipediaAction>();
 
+            _actionRegistry.RegisterAction<UnderscorizeClipboardString>();
+
             Reset();
 
             StartIntentService(Dispatcher.CurrentDispatcher);
@@ -70,6 +72,9 @@ namespace Catapult.App
             _selectedIndexables.Clear();
             _stack.Push(_actionRegistry.GetSearchFrame(null));
             StackPushed?.Invoke();
+
+            var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
+            UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Take(10).ToArray());
         }
 
         private void UpdateSearchItems(SearchItemModel[] searchItemModels)

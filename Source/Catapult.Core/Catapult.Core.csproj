@@ -50,6 +50,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -59,6 +60,7 @@
     <Compile Include="Actions\ActionRegistry.cs" />
     <Compile Include="Actions\ContainingFolderAction.cs" />
     <Compile Include="Actions\DisableRunAtStartUpAction.cs" />
+    <Compile Include="Actions\EnableRxunAtStartUpAction.cs" />
     <Compile Include="Actions\FileNavigationSearchFrame.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
@@ -111,6 +113,7 @@
     <Compile Include="Selecta\Searcher.cs" />
     <Compile Include="Selecta\SearchResources.cs" />
     <Compile Include="Selecta\SelectaSearcher.cs" />
+    <Compile Include="StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

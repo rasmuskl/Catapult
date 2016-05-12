@@ -24,7 +24,7 @@ namespace Catapult.Core.Actions
 
         public SearchResult[] GetAutocompleteResults(string search)
         {
-            if (string.IsNullOrWhiteSpace(search))
+            if (search.IsNullOrWhiteSpace())
             {
                 return new SearchResult[0];
             }

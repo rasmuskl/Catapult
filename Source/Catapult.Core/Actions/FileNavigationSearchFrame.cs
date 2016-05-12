@@ -53,7 +53,7 @@ namespace Catapult.Core.Actions
         {
             _searcher = _searcher.Search(search);
 
-            if (string.IsNullOrWhiteSpace(search) && _primaryIndexable != null)
+            if (search.IsNullOrWhiteSpace() && _primaryIndexable != null)
             {
                 var primarySearchResult = new SearchResult(_primaryIndexable.Name, 0, _primaryIndexable, ImmutableHashSet.Create<int>());
                 return new[] { primarySearchResult }.Concat(_searcher.SearchResults.Where(x => x.TargetItem != _primaryIndexable)).ToArray();

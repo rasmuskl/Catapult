@@ -43,5 +43,6 @@ namespace Catapult.Core.Actions
         }
 
         public override string Name => "Open";
+        public override string BoostIdentifier => string.Empty; // To force not appearing in top of frecency
     }
 }

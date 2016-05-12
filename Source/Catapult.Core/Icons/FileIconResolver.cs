@@ -38,7 +38,7 @@ namespace Catapult.Core.Icons
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(iconPath))
+                if (iconPath.IsSet())
                 {
                     return Icons.ExtractOne(iconPath, iconIndex, Icons.SystemIconSize.Large);
                 }
