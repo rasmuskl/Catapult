@@ -29,7 +29,7 @@ namespace Catapult.App
             }
             else
             {
-                SearchItems.Height = 4 + SearchItems.Items.Count * 52;
+                SearchItems.Height = 3 + SearchItems.Items.Count * 50;
             }
 
             Height = 300 + SearchItems.Height;

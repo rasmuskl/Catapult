@@ -6,38 +6,37 @@
         Loaded="MainWindow_OnLoaded"
         Activated="MainWindow_OnActivated">
     <Window.Resources>
-
         <DataTemplate x:Key="ItemTemplate">
+            <DataTemplate.DataType>
+                <x:Type TypeName="app:SearchItemModel"></x:Type>
+            </DataTemplate.DataType>
             <DockPanel LastChildFill="True" Height="48">
                 <Image DockPanel.Dock="Left" Height="32" Width="32" Source="{Binding Path=Icon}" Margin="3,3,5,0"></Image>
                 <DockPanel DockPanel.Dock="Right">
                     <Label DockPanel.Dock="Bottom" FontSize="10" VerticalContentAlignment="Bottom" Content="{Binding Score}" Foreground="#555"></Label>
                 </DockPanel>
-                <StackPanel>
-                    <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#D9D9D9" FontSize="18" Padding="0" Margin="0" />
-                    <Label Content="{Binding Path=Details, Converter={StaticResource HighlightConverter}}" Foreground="#888888" FontSize="12" Padding="0" Margin="0" />
-                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" VerticalAlignment="Center" Foreground="#D9D9D9" FontSize="18" Padding="0" Margin="0" />
+                    <TextBlock x:Name="ItemDetails" Grid.Row="1" Text="{Binding Details}" VerticalAlignment="Center" Foreground="#888888" FontSize="12" Padding="0 0 0 5" Margin="0" />
+                </Grid>
             </DockPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Details}" Value="{x:Null}">
+                    <Setter TargetName="ItemDetails" Property="Visibility" Value="Collapsed"></Setter>
+                </DataTrigger>
+            </DataTemplate.Triggers>
         </DataTemplate>
-
-        <DataTemplate x:Key="SelectedTemplate">
-            <DockPanel LastChildFill="True" Height="48">
-                <Image DockPanel.Dock="Left" Height="32" Width="32" Source="{Binding Path=Icon}" Margin="3,3,5,0"></Image>
-                <DockPanel DockPanel.Dock="Right">
-                    <Label DockPanel.Dock="Bottom" FontSize="10" VerticalContentAlignment="Bottom" Content="{Binding Score}" Foreground="#888"></Label>
-                </DockPanel>
-                <StackPanel>
-                    <Label Content="{Binding Path=., Converter={StaticResource HighlightConverter}}" Foreground="#D9D9D9" FontSize="18" Padding="0" Margin="0" />
-                    <Label Content="{Binding Path=Details, Converter={StaticResource HighlightConverter}}" Foreground="#BBBBBB" FontSize="12" Padding="0" Margin="0" />
-                </StackPanel>
-            </DockPanel>
-        </DataTemplate>
-
         <Style TargetType="{x:Type ListBoxItem}" x:Key="ContainerStyle">
+            <Setter Property="Template" Value="{DynamicResource SearchListBoxItem}" />
             <Setter Property="ContentTemplate" Value="{StaticResource ItemTemplate}" />
+            <Setter Property="BorderThickness" Value="0"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="ContentTemplate" Value="{StaticResource SelectedTemplate}" />
+                    <!--<Setter Property="ContentTemplate" Value="{StaticResource SelectedTemplate}" />-->
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -48,7 +47,7 @@
                         <Border x:Name="border" Background="#FF222222" CornerRadius="0" BorderBrush="#FF66FF00" BorderThickness="0,1,0,1">
                             <ScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Border>
-                    </ControlTemplate>        
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
