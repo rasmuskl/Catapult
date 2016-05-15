@@ -29,7 +29,7 @@ namespace Catapult.Core.Actions
 
         public IIconResolver GetIconResolver()
         {
-            return new EmptyIconResolver();
+            return new FaviconIconResolver("https://hydra-media.cursecdn.com/pathofexile.gamepedia.com/6/64/Favicon.ico");
         }
     }
 }

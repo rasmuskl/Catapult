@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -46,5 +47,10 @@ namespace Catapult.Core.Actions
         }
 
         public override string Name => "Google search";
+
+        public override IIconResolver GetIconResolver()
+        {
+            return new FaviconIconResolver("http://www.google.com/favicon.ico");
+        }
     }
 }

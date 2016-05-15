@@ -29,7 +29,7 @@ namespace Catapult.Core.Actions
 
         public IIconResolver GetIconResolver()
         {
-            return new EmptyIconResolver();
+            return new FaviconIconResolver("http://www.wikipedia.com/favicon.ico");
         }
     }
 }
