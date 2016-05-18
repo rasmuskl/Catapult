@@ -22,8 +22,7 @@ namespace Catapult.Core.Actions
             var frecencyData = frecencyStorage.GetFrecencyData();
             Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
             _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
-            var searchResults = _selectaSeacher.SearchResults.Take(10);
-            return searchResults.ToArray();
+            return _selectaSeacher.SearchResults;
         }
     }
 }

@@ -91,7 +91,7 @@
                  VerticalAlignment="Center" 
                  Padding="5,5,5,5" 
                  FontSize="24" />
-        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" Margin="0,0,0,0" Background="#FF333333" HorizontalContentAlignment="Stretch" Padding="0" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" />
+        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" SelectionChanged="SearchItems_OnSelectionChanged" Margin="0,0,0,0" Background="#FF333333" HorizontalContentAlignment="Stretch" Padding="0" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"  VirtualizingStackPanel.IsVirtualizing="True" />
     </StackPanel>
 </Window>
 

@@ -29,7 +29,7 @@ namespace Catapult.App
             }
             else
             {
-                SearchItems.Height = 3 + SearchItems.Items.Count * 50;
+                SearchItems.Height = 3 + Math.Min(10, SearchItems.Items.Count) * 50;
             }
 
             Height = 300 + SearchItems.Height;
@@ -55,9 +55,17 @@ namespace Catapult.App
             {
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Down));
             }
+            if (e.Key == Key.PageDown)
+            {
+                Model.AddIntent(new MoveSelectionIntent(MoveDirection.Down, 10));
+            }
             else if (e.Key == Key.Up)
             {
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up));
+            }
+            else if (e.Key == Key.PageUp)
+            {
+                Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up, 10));
             }
             else if (e.Key == Key.Left)
             {
@@ -96,6 +104,11 @@ namespace Catapult.App
         {
             var source = e.OriginalSource as TextBox;
             Model.AddIntent(new SearchIntent(source?.Text ?? string.Empty));
+        }
+
+        private void SearchItems_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SearchItems.ScrollIntoView(SearchItems.SelectedItem);
         }
     }
 }

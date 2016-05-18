@@ -74,7 +74,7 @@ namespace Catapult.App
             StackPushed?.Invoke();
 
             var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-            UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Take(10).ToArray());
+            UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
         }
 
         private void UpdateSearchItems(SearchItemModel[] searchItemModels)
@@ -192,7 +192,7 @@ namespace Catapult.App
                 StackPushed?.Invoke();
 
                 var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Take(10).ToArray());
+                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
             }
             else if (fastAction == FastAction.Right)
             {
@@ -205,7 +205,7 @@ namespace Catapult.App
                 StackPushed?.Invoke();
 
                 var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).Take(10).ToArray());
+                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
             }
         }
 
@@ -282,11 +282,11 @@ namespace Catapult.App
                     {
                         if (moveSelectionIntent.Direction == MoveDirection.Down)
                         {
-                            MainListModel.SelectedIndex = Math.Min(MainListModel.Items.Count, MainListModel.SelectedIndex + 1);
+                            MainListModel.SelectedIndex = Math.Min(MainListModel.Items.Count, MainListModel.SelectedIndex + moveSelectionIntent.Count);
                         }
                         else
                         {
-                            MainListModel.SelectedIndex = Math.Max(0, MainListModel.SelectedIndex - 1);
+                            MainListModel.SelectedIndex = Math.Max(0, MainListModel.SelectedIndex - moveSelectionIntent.Count);
                         }
                     });
                 }
@@ -377,10 +377,12 @@ namespace Catapult.App
     public class MoveSelectionIntent : IIntent
     {
         public MoveDirection Direction { get; set; }
+        public int Count { get; set; }
 
-        public MoveSelectionIntent(MoveDirection direction)
+        public MoveSelectionIntent(MoveDirection direction, int count = 1)
         {
             Direction = direction;
+            Count = count;
         }
     }
 
