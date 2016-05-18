@@ -94,6 +94,7 @@
     <Compile Include="Config\JsonConfigLoader.cs" />
     <Compile Include="Config\JsonIndexData.cs" />
     <Compile Include="Config\JsonUserConfiguration.cs" />
+    <Compile Include="ControlPanelItem.cs" />
     <Compile Include="Debug\LogWindowLoggerConfigurationExtensions.cs" />
     <Compile Include="Debug\Log.cs" />
     <Compile Include="FileItem.cs" />
@@ -104,7 +105,9 @@
     <Compile Include="Frecency\FrecencyStorage.cs" />
     <Compile Include="Icons\FaviconIconResolver.cs" />
     <Compile Include="Icons\FileIconResolver.cs" />
+    <Compile Include="Icons\IconResolver.cs" />
     <Compile Include="Icons\IIconResolver.cs" />
+    <Compile Include="Indexes\ControlPanelIndexer.cs" />
     <Compile Include="Indexes\IndexableBase.cs" />
     <Compile Include="Indexes\DirectoryTraverser.cs" />
     <Compile Include="Indexes\EmptyIconResolver.cs" />

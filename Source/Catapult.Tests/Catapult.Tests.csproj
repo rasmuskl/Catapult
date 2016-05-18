@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionRegistryTests.cs" />
+    <Compile Include="ControlPanelIndexerTests.cs" />
     <Compile Include="FuzzyMatcherTests.cs" />
     <Compile Include="IconTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

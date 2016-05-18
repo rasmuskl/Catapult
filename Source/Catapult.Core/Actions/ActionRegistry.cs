@@ -62,7 +62,7 @@ namespace Catapult.Core.Actions
 
             if (!indexables.Any())
             {
-                return new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).ToArray());
+                return new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).ToArray());
             }
 
             Type type = indexables.First().GetType();
