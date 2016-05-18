@@ -130,6 +130,7 @@ namespace Catapult.App
             try
             {
                 _frecencyStorage.AddUse(launchable.Action.BoostIdentifier, search, _mainListModel.SelectedIndex);
+                _frecencyStorage.AddUse(launchable.Target.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
                 Reset();
 
