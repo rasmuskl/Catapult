@@ -35,6 +35,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.10\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="Serilog, Version=1.5.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.1.5.14\lib\net45\Serilog.dll</HintPath>
       <Private>True</Private>
@@ -61,13 +63,16 @@
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ActionRegistry.cs" />
+    <Compile Include="Actions\ClipboardHistoryAction.cs" />
     <Compile Include="Actions\ContainingFolderAction.cs" />
     <Compile Include="Actions\DisableRunAtStartUpAction.cs" />
     <Compile Include="Actions\EnableRxunAtStartUpAction.cs" />
@@ -107,6 +112,7 @@
     <Compile Include="Icons\FileIconResolver.cs" />
     <Compile Include="Icons\IconResolver.cs" />
     <Compile Include="Icons\IIconResolver.cs" />
+    <Compile Include="Indexes\ClipboardIndexer.cs" />
     <Compile Include="Indexes\ControlPanelIndexer.cs" />
     <Compile Include="Indexes\IndexableBase.cs" />
     <Compile Include="Indexes\DirectoryTraverser.cs" />

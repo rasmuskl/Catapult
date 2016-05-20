@@ -49,13 +49,17 @@ namespace Catapult.Core.Selecta
                 .Where(x => x.MatchScore.Score < int.MaxValue)
                 .ToArray();
 
-            var searchResults = matches
-                .OrderBy(x => x.MatchScore.Score - x.Boost)
-                .ThenBy(x => x.Indexable.Name.Length)
-                .ThenBy(x => x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex)
-                .Select(x => new SearchResult(x.Indexable.Name, x.MatchScore.Score - x.Boost, x.Indexable, x.MatchScore.MatchSet))
-                .ToArray();
+            var orderedMatches = matches
+                .OrderBy(x => x.MatchScore.Score - x.Boost);
 
+            if (searchString.IsSet())
+            {
+                orderedMatches = orderedMatches.ThenBy(x => x.Indexable.Name.Length);
+            }
+            
+            orderedMatches = orderedMatches.ThenBy(x => x.MatchScore.Range.EndIndex - x.MatchScore.Range.StartIndex);
+            
+            var searchResults = orderedMatches.Select(x => new SearchResult(x.Indexable.Name, x.MatchScore.Score - x.Boost, x.Indexable, x.MatchScore.MatchSet)).ToArray();
             var matchedItems = matches.Select(x => x.Indexable).ToArray();
 
             scoreStopwatch.Stop();

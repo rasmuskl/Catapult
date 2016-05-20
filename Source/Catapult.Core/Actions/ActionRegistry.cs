@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Catapult.Core.Indexes;
 using Catapult.Core.Selecta;
 
@@ -75,6 +74,12 @@ namespace Catapult.Core.Actions
                 {
                     IAutocomplete autocomplete = (IAutocomplete)Activator.CreateInstance(type);
                     return new StringSearchFrame(autocomplete.GetAutocompleteResults);
+                }
+
+                if (typeof(ClipboardHistoryAction).IsAssignableFrom(type))
+                {
+                    ClipboardHistoryAction clipboardHistoryAction = (ClipboardHistoryAction)Activator.CreateInstance(type);
+                    return clipboardHistoryAction.GetSearchFrame();
                 }
 
                 return new StringSearchFrame(null);

@@ -125,7 +125,7 @@ namespace Catapult.App
 
         private void ToggleMainWindow()
         {
-            if (_mainWindow.Visibility != Visibility.Visible)
+            if (_mainWindow.Visibility != Visibility.Visible) 
             {
                 _mainWindow.Show();
                 _mainWindow.Topmost = true;
@@ -154,6 +154,7 @@ namespace Catapult.App
         {
             _notifyIcon.Visible = false;
             _hotKeyManager.Dispose();
+            SearchResources.Dispose();
         }
     }
 }

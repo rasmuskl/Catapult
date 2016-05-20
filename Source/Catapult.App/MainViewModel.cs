@@ -52,6 +52,7 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<PathOfExileWikiAction>();
             _actionRegistry.RegisterAction<WikipediaAction>();
 
+            _actionRegistry.RegisterAction<ClipboardHistoryAction>();
             _actionRegistry.RegisterAction<UnderscorizeClipboardString>();
 
             Reset();
