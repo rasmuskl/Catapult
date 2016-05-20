@@ -53,18 +53,22 @@ namespace Catapult.App
         {
             if (e.Key == Key.Down)
             {
+                e.Handled = true;
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Down));
             }
             if (e.Key == Key.PageDown)
             {
+                e.Handled = true;
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Down, 10));
             }
             else if (e.Key == Key.Up)
             {
+                e.Handled = true;
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up));
             }
             else if (e.Key == Key.PageUp)
             {
+                e.Handled = true;
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up, 10));
             }
             else if (e.Key == Key.Left)
