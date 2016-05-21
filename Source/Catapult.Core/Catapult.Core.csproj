@@ -112,6 +112,7 @@
     <Compile Include="Icons\FileIconResolver.cs" />
     <Compile Include="Icons\IconResolver.cs" />
     <Compile Include="Icons\IIconResolver.cs" />
+    <Compile Include="Icons\UrlIconResolver.cs" />
     <Compile Include="Indexes\ClipboardIndexer.cs" />
     <Compile Include="Indexes\ControlPanelIndexer.cs" />
     <Compile Include="Indexes\IndexableBase.cs" />

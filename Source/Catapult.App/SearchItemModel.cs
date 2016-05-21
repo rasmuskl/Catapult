@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Catapult.App.Properties;
+using Catapult.Core;
 using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 
@@ -62,7 +63,9 @@ namespace Catapult.App
         private async Task LoadIconAsync(IIconResolver iconResolver)
         {
             BitmapFrame frame;
-            if (IconCache.TryGetValue(TargetItem.BoostIdentifier, out frame))
+            var cacheKey = TargetItem.BoostIdentifier.IsSet() ? TargetItem.BoostIdentifier : $"{TargetItem.GetType()}: {TargetItem.Name}";
+
+            if (IconCache.TryGetValue(cacheKey, out frame))
             {
                 Icon = frame;
                 return;
@@ -90,7 +93,7 @@ namespace Catapult.App
                 return;
             }
 
-            IconCache.AddOrUpdate(TargetItem.BoostIdentifier, bitmapFrame, (x, f) => bitmapFrame);
+            IconCache.AddOrUpdate(cacheKey, bitmapFrame, (x, f) => bitmapFrame);
 
             Icon = bitmapFrame;
         }
