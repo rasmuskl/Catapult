@@ -86,6 +86,7 @@
     <Compile Include="Actions\IStandaloneAction.cs" />
     <Compile Include="Actions\KillProcessAction.cs" />
     <Compile Include="Actions\OpenAction.cs" />
+    <Compile Include="Actions\OpenAsAdminAction.cs" />
     <Compile Include="Actions\OpenConfigAction.cs" />
     <Compile Include="Actions\OpenLastLogAction.cs" />
     <Compile Include="Actions\OpenLogFolderAction.cs" />
