@@ -5,6 +5,7 @@ namespace Catapult.Core.Selecta
 {
     public class SelectaSearcher
     {
+        private static readonly SelectaMode Mode = SelectaMode.Strict;
         private static readonly MatchScore NoMatch = MatchScore.Create(int.MaxValue, new Range(0, 0), ImmutableHashSet.Create<int>());
 
         public MatchScore Score(string searchString, string targetString)
@@ -176,6 +177,11 @@ namespace Catapult.Core.Selecta
                         }
                     }
 
+                    if (Mode == SelectaMode.Strict && matchType == MatchType.Normal)
+                    {
+                        continue;
+                    }
+
                     var match = GetBestMatch(searchString.Substring(1), targetString, i, nextScore, matchedIndexes.Add(i), matchType);
 
                     if (match.Score < bestMatch.Score)
@@ -199,5 +205,11 @@ namespace Catapult.Core.Selecta
                 EndIndex = endIndex;
             }
         }
+    }
+
+    public enum SelectaMode
+    {
+        Normal,
+        Strict
     }
 }
