@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Linq;
-using Catapult.Core.Indexes;
 using Catapult.Core.Selecta;
 using NUnit.Framework;
 using Should;
@@ -96,15 +94,6 @@ namespace Catapult.Tests
         }
 
         [Test]
-        public void Rank_Boost()
-        {
-            var boostDictionary = ImmutableDictionary.Create<string, EntryBoost>()
-                .Add("tsw", new EntryBoost("The Sewer"));
-
-            AssertRankOrder("tsw", "The Sewer", "This Secret World", boostDictionary);
-        }
-
-        [Test]
         public void Regressions()
         {
             AssertMatches("clie", "OpenVPN Client.lnk");
@@ -124,12 +113,11 @@ namespace Catapult.Tests
             AssertRankOrder("ste", "Steam", "Sublime Text 3");
         }
 
-        private void AssertRankOrder(string searchString, string firstLong, string secondLong, ImmutableDictionary<string, EntryBoost> boostDictionary = null)
+        private void AssertRankOrder(string searchString, string firstLong, string secondLong)
         {
             var strings = new[] { firstLong, secondLong };
             var matcher = Searcher.Create(strings.ToStringIndexables());
             var reverseMatcher = Searcher.Create(strings.Reverse().ToStringIndexables());
-
 
             var results = matcher.Search(searchString);
             var reversedResults = reverseMatcher.Search(searchString);

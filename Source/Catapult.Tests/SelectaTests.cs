@@ -27,6 +27,7 @@ namespace Catapult.Tests
         [TestCase("am", "appm/models", 100)]
         [TestCase("spec", "spearch_spec.rb", 100)]
         [TestCase("amu", "app/models/user.rb", 100)]
+        [TestCase("a.b", "app.bok", 100)]
         [TestCase("word", "Microsoft Word", 100)]
         [TestCase("lice", "LICE.rb", 100)]
         [TestCase("vstud", "SQL Server Management Studio", 1600)]
@@ -35,6 +36,5 @@ namespace Catapult.Tests
             var score = new SelectaSearcher().Score2(searchString, targetString);
             Assert.AreEqual(expectedScore, score.Score);
         }
-
     }
 }

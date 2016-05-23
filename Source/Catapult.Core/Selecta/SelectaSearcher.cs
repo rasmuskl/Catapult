@@ -26,12 +26,7 @@ namespace Catapult.Core.Selecta
                 var score = 1;
                 var match = FindEndOfMatch(targetString, restSearchChars, score, i, ImmutableHashSet.Create(i));
 
-                if (match == null)
-                {
-                    continue;
-                }
-
-                if (match.Score < bestMatch.Score)
+                if (match?.Score < bestMatch.Score)
                 {
                     bestMatch = match;
                 }
@@ -125,12 +120,7 @@ namespace Catapult.Core.Selecta
 
         public MatchScore Score2(string searchString, string targetString)
         {
-            searchString = searchString.ToLowerInvariant();
-            targetString = targetString.ToLowerInvariant();
-
-            var result = GetBestMatch(searchString, targetString, null, 1, ImmutableHashSet.Create<int>(), MatchType.Normal);
-
-            return result;
+            return GetBestMatch(searchString, targetString, null, 1, ImmutableHashSet.Create<int>(), MatchType.Normal);
         }
 
         private static MatchScore GetBestMatch(string searchString, string targetString, int? lastIndex, int score, ImmutableHashSet<int> matchedIndexes, MatchType lastMatch)
@@ -140,13 +130,13 @@ namespace Catapult.Core.Selecta
                 return MatchScore.Create(score, new Range(0, 0), matchedIndexes);
             }
 
-            var searchChar = searchString.First();
+            var searchChar = char.ToLowerInvariant(searchString.First());
 
             var bestMatch = NoMatch;
 
             for (var i = lastIndex + 1 ?? 0; i < targetString.Length; i++)
             {
-                if (targetString[i] == searchChar)
+                if (char.ToLowerInvariant(targetString[i]) == searchChar)
                 {
                     MatchType matchType;
                     var nextScore = score;
@@ -155,7 +145,11 @@ namespace Catapult.Core.Selecta
                     {
                         matchType = MatchType.Sequential;
                     }
-                    else if (i == 0 || !char.IsLetterOrDigit(targetString[i - 1]))
+                    else if (i == 0 || !char.IsLetterOrDigit(targetString[i - 1]) || !char.IsLetterOrDigit(targetString[i]))
+                    {
+                        matchType = MatchType.Boundary;
+                    }
+                    else if (char.IsLower(targetString[i - 1]) && char.IsUpper(targetString[i]))
                     {
                         matchType = MatchType.Boundary;
                     }
@@ -193,44 +187,6 @@ namespace Catapult.Core.Selecta
 
             return bestMatch;
         }
-
-        //private static Result MatchNextChar(string searchString, IndexEntry entry, int lastIndex, int consecutiveChars, ImmutableHashSet<int> matchedIndexes, double boost, ImmutableList<int> charIndexes)
-        //{
-        //    double maxScore = 0;
-        //    Result best = null;
-
-        //    foreach (var charIndex in charIndexes)
-        //    {
-        //        var charBoost = 0;
-
-        //        if (entry.Boundaries.Contains(charIndex - 1) || entry.CapitalLetters.Contains(charIndex))
-        //        {
-        //            charBoost += 10;
-        //        }
-
-        //        if (lastIndex == charIndex - 1)
-        //        {
-        //            consecutiveChars += 1;
-        //            charBoost += 10 * consecutiveChars;
-        //        }
-        //        else
-        //        {
-        //            consecutiveChars = 0;
-        //        }
-
-        //        var charMatchedIndexes = matchedIndexes.Add(charIndex);
-
-        //        var result = GetBestMatch(searchString.Substring(1), entry, charIndex, consecutiveChars, charMatchedIndexes, boost + charBoost);
-
-        //        if (result != null && result.Score > maxScore)
-        //        {
-        //            best = result;
-        //            maxScore = best.Score;
-        //        }
-        //    }
-
-        //    return best;
-        //}
 
         public class Range
         {
