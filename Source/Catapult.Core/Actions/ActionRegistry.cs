@@ -62,8 +62,8 @@ namespace Catapult.Core.Actions
 
             if (!indexables.Any())
             {
-                Func<IndexableResult> fetchIndexables = () => new IndexableResult(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).ToArray(), SearchResources.LastUpdatedUtc.ToString(CultureInfo.InvariantCulture));
-                Func<string> getUpdatedState = () => SearchResources.LastUpdatedUtc.ToString(CultureInfo.InvariantCulture);
+                Func<IndexableResult> fetchIndexables = () => new IndexableResult(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).ToArray(), SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture));
+                Func<string> getUpdatedState = () => SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture);
                 var indexableUpdateState = new IndexableUpdateState(fetchIndexables, getUpdatedState);
                 return new UpdateableIndexableSearchFrame(indexableUpdateState);
             }

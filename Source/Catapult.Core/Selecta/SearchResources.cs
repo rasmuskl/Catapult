@@ -14,10 +14,10 @@ namespace Catapult.Core.Selecta
     public static class SearchResources
     {
         private static readonly object LockObject = new object();
-        private static readonly object DelayedIndexLock = new object();
+        private static DateTime _lastDelayedIndex = DateTime.MinValue;
 
         private static volatile FileItem[] _files;
-        private static DateTime _lastUpdatedUtc;
+        private static volatile int _updateCounter = 1;
 
         private static string[] _paths;
         private static HashSet<string> _ignoredDirectories;
@@ -43,66 +43,50 @@ namespace Catapult.Core.Selecta
                     return _files;
                 }
 
-                var toBeIndexed = new List<string>();
-
-                foreach (var path in _paths)
-                {
-                    var indexedPaths = FileIndexStore.Instance.IsIndexed(path);
-
-                    if (!indexedPaths)
-                    {
-                        FileIndexStore.Instance.IndexDirectory(path, _ignoredDirectories, _extensionContainer);
-                    }
-                    else
-                    {
-                        toBeIndexed.Add(path);
-                    }
-                }
-
+                EnqueueDelayedIndexing();
                 _files = BuildFileItems(_paths);
-                _lastUpdatedUtc = DateTime.UtcNow;
-                EnqueueDelayedIndexing(toBeIndexed);
+                _updateCounter += 1;
             }
 
             return _files;
         }
 
-
-        private static void EnqueueDelayedIndexing(List<string> toBeIndexed = null)
+        private static void EnqueueDelayedIndexing()
         {
-            lock (DelayedIndexLock)
+            if (DateTime.UtcNow - TimeSpan.FromMinutes(5) < _lastDelayedIndex)
             {
-                toBeIndexed = toBeIndexed ?? _paths.Where(x => !FileIndexStore.Instance.IsIndexed(x, TimeSpan.FromMinutes(5))).ToList();
+                return;
+            }
 
-                if (!toBeIndexed.Any())
+            _lastDelayedIndex = DateTime.UtcNow;
+
+            if (!_paths.Any())
+            {
+                return;
+            }
+
+            Log.Information("Starting delayed indexing of " + string.Join(", ", _paths));
+
+            ThreadPool.QueueUserWorkItem(o =>
+            {
+                try
                 {
-                    return;
-                }
-
-                Log.Information("Starting delayed indexing of " + string.Join(", ", toBeIndexed));
-
-                ThreadPool.QueueUserWorkItem(o =>
-                {
-                    try
+                    foreach (var indexPath in _paths)
                     {
-                        foreach (var indexPath in toBeIndexed)
+                        FileIndexStore.Instance.IndexDirectory(indexPath, _ignoredDirectories, _extensionContainer);
+                        lock (LockObject)
                         {
-                            FileIndexStore.Instance.IndexDirectory(indexPath, _ignoredDirectories, _extensionContainer);
+                            _files = BuildFileItems(_paths);
+                            _updateCounter += 1;
+                            Log.Information("Delayed indexing of {path} complete.", indexPath);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Delayed indexing failed.", ex);
-                    }
-
-                    lock (LockObject)
-                    {
-                        _files = BuildFileItems(_paths);
-                        _lastUpdatedUtc = DateTime.UtcNow;
-                        Log.Information("Delayed indexing complete.");
-                    }
-                });
-            }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Delayed indexing failed.", ex);
+                }
+            });
         }
 
         private static FileItem[] BuildFileItems(string[] paths)
@@ -137,7 +121,7 @@ namespace Catapult.Core.Selecta
             }
         }
 
-        public static DateTime LastUpdatedUtc => _lastUpdatedUtc;
+        public static int UpdateCounter => _updateCounter;
 
         public static FileItem[] GetFiles()
         {

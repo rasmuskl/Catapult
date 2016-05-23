@@ -58,26 +58,14 @@ namespace Catapult.Core.Indexes
             Log.Information($"Index {path} - {paths.Length} items. [ {totalMs} ms, tra: {traverseMs} ms, idx: {indexMs} ms ]");
         }
 
-        public bool IsIndexed(string path, TimeSpan indexValidTimeSpan = default(TimeSpan))
+        public bool IsIndexed(string path)
         {
-            if (!_indexData.HasPath(path))
-            {
-                return false;
-            }
-
-            if (indexValidTimeSpan == default(TimeSpan))
-            {
-                return true;
-            }
-
-            DateTime lastIndexedUtc = _indexData.Data[path].LastIndexedUtc;
-            var wasIndexedAfter = lastIndexedUtc > DateTime.UtcNow - indexValidTimeSpan;
-            return wasIndexedAfter;
+            return _indexData.HasPath(path);
         }
 
         public string[] GetIndexedPaths(string path)
         {
-            return _indexData.GetPaths(path);
+            return _indexData.GetPaths(path) ?? new string[0];
         }
 
         private void TryRestoreIndex()
