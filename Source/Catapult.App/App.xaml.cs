@@ -26,6 +26,8 @@ namespace Catapult.App
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            System.Net.ServicePointManager.DefaultConnectionLimit = 10;
+
             var logger = new LoggerConfiguration()
                 .WriteTo.RollingFile(Path.Combine(CatapultPaths.LogPath, "log-{Date}.log"))
                 .WriteTo.LogWindow()
