@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Catapult.Core.Indexes;
 using Catapult.Core.Selecta;
@@ -61,7 +62,10 @@ namespace Catapult.Core.Actions
 
             if (!indexables.Any())
             {
-                return new IndexableSearchFrame(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).ToArray());
+                Func<IndexableResult> fetchIndexables = () => new IndexableResult(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).ToArray(), SearchResources.LastUpdatedUtc.ToString(CultureInfo.InvariantCulture));
+                Func<string> getUpdatedState = () => SearchResources.LastUpdatedUtc.ToString(CultureInfo.InvariantCulture);
+                var indexableUpdateState = new IndexableUpdateState(fetchIndexables, getUpdatedState);
+                return new UpdateableIndexableSearchFrame(indexableUpdateState);
             }
 
             Type type = indexables.First().GetType();
@@ -150,7 +154,8 @@ namespace Catapult.Core.Actions
                     action = indexable;
                     continue;
                 }
-                else if (indexable is IConvert)
+
+                if (indexable is IConvert)
                 {
                     if (target == null)
                     {

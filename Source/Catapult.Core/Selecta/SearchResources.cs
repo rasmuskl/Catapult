@@ -14,7 +14,10 @@ namespace Catapult.Core.Selecta
     public static class SearchResources
     {
         private static readonly object LockObject = new object();
+        private static readonly object DelayedIndexLock = new object();
+
         private static volatile FileItem[] _files;
+        private static DateTime _lastUpdatedUtc;
 
         private static string[] _paths;
         private static HashSet<string> _ignoredDirectories;
@@ -36,6 +39,7 @@ namespace Catapult.Core.Selecta
             {
                 if (_files != null)
                 {
+                    EnqueueDelayedIndexing();
                     return _files;
                 }
 
@@ -55,7 +59,27 @@ namespace Catapult.Core.Selecta
                     }
                 }
 
-                var fileItems = BuildFileItems(_paths);
+                _files = BuildFileItems(_paths);
+                _lastUpdatedUtc = DateTime.UtcNow;
+                EnqueueDelayedIndexing(toBeIndexed);
+            }
+
+            return _files;
+        }
+
+
+        private static void EnqueueDelayedIndexing(List<string> toBeIndexed = null)
+        {
+            lock (DelayedIndexLock)
+            {
+                toBeIndexed = toBeIndexed ?? _paths.Where(x => !FileIndexStore.Instance.IsIndexed(x, TimeSpan.FromMinutes(5))).ToList();
+
+                if (!toBeIndexed.Any())
+                {
+                    return;
+                }
+
+                Log.Information("Starting delayed indexing of " + string.Join(", ", toBeIndexed));
 
                 ThreadPool.QueueUserWorkItem(o =>
                 {
@@ -74,14 +98,11 @@ namespace Catapult.Core.Selecta
                     lock (LockObject)
                     {
                         _files = BuildFileItems(_paths);
+                        _lastUpdatedUtc = DateTime.UtcNow;
                         Log.Information("Delayed indexing complete.");
                     }
                 });
-
-                _files = fileItems;
             }
-
-            return _files;
         }
 
         private static FileItem[] BuildFileItems(string[] paths)
@@ -115,6 +136,8 @@ namespace Catapult.Core.Selecta
                 return null;
             }
         }
+
+        public static DateTime LastUpdatedUtc => _lastUpdatedUtc;
 
         public static FileItem[] GetFiles()
         {

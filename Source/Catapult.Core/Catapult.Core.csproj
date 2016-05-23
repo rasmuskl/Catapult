@@ -95,6 +95,7 @@
     <Compile Include="Actions\StartWithWindowsAction.cs" />
     <Compile Include="Actions\StringIndexable.cs" />
     <Compile Include="Actions\StringSearchFrame.cs" />
+    <Compile Include="Actions\UpdateableIndexableSearchFrame.cs" />
     <Compile Include="Actions\WikipediaAction.cs" />
     <Compile Include="CatapultPaths.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
