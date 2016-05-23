@@ -171,7 +171,7 @@ namespace Catapult.App
             if (fastAction == FastAction.Left)
             {
                 var parentPath = Path.GetDirectoryName(path);
-                
+
                 if (_stack.Peek() is FileNavigationSearchFrame)
                 {
                     if (!Directory.Exists(Path.GetDirectoryName(parentPath)))
@@ -259,67 +259,77 @@ namespace Catapult.App
         {
             foreach (var intent in _queue.GetConsumingEnumerable())
             {
-                if (intent is SearchIntent)
+                try
                 {
-                    var searchIntent = intent as SearchIntent;
-
-                    var searchResults = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
-
-                    _dispatcher.Invoke(() => UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray()));
-                }
-                else if (intent is ExecuteIntent)
-                {
-                    var executeIntent = intent as ExecuteIntent;
-
-                    _dispatcher.Invoke(() =>
+                    if (intent is SearchIntent)
                     {
-                        OpenSelected(executeIntent.Search);
-                    });
-                }
-                else if (intent is MoveSelectionIntent)
-                {
-                    var moveSelectionIntent = intent as MoveSelectionIntent;
+                        var searchIntent = intent as SearchIntent;
 
-                    _dispatcher.Invoke(() =>
+                        var searchResults = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
+
+                        _dispatcher.Invoke(() => UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray()));
+                    }
+                    else if (intent is ExecuteIntent)
                     {
-                        if (moveSelectionIntent.Direction == MoveDirection.Down)
+                        var executeIntent = intent as ExecuteIntent;
+
+                        _dispatcher.Invoke(() =>
                         {
-                            MainListModel.SelectedIndex = Math.Min(MainListModel.Items.Count, MainListModel.SelectedIndex + moveSelectionIntent.Count);
-                        }
-                        else
+                            OpenSelected(executeIntent.Search);
+                        });
+                    }
+                    else if (intent is MoveSelectionIntent)
+                    {
+                        var moveSelectionIntent = intent as MoveSelectionIntent;
+
+                        _dispatcher.Invoke(() =>
                         {
-                            MainListModel.SelectedIndex = Math.Max(0, MainListModel.SelectedIndex - moveSelectionIntent.Count);
-                        }
-                    });
-                }
-                else if (intent is PushStackIntent)
-                {
-                    var pushStackIntent = intent as PushStackIntent;
-
-                    _dispatcher.Invoke(() =>
+                            if (moveSelectionIntent.Direction == MoveDirection.Down)
+                            {
+                                MainListModel.SelectedIndex = Math.Min(MainListModel.Items.Count, MainListModel.SelectedIndex + moveSelectionIntent.Count);
+                            }
+                            else
+                            {
+                                MainListModel.SelectedIndex = Math.Max(0, MainListModel.SelectedIndex - moveSelectionIntent.Count);
+                            }
+                        });
+                    }
+                    else if (intent is PushStackIntent)
                     {
-                        PushStack(pushStackIntent.Search);
-                        var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                        UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
-                    });
-                }
-                else if (intent is FastActionIntent)
-                {
-                    var fastActionIntent = intent as FastActionIntent;
+                        var pushStackIntent = intent as PushStackIntent;
 
-                    _dispatcher.Invoke(() =>
+                        _dispatcher.Invoke(() =>
+                        {
+                            PushStack(pushStackIntent.Search);
+                            var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
+                            UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
+                        });
+                    }
+                    else if (intent is FastActionIntent)
                     {
-                        PerformFastAction(fastActionIntent.FastAction);
-                    });
+                        var fastActionIntent = intent as FastActionIntent;
+
+                        _dispatcher.Invoke(() =>
+                        {
+                            PerformFastAction(fastActionIntent.FastAction);
+                        });
+                    }
+                    else if (intent is ShutdownIntent)
+                    {
+                        var shutdownIntent = intent as ShutdownIntent;
+                        _dispatcher.Invoke(shutdownIntent.ShutdownAction);
+                    }
+                    else if (intent is ClearIntent)
+                    {
+                        _dispatcher.Invoke(Reset);
+                    }
                 }
-                else if (intent is ShutdownIntent)
+                catch (Exception ex)
                 {
-                    var shutdownIntent = intent as ShutdownIntent;
-                    _dispatcher.Invoke(shutdownIntent.ShutdownAction);
-                }
-                else if (intent is ClearIntent)
-                {
-                    _dispatcher.Invoke(Reset);
+                    Log.Error(ex, "Process failed while executing {intent}", intent);
+#if DEBUG
+                    throw;
+#endif
                 }
             }
         }
