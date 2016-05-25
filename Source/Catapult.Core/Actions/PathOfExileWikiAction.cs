@@ -12,13 +12,8 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class PathOfExileWikiAction : IStandaloneAction, IAction<StringIndexable>, IAutocomplete
+    public class PathOfExileWikiAction : IAction<StringIndexable>, IAutocomplete
     {
-        public void Run()
-        {
-            Process.Start("http://pathofexile.gamepedia.com/");
-        }
-
         public void Run(StringIndexable stringIndexable)
         {
             Process.Start("http://pathofexile.gamepedia.com/index.php?search=" + Uri.EscapeDataString(stringIndexable.Name));

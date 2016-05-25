@@ -89,7 +89,7 @@ namespace Catapult.App
 
         public SmartObservableCollection<string> ContextItems { get; set; } = new SmartObservableCollection<string>();
 
-        private void OpenSelected(string search)
+        private void OpenSelected(string search, Action afterOpenAction)
         {
             if (!_mainListModel.Items.Any())
             {
@@ -114,6 +114,7 @@ namespace Catapult.App
                     Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", targetItem, standaloneAction.GetType());
                 }
 
+                afterOpenAction();
                 return;
             }
 
@@ -126,6 +127,11 @@ namespace Catapult.App
 
             if (launchable.Target == null)
             {
+                if (PushStack(search))
+                {
+                    return;
+                }
+
                 throw new Exception("Unable to find target.");
             }
 
@@ -146,6 +152,8 @@ namespace Catapult.App
             {
                 Log.Error(ex, "Exception launching {@TargetItem} with {ActionType}", launchable.Target, launchable.Action);
             }
+
+            afterOpenAction();
         }
 
         public void PerformFastAction(FastAction fastAction)
@@ -211,11 +219,11 @@ namespace Catapult.App
             }
         }
 
-        private void PushStack(string search)
+        private bool PushStack(string search)
         {
             if (!_mainListModel.Items.Any())
             {
-                return;
+                return false;
             }
 
             SearchItemModel searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
@@ -223,12 +231,13 @@ namespace Catapult.App
 
             if (searchFrame == null)
             {
-                return;
+                return false;
             }
 
             _stack.Push(searchFrame);
             _selectedIndexables.Push(searchItemModel.TargetItem);
             StackPushed?.Invoke();
+            return true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -275,7 +284,7 @@ namespace Catapult.App
 
                         _dispatcher.Invoke(() =>
                         {
-                            OpenSelected(executeIntent.Search);
+                            OpenSelected(executeIntent.Search, executeIntent.AfterOpenAction);
                         });
                     }
                     else if (intent is MoveSelectionIntent)
@@ -300,7 +309,11 @@ namespace Catapult.App
 
                         _dispatcher.Invoke(() =>
                         {
-                            PushStack(pushStackIntent.Search);
+                            if (!PushStack(pushStackIntent.Search))
+                            {
+                                return;
+                            }
+
                             var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
                             UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
                         });
@@ -343,10 +356,12 @@ namespace Catapult.App
     public class ExecuteIntent : IIntent
     {
         public string Search { get; set; }
+        public Action AfterOpenAction { get; set; }
 
-        public ExecuteIntent(string search)
+        public ExecuteIntent(string search, Action afterOpenAction)
         {
             Search = search;
+            AfterOpenAction = afterOpenAction;
         }
     }
 

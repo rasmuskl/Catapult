@@ -11,13 +11,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Catapult.Core.Actions
 {
-    public class GoogleAction : IndexableBase, IStandaloneAction, IAction<StringIndexable>, IAutocomplete
+    public class GoogleAction : IndexableBase, IAction<StringIndexable>, IAutocomplete
     {
-        public void Run()
-        {
-            Process.Start("https://www.google.com/");
-        }
-
         public void Run(StringIndexable stringIndexable)
         {
             Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(stringIndexable.Name));

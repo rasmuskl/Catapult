@@ -74,6 +74,11 @@ namespace Catapult.Core.Actions
 
             if (closedActionType != null && closedActionType == typeof(IAction<StringIndexable>))
             {
+                if (indexables.Length > 1)
+                {
+                    return null;
+                }
+
                 if (typeof(IAutocomplete).IsAssignableFrom(type))
                 {
                     IAutocomplete autocomplete = (IAutocomplete)Activator.CreateInstance(type);

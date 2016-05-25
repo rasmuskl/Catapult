@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Catapult.Core.Indexes;
 
 namespace Catapult.App
 {
@@ -44,8 +43,7 @@ namespace Catapult.App
             }
             else if (e.Key == Key.Enter)
             {
-                Model.AddIntent(new ExecuteIntent(SearchBar.Text));
-                Hide();
+                Model.AddIntent(new ExecuteIntent(SearchBar.Text, Hide));
             }
         }
 

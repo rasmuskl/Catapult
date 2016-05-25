@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Catapult.Core.Icons;
@@ -12,13 +10,8 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class WikipediaAction : IStandaloneAction, IAction<StringIndexable>, IAutocomplete
+    public class WikipediaAction : IAction<StringIndexable>, IAutocomplete
     {
-        public void Run()
-        {
-            Process.Start("https://wikipedia.org/");
-        }
-
         public void Run(StringIndexable stringIndexable)
         {
             Process.Start("https://wikipedia.org/wiki/Special:Search?search=" + Uri.EscapeDataString(stringIndexable.Name));
