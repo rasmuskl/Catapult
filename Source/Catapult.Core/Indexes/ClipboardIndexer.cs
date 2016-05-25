@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace Catapult.Core.Indexes
 {
@@ -24,22 +25,29 @@ namespace Catapult.Core.Indexes
 
         private void ClipboardMonitor_OnClipboardChange()
         {
-            var dataObject = Clipboard.GetDataObject();
-
-            if (dataObject == null)
+            try
             {
-                return;
+                var dataObject = Clipboard.GetDataObject();
+
+                if (dataObject == null)
+                {
+                    return;
+                }
+
+                var text = dataObject.GetData("Text") as string ?? dataObject.GetData("UnicodeText") as string;
+
+                if (text.IsNullOrWhiteSpace())
+                {
+                    return;
+                }
+
+                AddEntry(text, DateTime.UtcNow);
+                Save();
             }
-
-            var text = dataObject.GetData("Text") as string ?? dataObject.GetData("UnicodeText") as string;
-
-            if (text.IsNullOrWhiteSpace())
+            catch (Exception ex)
             {
-                return;
+                Log.Error(ex, "ClipboardMonitor_OnClipboardChange failed.");
             }
-
-            AddEntry(text, DateTime.UtcNow);
-            Save();
         }
 
         private void AddEntry(string text, DateTime createdUtc)
@@ -92,7 +100,7 @@ namespace Catapult.Core.Indexes
 
             public static void Start()
             {
-                ClipboardWatcher.Start();
+                ClipboardWatcher.StartWatcher();
                 ClipboardWatcher.OnChange += WatcherOnChange;
             }
 
@@ -104,7 +112,7 @@ namespace Catapult.Core.Indexes
             public static void Stop()
             {
                 OnClipboardChange = null;
-                ClipboardWatcher.Stop();
+                ClipboardWatcher.StopWatcher();
             }
 
             private class ClipboardWatcher : Form
@@ -118,7 +126,7 @@ namespace Catapult.Core.Indexes
                 public static event Action OnChange;
 
                 // start listening
-                public static void Start()
+                public static void StartWatcher()
                 {
                     // we can only have one instance if this class
                     if (_instance != null)
@@ -126,14 +134,30 @@ namespace Catapult.Core.Indexes
                         return;
                     }
 
-                    var thread = new Thread(x => { Application.Run(new ClipboardWatcher()); });
-                    thread.SetApartmentState(ApartmentState.STA); // give the [STAThread] attribute
+                    var thread = new Thread(x =>
+                    {
+                        try
+                        {
+                            Application.Run(new ClipboardWatcher());
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, "ClipboardWatcher failed.");
+                        }
+                    });
+
+                    thread.SetApartmentState(ApartmentState.STA);
                     thread.Start();
                 }
 
                 // stop listening (dispose form)
-                public static void Stop()
+                public static void StopWatcher()
                 {
+                    if (_instance == null)
+                    {
+                        return;
+                    }
+
                     _instance.Invoke(new MethodInvoker(() =>
                     {
                         ChangeClipboardChain(_instance.Handle, _nextClipboardViewer);
@@ -142,7 +166,6 @@ namespace Catapult.Core.Indexes
                     _instance.Invoke(new MethodInvoker(_instance.Close));
 
                     _instance.Dispose();
-
                     _instance = null;
                 }
 
@@ -168,19 +191,19 @@ namespace Catapult.Core.Indexes
                 private static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
                 // defined in winuser.h
-                const int WM_DRAWCLIPBOARD = 0x308;
-                const int WM_CHANGECBCHAIN = 0x030D;
+                private const int WmDrawclipboard = 0x308;
+                private const int WmChangecbchain = 0x030D;
 
                 protected override void WndProc(ref Message m)
                 {
                     switch (m.Msg)
                     {
-                        case WM_DRAWCLIPBOARD:
+                        case WmDrawclipboard:
                             ClipChanged();
                             SendMessage(_nextClipboardViewer, m.Msg, m.WParam, m.LParam);
                             break;
 
-                        case WM_CHANGECBCHAIN:
+                        case WmChangecbchain:
                             if (m.WParam == _nextClipboardViewer)
                                 _nextClipboardViewer = m.LParam;
                             else
