@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
 using Catapult.Core;
 using Catapult.Core.Config;
 using Catapult.Core.Debug;
@@ -55,10 +56,7 @@ namespace Catapult.App
 
             _hotKeyManager = new HotKeyManager();
 
-#if !DEBUG
-            _hotKeyManager.Register(new HotKey(Key.Space, ModifierKeys.Alt));
-            _hotKeyManager.KeyPressed += KeyHookKeyEvent;
-#endif
+            RegisterHotKey(Key.Space, ModifierKeys.Alt);
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico"))
             {
@@ -75,6 +73,15 @@ namespace Catapult.App
 
 #if DEBUG
             ToggleMainWindow();
+#endif
+        }
+
+        private void RegisterHotKey(Key key, ModifierKeys modifierKeys)
+        {
+#if !DEBUG
+            var hotKey = new HotKey(key, modifierKeys);
+            _hotKeyManager.Register(hotKey);
+            _hotKeyManager.KeyPressed += KeyHookKeyEvent;
 #endif
         }
 
