@@ -1,3 +1,3 @@
 @echo off
-"tools\NuGet\nuget.exe" install tools\packages.config -OutputDirectory tools -ExcludeVersion
+"source\.nuget\nuget.exe" install tools\packages.config -OutputDirectory tools -ExcludeVersion
 "tools\FAKE\tools\Fake.exe" build.fsx

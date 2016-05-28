@@ -28,5 +28,6 @@ Source/*.DotSettings.user
 Source/_NCrunch*
 
 tools/FAKE
+tools/squirrel.windows
 
 .fake
