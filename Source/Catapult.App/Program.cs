@@ -45,13 +45,13 @@ namespace Catapult.App
 
         private static void App_Exit(object sender, ExitEventArgs e)
         {
-            Log.Information("Exitting Catapult (App_Exit).");
+            Log.Information($"Exitting Catapult ({nameof(App_Exit)}).");
             CleanUp();
         }
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            Log.Information("Exitting Catapult (CurrentDomain_ProcessExit).");
+            Log.Information($"Exitting Catapult ({nameof(CurrentDomain_ProcessExit)}).");
             CleanUp();
         }
 
@@ -74,46 +74,60 @@ namespace Catapult.App
 
         public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            WriteToDisk("Error-CurrentDomain_UnhandledException", e.ExceptionObject as Exception);
-
-            Log.Information("Unhandled exception.");
-
-            var exception = e.ExceptionObject as Exception;
-
-            if (exception == null)
+            try
             {
-                return;
+                WriteToDisk($"Error-{nameof(CurrentDomain_UnhandledException)}", e.ExceptionObject as Exception);
+
+                Log.Information("Unhandled exception.");
+
+                var exception = e.ExceptionObject as Exception;
+
+                if (exception == null)
+                {
+                    return;
+                }
+
+                Log.Error(exception, "Unhandled exception");
+
+                MessageBox.Show(exception.Message
+                                + Environment.NewLine
+                                + Environment.NewLine
+                                + exception.StackTrace, "Exception occured");
             }
-
-            Log.Error(exception, "Unhandled exception");
-
-            MessageBox.Show(exception.Message
-                            + Environment.NewLine
-                            + Environment.NewLine
-                            + exception.StackTrace, "Exception occured");
+            catch (Exception ex)
+            {
+                Environment.FailFast($"{nameof(CurrentDomain_UnhandledException)} failed.", ex);
+            }
         }
 
         private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            WriteToDisk("Error-App_DispatcherUnhandledException", e.Exception);
-
-            Log.Information("Unhandled exception (dispatcher).");
-
-            var exception = e.Exception;
-
-            if (exception == null)
+            try
             {
-                return;
+                WriteToDisk($"Error-{nameof(CurrentDomain_UnhandledException)}", e.Exception);
+
+                Log.Information("Unhandled exception (dispatcher).");
+
+                var exception = e.Exception;
+
+                if (exception == null)
+                {
+                    return;
+                }
+
+                e.Handled = true;
+
+                Log.Error(exception, "Unhandled exception (dispatcher)");
+
+                MessageBox.Show(exception.Message
+                                + Environment.NewLine
+                                + Environment.NewLine
+                                + exception.StackTrace, "Exception occured (dispatcher)");
             }
-
-            e.Handled = true;
-
-            Log.Error(exception, "Unhandled exception (dispatcher)");
-
-            MessageBox.Show(exception.Message
-                            + Environment.NewLine
-                            + Environment.NewLine
-                            + exception.StackTrace, "Exception occured (dispatcher)");
+            catch (Exception ex)
+            {
+                Environment.FailFast($"{nameof(App_DispatcherUnhandledException)} failed.", ex);
+            }
         }
 
         private static void WriteToDisk(string title, Exception exception)
