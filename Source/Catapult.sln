@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{E7F93BBE-B482-4F7D-A269-0940870F7DC3}"
 	ProjectSection(SolutionItems) = preProject
 		..\build.fsx = ..\build.fsx
+		..\Catapult.nuspec = ..\Catapult.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catapult.Core", "Catapult.Core\Catapult.Core.csproj", "{415649B7-E0D2-415F-8016-7D1DFCB86386}"

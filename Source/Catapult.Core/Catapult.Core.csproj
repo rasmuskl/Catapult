@@ -72,10 +72,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ActionRegistry.cs" />
+    <Compile Include="Actions\CheckForUpdatesAction.cs" />
     <Compile Include="Actions\ClipboardHistoryAction.cs" />
     <Compile Include="Actions\ContainingFolderAction.cs" />
     <Compile Include="Actions\DisableRunAtStartUpAction.cs" />
-    <Compile Include="Actions\EnableRxunAtStartUpAction.cs" />
+    <Compile Include="Actions\UnderscorizeClipboardString.cs" />
     <Compile Include="Actions\FileNavigationSearchFrame.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
     <Compile Include="Actions\IAction.cs" />
@@ -91,11 +92,13 @@
     <Compile Include="Actions\OpenLastLogAction.cs" />
     <Compile Include="Actions\OpenLogFolderAction.cs" />
     <Compile Include="Actions\PathOfExileWikiAction.cs" />
+    <Compile Include="Actions\ReindexFilesAction.cs" />
     <Compile Include="Actions\RunningProcessInfo.cs" />
-    <Compile Include="Actions\StartWithWindowsAction.cs" />
+    <Compile Include="Actions\EnableRunAtStartUpAction.cs" />
     <Compile Include="Actions\StringIndexable.cs" />
     <Compile Include="Actions\StringSearchFrame.cs" />
     <Compile Include="Actions\UpdateableIndexableSearchFrame.cs" />
+    <Compile Include="Actions\UpgradeCatapultAction.cs" />
     <Compile Include="Actions\WikipediaAction.cs" />
     <Compile Include="CatapultPaths.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />

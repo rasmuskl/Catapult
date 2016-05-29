@@ -51,9 +51,9 @@ namespace Catapult.Core.Selecta
             return _files;
         }
 
-        private static void EnqueueDelayedIndexing()
+        public static void EnqueueDelayedIndexing(bool isForced = false)
         {
-            if (DateTime.UtcNow - TimeSpan.FromMinutes(5) < _lastDelayedIndex)
+            if (!isForced && DateTime.UtcNow - TimeSpan.FromMinutes(5) < _lastDelayedIndex)
             {
                 return;
             }
@@ -78,7 +78,6 @@ namespace Catapult.Core.Selecta
                         {
                             _files = BuildFileItems(_paths);
                             _updateCounter += 1;
-                            Log.Information("Delayed indexing of {path} complete.", indexPath);
                         }
                     }
                 }

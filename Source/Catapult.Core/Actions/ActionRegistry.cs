@@ -13,6 +13,7 @@ namespace Catapult.Core.Actions
         private ImmutableList<ActionMapping> _actionMappings = ImmutableList.Create<ActionMapping>();
         private ImmutableList<ConvertMapping> _convertMappings = ImmutableList.Create<ConvertMapping>();
         private readonly List<IIndexable> _actions = new List<IIndexable>();
+        private int _updateCounter = 0;
 
         public void RegisterAction<T>() where T : IIndexable, new()
         {
@@ -33,6 +34,8 @@ namespace Catapult.Core.Actions
                 .ToImmutableList();
 
             _convertMappings = _convertMappings.AddRange(convertTypes);
+
+            _updateCounter += 1;
         }
 
         public ImmutableList<ActionMapping> GetActionForInType(Type itemType)
@@ -63,7 +66,7 @@ namespace Catapult.Core.Actions
             if (!indexables.Any())
             {
                 Func<IndexableResult> fetchIndexables = () => new IndexableResult(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).ToArray(), SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture));
-                Func<string> getUpdatedState = () => SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture);
+                Func<string> getUpdatedState = () => $"{_updateCounter}-{SearchResources.UpdateCounter}";
                 var indexableUpdateState = new IndexableUpdateState(fetchIndexables, getUpdatedState);
                 return new UpdateableIndexableSearchFrame(indexableUpdateState);
             }

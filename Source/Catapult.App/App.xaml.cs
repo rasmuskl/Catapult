@@ -8,32 +8,21 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using Catapult.Core;
 using Catapult.Core.Config;
-using Catapult.Core.Debug;
 using Catapult.Core.Selecta;
 using GlobalHotKey;
 using Serilog;
 
 namespace Catapult.App
 {
-    public partial class App
+    public partial class App : IDisposable
     {
-        private NotifyIcon _notifyIcon;
-        private MainWindow _mainWindow;
         private HotKeyManager _hotKeyManager;
+        private MainWindow _mainWindow;
+        private NotifyIcon _notifyIcon;
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
-            System.Net.ServicePointManager.DefaultConnectionLimit = 10;
-
-            var logger = new LoggerConfiguration()
-                .WriteTo.RollingFile(Path.Combine(CatapultPaths.LogPath, "log-{Date}.log"))
-                .WriteTo.LogWindow()
-                .CreateLogger();
-
-            Log.Logger = logger;
-
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            DispatcherUnhandledException += App_DispatcherUnhandledException;
+            Log.Information("Started Catapult.");
 
             if (!Directory.Exists(CatapultPaths.DataPath))
             {
@@ -51,9 +40,7 @@ namespace Catapult.App
                 SearchResources.GetFiles();
             });
 
-            _notifyIcon = new NotifyIcon();
-            _notifyIcon.Visible = true;
-
+            _notifyIcon = new NotifyIcon { Visible = true };
             _hotKeyManager = new HotKeyManager();
 
             RegisterHotKey(Key.Space, ModifierKeys.Alt);
@@ -71,78 +58,47 @@ namespace Catapult.App
 
             _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
 
-#if DEBUG
-            ToggleMainWindow();
-#endif
+            if (Program.UseSingleLaunchMode)
+            {
+                ToggleMainWindow();
+            }
+
+            SquirrelIntegration.Instance.CheckForUpdates();
         }
 
         private void RegisterHotKey(Key key, ModifierKeys modifierKeys)
         {
-#if !DEBUG
+            if (Program.UseSingleLaunchMode)
+            {
+                return;
+            }
+
+            Log.Information("Registering hot key.");
             var hotKey = new HotKey(key, modifierKeys);
             _hotKeyManager.Register(hotKey);
             _hotKeyManager.KeyPressed += KeyHookKeyEvent;
-#endif
         }
 
-        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        private void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var exception = e.Exception;
-
-            if (exception == null)
+            if (!(bool)e.NewValue && Program.UseSingleLaunchMode)
             {
-                return;
-            }
-
-            e.Handled = true;
-
-            Log.Error(exception, "Unhandled exception (dispatcher)");
-
-            System.Windows.MessageBox.Show(exception.Message
-                + Environment.NewLine
-                + Environment.NewLine
-                + exception.StackTrace, "Exception occured (dispatcher)");
-        }
-
-        public void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            var exception = e.ExceptionObject as Exception;
-
-            if (exception == null)
-            {
-                return;
-            }
-
-            Log.Error(exception, "Unhandled exception");
-
-            System.Windows.MessageBox.Show(exception.Message
-                + Environment.NewLine
-                + Environment.NewLine
-                + exception.StackTrace, "Exception occured");
-        }
-
-        void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (!(bool)e.NewValue)
-            {
-#if DEBUG
                 _mainWindow.Model.AddIntent(new ShutdownIntent(Shutdown));
-#endif
             }
         }
 
-        void KeyHookKeyEvent(object sender, KeyPressedEventArgs keyPressedEventArgs)
+        private void KeyHookKeyEvent(object sender, KeyPressedEventArgs keyPressedEventArgs)
         {
             ToggleMainWindow();
         }
 
         private void ToggleMainWindow()
         {
-            if (_mainWindow.Visibility != Visibility.Visible) 
+            if (_mainWindow.Visibility != Visibility.Visible)
             {
                 _mainWindow.Show();
                 _mainWindow.Topmost = true;
-                
+
                 _mainWindow.Activate();
             }
             else
@@ -151,11 +107,14 @@ namespace Catapult.App
             }
         }
 
-        private void ApplicationExit(object sender, ExitEventArgs e)
+        public void Dispose()
         {
-            _notifyIcon.Visible = false;
-            _hotKeyManager.Dispose();
-            SearchResources.Dispose();
+            Dispatcher.Invoke(() =>
+            {
+                _notifyIcon.Visible = false;
+                _notifyIcon.Dispose();
+                _hotKeyManager.Dispose();
+            });
         }
     }
 }

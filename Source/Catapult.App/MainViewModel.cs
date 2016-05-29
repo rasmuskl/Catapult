@@ -48,6 +48,16 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<OpenConfigAction>();
             _actionRegistry.RegisterAction<EnableRunAtStartUpAction>();
             _actionRegistry.RegisterAction<DisableRunAtStartUpAction>();
+            _actionRegistry.RegisterAction<ReindexFilesAction>();
+
+            _actionRegistry.RegisterAction<CheckForUpdatesAction>();
+            CheckForUpdatesAction.UpdateCheckAction = SquirrelIntegration.Instance.CheckForUpdates;
+
+            SquirrelIntegration.OnUpdateFound += () =>
+            {
+                _actionRegistry.RegisterAction<UpgradeCatapultAction>();
+                UpgradeCatapultAction.UpgradeAction = SquirrelIntegration.Instance.UpgradeToNewVersion;
+            };
 
             _actionRegistry.RegisterAction<GoogleAction>();
             _actionRegistry.RegisterAction<PathOfExileWikiAction>();

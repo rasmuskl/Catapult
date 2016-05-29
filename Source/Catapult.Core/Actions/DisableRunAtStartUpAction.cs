@@ -7,8 +7,18 @@ namespace Catapult.Core.Actions
     {
         public void Run()
         {
-            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-            rkApp.DeleteValue("Catapult");
+            RegistryKey runKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            runKey?.DeleteValue(EnableRunAtStartUpAction.CatapultKey);
+        }
+
+        public static void RemoveRunAtStartUp()
+        {
+            RegistryKey runKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+
+            if (runKey?.GetValue(EnableRunAtStartUpAction.CatapultKey) != null)
+            {
+                runKey.DeleteValue(EnableRunAtStartUpAction.CatapultKey);
+            }
         }
 
         public override string Name => "Catapult: Disable run at Windows start";
