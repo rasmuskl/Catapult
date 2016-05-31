@@ -86,13 +86,27 @@ namespace Catapult.App
             StackPushed?.Invoke();
 
             var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-            UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
+            UpdateSearchItems(searchResults);
         }
 
-        private void UpdateSearchItems(SearchItemModel[] searchItemModels)
+        private void UpdateSearchItems(SearchResult[] searchResults)
         {
+            var oldItems = MainListModel.Items.ToArray();
+
+            var searchItemModels = searchResults.Select(x => new SearchItemModel(x)).ToArray();
+
+            foreach (SearchItemModel searchItemModel in searchItemModels)
+            {
+                IconService.Instance.Enqueue(new IconRequest(searchItemModel));
+            }
+
             MainListModel.Items.Reset(searchItemModels);
             MainListModel.SelectedIndex = 0;
+
+            foreach (SearchItemModel oldItem in oldItems)
+            {
+                oldItem.Dispose();
+            }
         }
 
         public ListViewModel MainListModel => _mainListModel;
@@ -212,7 +226,7 @@ namespace Catapult.App
                 StackPushed?.Invoke();
 
                 var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
+                UpdateSearchItems(searchResults);
             }
             else if (fastAction == FastAction.Right)
             {
@@ -225,7 +239,7 @@ namespace Catapult.App
                 StackPushed?.Invoke();
 
                 var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
+                UpdateSearchItems(searchResults);
             }
         }
 
@@ -286,7 +300,7 @@ namespace Catapult.App
 
                         var searchResults = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
 
-                        _dispatcher.Invoke(() => UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray()));
+                        _dispatcher.Invoke(() => UpdateSearchItems(searchResults));
                     }
                     else if (intent is ExecuteIntent)
                     {
@@ -325,7 +339,7 @@ namespace Catapult.App
                             }
 
                             var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                            UpdateSearchItems(searchResults.Select(x => new SearchItemModel(x)).ToArray());
+                            UpdateSearchItems(searchResults);
                         });
                     }
                     else if (intent is FastActionIntent)

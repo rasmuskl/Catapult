@@ -167,6 +167,7 @@
       <DependentUpon>DetailsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DetailsViewModel.cs" />
+    <Compile Include="IconService.cs" />
     <Compile Include="LogWindow.xaml.cs">
       <DependentUpon>LogWindow.xaml</DependentUpon>
     </Compile>

@@ -142,9 +142,9 @@ namespace Catapult.App
                     {
                         streamWriter.WriteLine(exception.ToString());
                     }
-                }
 
-                stream.Flush(true);
+                    stream.Flush(true);
+                }
             }
         }
 
