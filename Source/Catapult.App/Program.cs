@@ -15,7 +15,7 @@ namespace Catapult.App
         public static bool UseSquirrel = !IsDebug();
         public static bool UseSingleLaunchMode = IsDebug();
         private static App _app;
-        private static bool _cleanedUp = false;
+        private static bool _cleanedUp;
 
         [STAThread]
         public static void Main()

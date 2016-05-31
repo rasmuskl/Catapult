@@ -1,15 +1,18 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
+using Catapult.App.Annotations;
 using Catapult.Core;
 using Catapult.Core.Config;
 using Catapult.Core.Selecta;
 using GlobalHotKey;
+using Hardcodet.Wpf.TaskbarNotification;
 using Serilog;
 
 namespace Catapult.App
@@ -18,7 +21,8 @@ namespace Catapult.App
     {
         private HotKeyManager _hotKeyManager;
         private MainWindow _mainWindow;
-        private NotifyIcon _notifyIcon;
+        private TaskbarIcon _taskbarIcon;
+
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
@@ -40,20 +44,13 @@ namespace Catapult.App
                 SearchResources.GetFiles();
             });
 
-            _notifyIcon = new NotifyIcon { Visible = true };
+            _taskbarIcon = (TaskbarIcon)FindResource("MyNotifyIcon");
+            InitializeTaskBarIcon(_taskbarIcon);
+
             _hotKeyManager = new HotKeyManager();
 
             RegisterHotKey(Key.Space, ModifierKeys.Alt);
 
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico"))
-            {
-                if (stream != null)
-                {
-                    _notifyIcon.Icon = new Icon(stream);
-                }
-            }
-
-            _notifyIcon.Click += (o, args) => Shutdown();
             _mainWindow = new MainWindow();
 
             _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
@@ -64,6 +61,26 @@ namespace Catapult.App
             }
 
             SquirrelIntegration.Instance.CheckForUpdates();
+        }
+
+        private static void InitializeTaskBarIcon(TaskbarIcon taskbarIcon)
+        {
+            var taskbarViewModel = new TaskbarViewModel();
+            taskbarIcon.DataContext = taskbarViewModel;
+            taskbarIcon.ToolTipText = $"Catapult [{AssemblyVersionInformation.Version}]";
+
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico"))
+            {
+                if (stream != null)
+                {
+                    taskbarIcon.Icon = new Icon(stream);
+                }
+            }
+
+            SquirrelIntegration.OnUpdateFound += () =>
+            {
+                taskbarViewModel.UpgradeVisibility = Visibility.Visible;
+            };
         }
 
         private void RegisterHotKey(Key key, ModifierKeys modifierKeys)
@@ -111,10 +128,43 @@ namespace Catapult.App
         {
             Dispatcher.Invoke(() =>
             {
-                _notifyIcon.Visible = false;
-                _notifyIcon.Dispose();
+                _taskbarIcon.Visibility = Visibility.Hidden;
+                _taskbarIcon.Dispose();
                 _hotKeyManager.Dispose();
             });
+        }
+
+        private void Exit_OnClick(object sender, RoutedEventArgs e)
+        {
+            Shutdown();
+        }
+
+        private void Upgrade_OnClick(object sender, RoutedEventArgs e)
+        {
+            SquirrelIntegration.Instance.UpgradeToNewVersion();
+        }
+    }
+
+    public class TaskbarViewModel : INotifyPropertyChanged
+    {
+        private Visibility _upgradeVisibility = Visibility.Collapsed;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public Visibility UpgradeVisibility
+        {
+            get { return _upgradeVisibility; }
+            set
+            {
+                if (value == _upgradeVisibility) return;
+                _upgradeVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -112,5 +112,10 @@ namespace Catapult.App
         {
             SearchItems.ScrollIntoView(SearchItems.SelectedItem);
         }
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }
