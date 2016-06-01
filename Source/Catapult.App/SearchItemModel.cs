@@ -10,7 +10,7 @@ namespace Catapult.App
 {
     public class SearchItemModel : INotifyPropertyChanged, IDisposable
     {
-        private BitmapFrame _icon;
+        private BitmapSource _icon;
 
         public SearchItemModel(string name, string details, double score, IIndexable targetItem, ImmutableHashSet<int> highlightIndexes)
         {
@@ -36,7 +36,7 @@ namespace Catapult.App
 
         public ImmutableHashSet<int> HighlightIndexes { get; set; }
 
-        public BitmapFrame Icon
+        public BitmapSource Icon
         {
             get { return _icon; }
             set

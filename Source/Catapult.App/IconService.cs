@@ -16,7 +16,7 @@ namespace Catapult.App
     {
         public static readonly IconService Instance = new IconService();
         private readonly BlockingCollection<IconRequest> _queue = new BlockingCollection<IconRequest>(new ConcurrentQueue<IconRequest>());
-        private readonly Dictionary<string, BitmapFrame> _iconCache = new Dictionary<string, BitmapFrame>();
+        private readonly Dictionary<string, BitmapSource> _iconCache = new Dictionary<string, BitmapSource>();
 
 
         private IconService()
@@ -38,10 +38,10 @@ namespace Catapult.App
                     IIndexable targetItem = request.Model.TargetItem;
                     var cacheKey = $"{targetItem.GetType()}: {targetItem.Name}";
 
-                    BitmapFrame frame;
-                    if (_iconCache.TryGetValue(cacheKey, out frame))
+                    BitmapSource source;
+                    if (_iconCache.TryGetValue(cacheKey, out source))
                     {
-                        request.Model.Icon = frame;
+                        request.Model.Icon = source;
                         continue;
                     }
 
@@ -58,7 +58,10 @@ namespace Catapult.App
                     {
                         var stream = new MemoryStream();
                         bmp.Save(stream, ImageFormat.Png);
-                        request.Model.Icon = BitmapFrame.Create(stream);
+
+                        BitmapFrame bitmapSource = BitmapFrame.Create(stream);
+                        _iconCache[cacheKey] = bitmapSource;
+                        request.Model.Icon = bitmapSource;
                     }
                 }
                 catch (Exception ex)

@@ -9,7 +9,7 @@ namespace Catapult.Tests
         [Test]
         public void Test()
         {
-            ShellIcons.GetIcon(@"C:\Users\rasmuskl\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Spotify.lnk");
+            //ShellIcons.GetIcon(@"C:\Users\rasmuskl\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Spotify.lnk");
         }
     }
 }
