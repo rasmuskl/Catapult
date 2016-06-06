@@ -4,7 +4,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:app="clr-namespace:Catapult.App"
         xmlns:core="clr-namespace:Catapult.Core;assembly=Catapult.Core"
-        Title="Details" Height="100" Width="600" Background="Transparent" AllowsTransparency="True" WindowStyle="None" ShowInTaskbar="False">
+        Title="Details" Height="100" Width="600" Background="Transparent" WindowStyle="None" ShowInTaskbar="False">
     <Window.DataContext>
         <app:DetailsViewModel x:Name="Model" />
     </Window.DataContext>

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace Catapult.App
 {
@@ -31,7 +33,7 @@ namespace Catapult.App
                 SearchItems.Height = 3 + Math.Min(10, SearchItems.Items.Count) * 50;
             }
 
-            Height = 300 + SearchItems.Height;
+            Height = 75 + SearchItems.Height;
         }
 
         private void SearchBarPreviewKeyUp(object sender, KeyEventArgs e)
@@ -111,11 +113,6 @@ namespace Catapult.App
         private void SearchItems_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SearchItems.ScrollIntoView(SearchItems.SelectedItem);
-        }
-
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            
         }
     }
 }
