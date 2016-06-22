@@ -53,7 +53,7 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<CheckForUpdatesAction>();
             CheckForUpdatesAction.UpdateCheckAction = SquirrelIntegration.Instance.CheckForUpdates;
 
-            SquirrelIntegration.OnUpdateFound += () =>
+            SquirrelIntegration.OnUpdateFound += version =>
             {
                 _actionRegistry.RegisterAction<UpgradeCatapultAction>();
                 UpgradeCatapultAction.UpgradeAction = SquirrelIntegration.Instance.UpgradeToNewVersion;

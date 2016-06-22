@@ -44,7 +44,7 @@ namespace Catapult.App
                 SearchResources.GetFiles();
             });
 
-            _taskbarIcon = (TaskbarIcon)FindResource("MyNotifyIcon");
+            _taskbarIcon = (TaskbarIcon) FindResource("MyNotifyIcon");
             InitializeTaskBarIcon(_taskbarIcon);
 
             _hotKeyManager = new HotKeyManager();
@@ -60,7 +60,7 @@ namespace Catapult.App
                 ToggleMainWindow();
             }
 
-            SquirrelIntegration.Instance.CheckForUpdates();
+            SquirrelIntegration.Instance.StartPeriodicUpdateCheck();
         }
 
         private static void InitializeTaskBarIcon(TaskbarIcon taskbarIcon)
@@ -77,9 +77,15 @@ namespace Catapult.App
                 }
             }
 
-            SquirrelIntegration.OnUpdateFound += () =>
+            if (SquirrelIntegration.Instance.NewVersion != null)
+            {
+                taskbarIcon.ShowBalloonTip("Catapult", $"Updated to new version: {SquirrelIntegration.Instance.NewVersion}", BalloonIcon.None);
+            }
+
+            SquirrelIntegration.OnUpdateFound += version =>
             {
                 taskbarViewModel.UpgradeVisibility = Visibility.Visible;
+                SquirrelIntegration.Instance.UpgradeToNewVersion();
             };
         }
 
@@ -98,7 +104,7 @@ namespace Catapult.App
 
         private void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (!(bool)e.NewValue && Program.UseSingleLaunchMode)
+            if (!(bool) e.NewValue && Program.UseSingleLaunchMode)
             {
                 _mainWindow.Model.AddIntent(new ShutdownIntent(Shutdown));
             }
