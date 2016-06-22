@@ -12,6 +12,7 @@ namespace Catapult.Core.Indexes
     public class ControlPanelIndexer
     {
         private static readonly RegistryKey ControlPanelNameSpace = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ControlPanel\\NameSpace");
+
         private static readonly RegistryKey Clsid = Registry.ClassesRoot.OpenSubKey("CLSID");
         private const string Control = @"%SystemRoot%\System32\control.exe";
 
@@ -23,24 +24,25 @@ namespace Catapult.Core.Indexes
 
             foreach (var subKey in subKeyNames)
             {
-                var currentKey = Clsid.OpenSubKey(subKey);
-
-                if (currentKey == null)
+                using (var currentKey = Clsid.OpenSubKey(subKey))
                 {
-                    continue;
+                    if (currentKey == null)
+                    {
+                        continue;
+                    }
+
+                    var executablePath = GetExecutablePath(currentKey);
+                    var localizedString = GetLocalizedString(currentKey);
+
+                    if (string.IsNullOrEmpty(localizedString))
+                    {
+                        continue;
+                    }
+
+                    string infoTip = GetInfoTip(currentKey);
+                    Icon myIcon = GetIcon(currentKey, 32);
+                    items.Add(new ControlPanelItem(localizedString, executablePath, infoTip, myIcon));
                 }
-
-                var executablePath = GetExecutablePath(currentKey);
-                var localizedString = GetLocalizedString(currentKey);
-
-                if (string.IsNullOrEmpty(localizedString))
-                {
-                    continue;
-                }
-
-                var infoTip = GetInfoTip(currentKey);
-                var myIcon = GetIcon(currentKey, 32);
-                items.Add(new ControlPanelItem(localizedString, executablePath, infoTip, myIcon));
             }
 
             return items.ToArray();
@@ -59,16 +61,19 @@ namespace Catapult.Core.Indexes
                 return executablePath;
             }
 
-            if (currentKey.OpenSubKey("Shell\\Open\\Command") != null && currentKey.OpenSubKey("Shell\\Open\\Command").GetValue(null) != null)
+            using (RegistryKey subKey = currentKey.OpenSubKey("Shell\\Open\\Command"))
             {
-                ProcessStartInfo executablePath = new ProcessStartInfo();
+                if (subKey?.GetValue(null) != null)
+                {
+                    ProcessStartInfo executablePath = new ProcessStartInfo();
 
-                string input = "\"" + Environment.ExpandEnvironmentVariables(currentKey.OpenSubKey("Shell\\Open\\Command").GetValue(null).ToString()) + "\"";
-                executablePath.FileName = "cmd.exe";
-                executablePath.Arguments = "/C " + input;
-                executablePath.WindowStyle = ProcessWindowStyle.Hidden;
+                    string input = $"\"{Environment.ExpandEnvironmentVariables(subKey.GetValue(null).ToString())}\"";
+                    executablePath.FileName = "cmd.exe";
+                    executablePath.Arguments = "/C " + input;
+                    executablePath.WindowStyle = ProcessWindowStyle.Hidden;
 
-                return executablePath;
+                    return executablePath;
+                }
             }
             return null;
         }
@@ -77,7 +82,9 @@ namespace Catapult.Core.Indexes
         {
             if (currentKey.GetValue("LocalizedString") != null)
             {
-                var localizedStringRaw = currentKey.GetValue("LocalizedString").ToString().Split(new[] { ",-" }, StringSplitOptions.None);
+                var localizedStringRaw = currentKey.GetValue("LocalizedString")
+                    .ToString()
+                    .Split(new[] {",-"}, StringSplitOptions.None);
 
                 if (localizedStringRaw.Length > 1)
                 {
@@ -131,7 +138,7 @@ namespace Catapult.Core.Indexes
         {
             if (currentKey.GetValue("InfoTip") != null)
             {
-                var infoTipRaw = currentKey.GetValue("InfoTip").ToString().Split(new[] { ",-" }, StringSplitOptions.None);
+                var infoTipRaw = currentKey.GetValue("InfoTip").ToString().Split(new[] {",-"}, StringSplitOptions.None);
 
                 if (infoTipRaw.Length == 2)
                 {
@@ -146,7 +153,7 @@ namespace Catapult.Core.Indexes
                     var stringTableIndex = ParseIndex(infoTipRaw[1]);
 
                     var resource = new StringBuilder(255);
-                    LoadString(dataFilePointer, stringTableIndex, resource, resource.Capacity + 1); //Extract needed string
+                    LoadString(dataFilePointer, stringTableIndex, resource, resource.Capacity + 1);
                     FreeLibrary(dataFilePointer);
 
                     return resource.ToString();
@@ -161,7 +168,8 @@ namespace Catapult.Core.Indexes
         private delegate bool EnumResNameDelegate(IntPtr hModule, IntPtr lpszType, IntPtr lpszName, IntPtr lParam);
 
         [DllImport("kernel32.dll", EntryPoint = "EnumResourceNamesW", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern bool EnumResourceNamesWithID(IntPtr hModule, uint lpszType, EnumResNameDelegate lpEnumFunc, IntPtr lParam);
+        static extern bool EnumResourceNamesWithID(IntPtr hModule, uint lpszType, EnumResNameDelegate lpEnumFunc,
+            IntPtr lParam);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
@@ -173,53 +181,70 @@ namespace Catapult.Core.Indexes
         static extern int LoadString(IntPtr hInstance, uint uId, StringBuilder lpBuffer, int nBufferMax);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern IntPtr LoadImage(IntPtr hinst, IntPtr lpszName, uint uType,
-        int cxDesired, int cyDesired, uint fuLoad);
+        static extern IntPtr LoadImage(IntPtr hinst, IntPtr lpszName, uint uType, int cxDesired, int cyDesired,
+            uint fuLoad);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern bool DestroyIcon(IntPtr handle);
 
         private const uint GroupIcon = 14;
         private const uint LoadLibraryAsDatafile = 0x00000002;
 
         private Icon GetIcon(RegistryKey currentKey, int iconSize)
         {
-            if (currentKey.OpenSubKey("DefaultIcon") == null)
+            using (RegistryKey subKey = currentKey.OpenSubKey("DefaultIcon"))
             {
-                return null;
-            }
+                if (subKey?.GetValue(null) == null)
+                {
+                    return null;
+                }
 
-            if (currentKey.OpenSubKey("DefaultIcon")?.GetValue(null) != null)
-            {
-                var iconString = new List<string>(currentKey.OpenSubKey("DefaultIcon")?.GetValue(null)?.ToString().Split(new[] { ',' }, 2));
+                var iconString = subKey.GetValue(null)?.ToString().Split(new[] {','}, 2) ?? new string[0];
 
                 if (iconString[0][0] == '@')
                 {
                     iconString[0] = iconString[0].Substring(1);
                 }
 
-                var dataFilePointer = LoadLibraryEx(iconString[0], IntPtr.Zero, LoadLibraryAsDatafile);
-                var iconPtr = IntPtr.Zero;
+                IntPtr dataFilePointer = LoadLibraryEx(iconString[0], IntPtr.Zero, LoadLibraryAsDatafile);
+                IntPtr iconPtr = IntPtr.Zero;
 
-                if (iconString.Count == 2)
+                if (iconString.Length == 2)
                 {
-                    var iconIndex = (IntPtr)ParseIndex(iconString[1]);
+                    var iconIndex = (IntPtr) ParseIndex(iconString[1]);
                     iconPtr = LoadImage(dataFilePointer, iconIndex, 1, iconSize, iconSize, 0);
                 }
 
                 if (iconPtr == IntPtr.Zero)
                 {
                     var defaultIconPtr = IntPtr.Zero;
-                    EnumResourceNamesWithID(dataFilePointer, GroupIcon, (a, b, c, z) => { defaultIconPtr = b; return false; }, IntPtr.Zero);
+                    EnumResourceNamesWithID(dataFilePointer, GroupIcon, (a, b, c, z) =>
+                    {
+                        defaultIconPtr = b;
+                        return false;
+                    }, IntPtr.Zero);
                     iconPtr = LoadImage(dataFilePointer, defaultIconPtr, 1, iconSize, iconSize, 0);
                 }
 
                 FreeLibrary(dataFilePointer);
 
-                if (iconPtr != IntPtr.Zero)
+                if (iconPtr == IntPtr.Zero)
                 {
-                    return Icon.FromHandle(iconPtr);
+                    return null;
+                }
+
+                Icon icon = null;
+                try
+                {
+                    icon = Icon.FromHandle(iconPtr);
+                    return (Icon) icon.Clone();
+                }
+                finally
+                {
+                    icon?.Dispose();
+                    DestroyIcon(iconPtr);
                 }
             }
-
-            return null;
         }
     }
 }

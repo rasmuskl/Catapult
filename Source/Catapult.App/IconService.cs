@@ -18,10 +18,9 @@ namespace Catapult.App
         private readonly BlockingCollection<IconRequest> _queue = new BlockingCollection<IconRequest>(new ConcurrentQueue<IconRequest>());
         private readonly Dictionary<string, BitmapSource> _iconCache = new Dictionary<string, BitmapSource>();
 
-
         private IconService()
         {
-            new Thread(ProcessQueue) { IsBackground = true }.Start();
+            new Thread(ProcessQueue) {IsBackground = true}.Start();
         }
 
         private void ProcessQueue()
@@ -47,21 +46,22 @@ namespace Catapult.App
 
                     IIconResolver iconResolver = targetItem.GetIconResolver();
 
-                    var icon = iconResolver?.Resolve();
-
-                    if (icon == null)
+                    using (Icon icon = iconResolver?.Resolve())
                     {
-                        continue;
-                    }
+                        if (icon == null)
+                        {
+                            continue;
+                        }
 
-                    using (Bitmap bmp = icon.ToBitmap())
-                    {
-                        var stream = new MemoryStream();
-                        bmp.Save(stream, ImageFormat.Png);
+                        using (Bitmap bmp = icon.ToBitmap())
+                        {
+                            var stream = new MemoryStream();
+                            bmp.Save(stream, ImageFormat.Png);
 
-                        BitmapFrame bitmapSource = BitmapFrame.Create(stream);
-                        _iconCache[cacheKey] = bitmapSource;
-                        request.Model.Icon = bitmapSource;
+                            BitmapFrame bitmapSource = BitmapFrame.Create(stream);
+                            _iconCache[cacheKey] = bitmapSource;
+                            request.Model.Icon = bitmapSource;
+                        }
                     }
                 }
                 catch (Exception ex)
