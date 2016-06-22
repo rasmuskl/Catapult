@@ -52,23 +52,26 @@ namespace Catapult.App
                     _updateManager.RemoveShortcutForThisExe();
                     DisableRunAtStartUpAction.RemoveRunAtStartUp();
                 },
-                onAppObsoleted: v =>
-                {
-                    Log.Information("Squirrel: On app obsoleted: " + v);
-                },
-                onFirstRun: () =>
-                {
-                    Log.Information("Squirrel: On first run.");
-                });
+                onAppObsoleted: v => { Log.Information("Squirrel: On app obsoleted: " + v); },
+                onFirstRun: () => { Log.Information("Squirrel: On first run."); });
         }
 
         public void StartPeriodicUpdateCheck()
         {
-            new Thread(o =>
+            var thread = new Thread(o =>
             {
-                CheckForUpdates();
-                Thread.Sleep(TimeSpan.FromHours(3));
-            }).Start();
+                try
+                {
+                    CheckForUpdates();
+                    Thread.Sleep(TimeSpan.FromHours(3));
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Periodic update check failed.");
+                }
+            }) {IsBackground = true};
+
+            thread.Start();
         }
 
         public void CheckForUpdates()
