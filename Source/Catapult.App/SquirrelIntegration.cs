@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
+using Catapult.Core;
 using Catapult.Core.Actions;
 using Serilog;
 using Squirrel;
@@ -12,8 +14,6 @@ namespace Catapult.App
         private readonly UpdateManager _updateManager;
         private const string UpdateUrl = "https://catapultdata001.blob.core.windows.net/releases";
         public static Action<string> OnUpdateFound;
-
-        public string NewVersion;
 
         private SquirrelIntegration()
         {
@@ -41,10 +41,10 @@ namespace Catapult.App
                 },
                 onAppUpdate: v =>
                 {
+                    File.WriteAllText(CatapultPaths.NewVersionPath, v.ToString());
                     Log.Information("Squirrel: On app update: " + v);
                     _updateManager.CreateShortcutForThisExe();
                     EnableRunAtStartUpAction.UpdateRunAtStartUp();
-                    NewVersion = v.ToString();
                 },
                 onAppUninstall: v =>
                 {

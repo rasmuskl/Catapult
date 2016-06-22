@@ -11,5 +11,6 @@ namespace Catapult.Core
         public static string ClipboardPath => Path.Combine(DataPath, "clipboard.json");
         public static string FrecencyPath => Path.Combine(DataPath, "frecency.json");
         public static string LogPath => Path.Combine(DataPath, "logs");
+        public static string NewVersionPath => Path.Combine(DataPath, "new_version");
     }
 }

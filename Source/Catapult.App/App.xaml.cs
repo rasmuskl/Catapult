@@ -77,9 +77,10 @@ namespace Catapult.App
                 }
             }
 
-            if (SquirrelIntegration.Instance.NewVersion != null)
+            if (File.Exists(CatapultPaths.NewVersionPath))
             {
-                taskbarIcon.ShowBalloonTip("Catapult", $"Updated to new version: {SquirrelIntegration.Instance.NewVersion}", BalloonIcon.None);
+                string newVersion = File.ReadAllText(CatapultPaths.NewVersionPath);
+                taskbarIcon.ShowBalloonTip("Catapult", $"Updated to new version: {newVersion}", BalloonIcon.None);
             }
 
             SquirrelIntegration.OnUpdateFound += version =>
