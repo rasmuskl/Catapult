@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Catapult.Core.Icons;
 using Microsoft.Win32;
 
 namespace Catapult.Core.Indexes
@@ -228,22 +229,7 @@ namespace Catapult.Core.Indexes
 
                 FreeLibrary(dataFilePointer);
 
-                if (iconPtr == IntPtr.Zero)
-                {
-                    return null;
-                }
-
-                Icon icon = null;
-                try
-                {
-                    icon = Icon.FromHandle(iconPtr);
-                    return (Icon) icon.Clone();
-                }
-                finally
-                {
-                    icon?.Dispose();
-                    DestroyIcon(iconPtr);
-                }
+                return iconPtr.ExtractIconAndDestroyIconPointer();
             }
         }
     }

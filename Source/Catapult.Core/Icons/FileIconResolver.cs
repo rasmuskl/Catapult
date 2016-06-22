@@ -44,12 +44,12 @@ namespace Catapult.Core.Icons
                 }
             }
 
-            //var icon = ShellIcons.GetIcon(_fullName);
+            var icon = ShellIcons.GetIcon(_fullName);
 
-            //if (icon != null)
-            //{
-            //    return icon;
-            //}
+            if (icon != null)
+            {
+                return icon;
+            }
 
             return Icon.ExtractAssociatedIcon(_fullName);
         }
@@ -70,7 +70,7 @@ namespace Catapult.Core.Icons
                 return null;
             }
 
-            var desktopFolder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
+            var desktopFolder = (IShellFolder) Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
             try
             {
                 Sfgao pdwAttributes = 0;
@@ -82,7 +82,7 @@ namespace Catapult.Core.Icons
                 IntPtr ppv;
                 desktopFolder.BindToObject(ppidl, IntPtr.Zero, iidShellFolder, out ppv);
 
-                var folder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(ppv, typeof(IShellFolder));
+                var folder = (IShellFolder) Marshal.GetTypedObjectForIUnknown(ppv, typeof(IShellFolder));
 
                 try
                 {
@@ -111,54 +111,49 @@ namespace Catapult.Core.Icons
         }
 
         [DllImport("shell32.dll")]
-    public static extern Int32 SHGetDesktopFolder(out IntPtr ppshf);
+        public static extern int SHGetDesktopFolder(out IntPtr ppshf);
 
-    private const int SOk = 0;
-    private const int MaxPath = 260;
+        private const int SOk = 0;
+        private const int MaxPath = 260;
 
-    private static Icon ExtractIcon(IShellFolder parentFolder, IntPtr pidl)
-    {
-        Guid extractIconGuid = typeof(IExtractIcon).GUID;
-        IntPtr extractIconPtr;
-
-        if (parentFolder.GetUIObjectOf(IntPtr.Zero, 1, new[] { pidl }, ref extractIconGuid, IntPtr.Zero, out extractIconPtr) != SOk)
+        private static Icon ExtractIcon(IShellFolder parentFolder, IntPtr pidl)
         {
-            return null;
-        }
+            Guid extractIconGuid = typeof(IExtractIcon).GUID;
+            IntPtr extractIconPtr;
 
-        var iconExtractor = (IExtractIcon)Marshal.GetTypedObjectForIUnknown(extractIconPtr, typeof(IExtractIcon));
-
-        try
-        {
-            var location = new StringBuilder(MaxPath, MaxPath);
-            int iconIndex;
-            var flags = IExtractIconuFlags.GIL_FORSHELL;
-            IExtractIconpwFlags pwFlags;
-
-            if (iconExtractor.GetIconLocation(flags, location, location.Capacity, out iconIndex, out pwFlags) != SOk)
+            if (
+                parentFolder.GetUIObjectOf(IntPtr.Zero, 1, new[] {pidl}, ref extractIconGuid, IntPtr.Zero,
+                    out extractIconPtr) != SOk)
             {
                 return null;
             }
 
-            string path = location.ToString();
-            IntPtr largeIconHandle;
-            IntPtr smallIconHandle;
-            uint iconSize = 32 + (16 << 16);
-
-            if (iconExtractor.Extract(path, (uint)iconIndex, out largeIconHandle, out smallIconHandle, iconSize) != SOk)
-            {
-                return null;
-            }
+            var iconExtractor = (IExtractIcon) Marshal.GetTypedObjectForIUnknown(extractIconPtr, typeof(IExtractIcon));
 
             try
             {
-                return Icon.FromHandle(largeIconHandle);
-            }
-            finally
-            {
-                    Marshal.Release(largeIconHandle);
-                    Marshal.Release(smallIconHandle);
+                var location = new StringBuilder(MaxPath, MaxPath);
+                int iconIndex;
+                var flags = ExtractIconuFlags.GIL_FORSHELL;
+                ExtractIconpwFlags pwFlags;
+
+                if (iconExtractor.GetIconLocation(flags, location, location.Capacity, out iconIndex, out pwFlags) != SOk)
+                {
+                    return null;
                 }
+
+                string path = location.ToString();
+                IntPtr largeIconHandle;
+                IntPtr smallIconHandle;
+                uint iconSize = 32 + (16 << 16);
+
+                if (iconExtractor.Extract(path, (uint) iconIndex, out largeIconHandle, out smallIconHandle, iconSize) != SOk)
+                {
+                    return null;
+                }
+
+                smallIconHandle.DestroyIconPointer();
+                return largeIconHandle.ExtractIconAndDestroyIconPointer();
             }
             finally
             {
@@ -183,7 +178,7 @@ namespace Catapult.Core.Icons
         /// <param name="piIndex">A pointer to an int that receives the index of the icon in the file pointed to by pszIconFile.</param>
         /// <param name="pwFlags">A pointer to a UINT value that receives zero or a combination of the following value</param>
         [PreserveSig]
-        int GetIconLocation(IExtractIconuFlags uFlags, [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 2)] StringBuilder szIconFile, int cchMax, out int piIndex, out IExtractIconpwFlags pwFlags);
+        int GetIconLocation(ExtractIconuFlags uFlags, [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 2)] StringBuilder szIconFile, int cchMax, out int piIndex, out ExtractIconpwFlags pwFlags);
 
         /// <summary>
         /// Extracts an icon image from the specified location.
@@ -199,7 +194,7 @@ namespace Catapult.Core.Icons
     }
 
     [Flags]
-    public enum IExtractIconuFlags : uint
+    public enum ExtractIconuFlags : uint
     {
         GIL_ASYNC = 0x0020,
         GIL_DEFAULTICON = 0x0040,
@@ -210,7 +205,7 @@ namespace Catapult.Core.Icons
     }
 
     [Flags]
-    public enum IExtractIconpwFlags : uint
+    public enum ExtractIconpwFlags : uint
     {
         GIL_DONTCACHE = 0x0010,
         GIL_NOTFILENAME = 0x0008,
@@ -227,106 +222,57 @@ namespace Catapult.Core.Icons
     public interface IShellFolder
     {
         [PreserveSig]
-        Int32 ParseDisplayName(
-            IntPtr hwnd,
-            IntPtr pbc,
-            [MarshalAs(UnmanagedType.LPWStr)]
-            string pszDisplayName,
-            ref uint pchEaten,
-            out IntPtr ppidl,
-            ref Sfgao pdwAttributes);
+        int ParseDisplayName(IntPtr hwnd, IntPtr pbc, [MarshalAs(UnmanagedType.LPWStr)] string pszDisplayName, ref uint pchEaten, out IntPtr ppidl, ref Sfgao pdwAttributes);
 
         [PreserveSig]
-        Int32 EnumObjects(
-            IntPtr hwnd,
-            Shcontf grfFlags,
-            out IntPtr enumIdList);
+        int EnumObjects(IntPtr hwnd, Shcontf grfFlags, out IntPtr enumIdList);
 
         [PreserveSig]
-        Int32 BindToObject(
-            IntPtr pidl,
-            IntPtr pbc,
-            ref Guid riid,
-            out IntPtr ppv);
+        int BindToObject(IntPtr pidl, IntPtr pbc, ref Guid riid, out IntPtr ppv);
 
         [PreserveSig]
-        Int32 BindToStorage(
-            IntPtr pidl,
-            IntPtr pbc,
-            ref Guid riid,
-            out IntPtr ppv);
+        int BindToStorage(IntPtr pidl, IntPtr pbc, ref Guid riid, out IntPtr ppv);
 
         [PreserveSig]
-        Int32 CompareIDs(
-            IntPtr lParam,
-            IntPtr pidl1,
-            IntPtr pidl2);
+        int CompareIDs(IntPtr lParam, IntPtr pidl1, IntPtr pidl2);
 
         [PreserveSig]
-        Int32 CreateViewObject(
-            IntPtr hwndOwner,
-            Guid riid,
-            out IntPtr ppv);
+        int CreateViewObject(IntPtr hwndOwner, Guid riid, out IntPtr ppv);
 
         [PreserveSig]
-        Int32 GetAttributesOf(
-            uint cidl,
-            [MarshalAs(UnmanagedType.LPArray)]
-            IntPtr[] apidl,
-            ref Sfgao rgfInOut);
+        int GetAttributesOf(uint cidl, [MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl, ref Sfgao rgfInOut);
 
         [PreserveSig]
-        Int32 GetUIObjectOf(
-            IntPtr hwndOwner,
-            uint cidl,
-            [MarshalAs(UnmanagedType.LPArray)]
-            IntPtr[] apidl,
-            ref Guid riid,
-            IntPtr rgfReserved,
-            out IntPtr ppv);
+        int GetUIObjectOf(IntPtr hwndOwner, uint cidl, [MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl, ref Guid riid, IntPtr rgfReserved, out IntPtr ppv);
 
         [PreserveSig()]
-        Int32 GetDisplayNameOf(
-            IntPtr pidl,
-            Shgno uFlags,
-            IntPtr lpName);
+        int GetDisplayNameOf(IntPtr pidl, Shgno uFlags, IntPtr lpName);
 
         [PreserveSig]
-        Int32 SetNameOf(
-            IntPtr hwnd,
-            IntPtr pidl,
-            [MarshalAs(UnmanagedType.LPWStr)]
-            string pszName,
-            Shgno uFlags,
-            out IntPtr ppidlOut);
+        int SetNameOf(IntPtr hwnd, IntPtr pidl, [MarshalAs(UnmanagedType.LPWStr)] string pszName, Shgno uFlags, out IntPtr ppidlOut);
     }
 
-    [ComImport()]
+    [ComImport]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     [Guid("000214F2-0000-0000-C000-000000000046")]
     public interface IEnumIDList
     {
         // Retrieves the specified number of item identifiers in the enumeration 
         // sequence and advances the current position by the number of items retrieved
-        [PreserveSig()]
-        Int32 Next(
-            int celt,
-            out IntPtr rgelt,
-            out int pceltFetched);
+        [PreserveSig]
+        int Next(int celt, out IntPtr rgelt, out int pceltFetched);
 
         // Skips over the specified number of elements in the enumeration sequence
-        [PreserveSig()]
-        Int32 Skip(
-            int celt);
+        [PreserveSig]
+        int Skip(int celt);
 
         // Returns to the beginning of the enumeration sequence
-        [PreserveSig()]
-        Int32 Reset();
+        [PreserveSig]
+        int Reset();
 
         // Creates a new item enumeration object with the same contents and state as the current one
-        [PreserveSig()]
-        Int32 Clone(
-            out IEnumIDList ppenum);
+        [PreserveSig]
+        int Clone(out IEnumIDList ppenum);
     }
 
 
@@ -394,22 +340,20 @@ namespace Catapult.Core.Icons
     {
         public class IconNotFoundException : Exception
         {
-            public IconNotFoundException(string fileName, int index)
-                : base($"Icon with Id = {index} wasn't found in file {fileName}")
+            public IconNotFoundException(string fileName, int index) : base($"Icon with Id = {index} wasn't found in file {fileName}")
             {
             }
         }
 
         public class UnableToExtractIconsException : Exception
         {
-            public UnableToExtractIconsException(string fileName, int firstIconIndex, int iconCount)
-                : base(string.Format("Tryed to extract {2} icons starting from the one with id {1} from the \"{0}\" file but failed", fileName, firstIconIndex, iconCount))
+            public UnableToExtractIconsException(string fileName, int firstIconIndex, int iconCount) : base(string.Format("Tried to extract {2} icons starting from the one with id {1} from the \"{0}\" file but failed", fileName, firstIconIndex, iconCount))
             {
             }
         }
 
         [DllImport("Shell32", CharSet = CharSet.Auto)]
-        static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)]string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
+        static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)] string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
 
         public enum SystemIconSize
         {
@@ -450,8 +394,8 @@ namespace Catapult.Core.Icons
                 throw new UnableToExtractIconsException(fileName, firstIconIndex, iconCount);
             }
 
-            smallIcons?.AddRange(smallIconsPtrs.Select(Icon.FromHandle));
-            largeIcons?.AddRange(largeIconsPtrs.Select(Icon.FromHandle));
+            smallIcons?.AddRange(smallIconsPtrs.Select(x => x.ExtractIconAndDestroyIconPointer()));
+            largeIcons?.AddRange(largeIconsPtrs.Select(x => x.ExtractIconAndDestroyIconPointer()));
         }
 
         private static List<Icon> ExtractEx(string fileName, SystemIconSize size, int firstIconIndex, int iconCount)
@@ -473,6 +417,43 @@ namespace Catapult.Core.Icons
             }
 
             return iconList;
+        }
+    }
+
+    public static class IntPtrExtensions
+    {
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern bool DestroyIcon(IntPtr handle);
+
+
+        public static Icon ExtractIconAndDestroyIconPointer(this IntPtr iconPtr)
+        {
+            if (iconPtr == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            Icon icon = null;
+            try
+            {
+                icon = Icon.FromHandle(iconPtr);
+                return (Icon) icon.Clone();
+            }
+            finally
+            {
+                icon?.Dispose();
+                DestroyIcon(iconPtr);
+            }
+        }
+
+        public static void DestroyIconPointer(this IntPtr iconPtr)
+        {
+            if (iconPtr == IntPtr.Zero)
+            {
+                return;
+            }
+
+            DestroyIcon(iconPtr);
         }
     }
 }

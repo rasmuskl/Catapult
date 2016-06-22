@@ -43,7 +43,7 @@ namespace Catapult.App
                         request.Model.Icon = source;
                         continue;
                     }
-
+                    
                     IIconResolver iconResolver = targetItem.GetIconResolver();
 
                     using (Icon icon = iconResolver?.Resolve())
