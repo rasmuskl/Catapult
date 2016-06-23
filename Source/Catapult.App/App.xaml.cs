@@ -81,6 +81,7 @@ namespace Catapult.App
             {
                 string newVersion = File.ReadAllText(CatapultPaths.NewVersionPath);
                 taskbarIcon.ShowBalloonTip("Catapult", $"Updated to new version: {newVersion}", BalloonIcon.None);
+                File.Delete(CatapultPaths.NewVersionPath);
             }
 
             SquirrelIntegration.OnUpdateFound += version =>
