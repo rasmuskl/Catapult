@@ -30,6 +30,7 @@ namespace Catapult.Core.Indexes
             catch(Exception ex) 
             {
                  Log.Error(ex, "Failed to index Chrome bookmarks.");
+                 return new BookmarkItem[0];
             }
         }
 
