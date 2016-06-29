@@ -32,7 +32,6 @@ namespace Catapult.Core.Indexes
                  Log.Error(ex, "Failed to index Chrome bookmarks.");
             }
         }
-    }
 
         internal class ChromeBookmarkCollection
         {
