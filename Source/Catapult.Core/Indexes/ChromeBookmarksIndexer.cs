@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace Catapult.Core.Indexes
 {
@@ -12,27 +13,26 @@ namespace Catapult.Core.Indexes
         {
             try
             {
-            
-            string bookmarksFilePath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Bookmarks");
-
-            if (!File.Exists(bookmarksFilePath))
-            {
-                return new BookmarkItem[0];
-            }
-
-            var bookmarkCollectionJson = File.ReadAllText(bookmarksFilePath);
-            var bookmarkCollection = JsonConvert.DeserializeObject<ChromeBookmarkCollection>(bookmarkCollectionJson);
-
-            ChromeBookmark[] urlBookmarks = bookmarkCollection.Flatten().Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
-
-            return urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Chrome bookmark")).ToArray();
+                string bookmarksFilePath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Bookmarks");
+    
+                if (!File.Exists(bookmarksFilePath))
+                {
+                    return new BookmarkItem[0];
+                }
+    
+                var bookmarkCollectionJson = File.ReadAllText(bookmarksFilePath);
+                var bookmarkCollection = JsonConvert.DeserializeObject<ChromeBookmarkCollection>(bookmarkCollectionJson);
+    
+                ChromeBookmark[] urlBookmarks = bookmarkCollection.Flatten().Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+    
+                return urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Chrome bookmark")).ToArray();
             }
             catch(Exception ex) 
             {
-                
-            }
+                 Log.Error(ex, "Failed to index Chrome bookmarks.");
             }
         }
+    }
 
         internal class ChromeBookmarkCollection
         {
