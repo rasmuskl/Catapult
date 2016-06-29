@@ -14,7 +14,7 @@ namespace Catapult.Core.Actions
     {
         private IndexableUpdateState _indexableUpdateState;
         private Searcher _selectaSeacher;
-        private CalculationEngine _calculationEngine;
+        private readonly CalculationEngine _calculationEngine;
 
         public UpdateableIndexableSearchFrame(IndexableUpdateState indexableUpdateState)
         {
@@ -47,7 +47,7 @@ namespace Catapult.Core.Actions
 
                 if (!string.Equals(name, search?.Trim(), StringComparison.InvariantCultureIgnoreCase))
                 {
-                    searchResults = searchResults.Concat(new[] {new SearchResult(name, 100, new StringIndexable(name, "Result of formula"), ImmutableHashSet.Create<int>())}).ToArray();
+                    searchResults = searchResults.Concat(new[] {new SearchResult(name, 0, new StringIndexable(name, "Result of formula"), ImmutableHashSet.Create<int>())}).ToArray();
                 }
             }
             catch
