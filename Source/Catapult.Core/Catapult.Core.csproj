@@ -104,6 +104,7 @@
     <Compile Include="Actions\UpdateableIndexableSearchFrame.cs" />
     <Compile Include="Actions\UpgradeCatapultAction.cs" />
     <Compile Include="Actions\WikipediaAction.cs" />
+    <Compile Include="Bookmark.cs" />
     <Compile Include="CatapultPaths.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
     <Compile Include="Config\JsonIndexData.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Icons\IconResolver.cs" />
     <Compile Include="Icons\IIconResolver.cs" />
     <Compile Include="Icons\UrlIconResolver.cs" />
+    <Compile Include="Indexes\ChromeBookmarksIndexer.cs" />
     <Compile Include="Indexes\ClipboardIndexer.cs" />
     <Compile Include="Indexes\ControlPanelIndexer.cs" />
     <Compile Include="Indexes\IndexableBase.cs" />

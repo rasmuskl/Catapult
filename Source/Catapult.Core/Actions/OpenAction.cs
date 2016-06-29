@@ -4,7 +4,7 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class OpenAction : IndexableBase, IAction<FileItem>, IAction<FolderItem>
+    public class OpenAction : IndexableBase, IAction<FileItem>, IAction<FolderItem>, IAction<BookmarkItem>
     {
         public void Run(FileItem item)
         {
@@ -28,6 +28,11 @@ namespace Catapult.Core.Actions
             }
 
             Launch(directoryInfo.FullName);
+        }
+
+        public void Run(BookmarkItem item)
+        {
+            Launch(item.Url);
         }
 
         private static void Launch(string fullName)
