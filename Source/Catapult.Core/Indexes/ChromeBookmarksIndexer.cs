@@ -10,6 +10,9 @@ namespace Catapult.Core.Indexes
     {
         public BookmarkItem[] GetBookmarkItems()
         {
+            try
+            {
+            
             string bookmarksFilePath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Bookmarks");
 
             if (!File.Exists(bookmarksFilePath))
@@ -23,6 +26,12 @@ namespace Catapult.Core.Indexes
             ChromeBookmark[] urlBookmarks = bookmarkCollection.Flatten().Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
 
             return urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Chrome bookmark")).ToArray();
+            }
+            catch(Exception ex) 
+            {
+                
+            }
+            }
         }
 
         internal class ChromeBookmarkCollection
