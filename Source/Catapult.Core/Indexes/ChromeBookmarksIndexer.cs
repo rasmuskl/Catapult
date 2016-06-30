@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace Catapult.Core.Indexes
@@ -14,40 +14,45 @@ namespace Catapult.Core.Indexes
             try
             {
                 string bookmarksFilePath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Bookmarks");
-    
+
                 if (!File.Exists(bookmarksFilePath))
                 {
                     return new BookmarkItem[0];
                 }
-    
+
                 var bookmarkCollectionJson = File.ReadAllText(bookmarksFilePath);
-                var bookmarkCollection = JsonConvert.DeserializeObject<ChromeBookmarkCollection>(bookmarkCollectionJson);
-    
-                ChromeBookmark[] urlBookmarks = bookmarkCollection.Flatten().Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
-    
-                return urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Chrome bookmark")).ToArray();
-            }
-            catch(Exception ex) 
-            {
-                 Log.Error(ex, "Failed to index Chrome bookmarks.");
-                 return new BookmarkItem[0];
-            }
-        }
 
-        internal class ChromeBookmarkCollection
-        {
-            public Dictionary<string, ChromeBookmark> Roots { get; set; }
+                JToken rootToken = JToken.Parse(bookmarkCollectionJson);
 
-            public IEnumerable<ChromeBookmark> Flatten()
-            {
-                foreach (ChromeBookmark child in Roots?.Values.ToArray() ?? new ChromeBookmark[0])
+                JToken rootsToken = rootToken["roots"];
+
+                if (rootsToken == null)
                 {
-                    foreach (ChromeBookmark bookmark in child.Flatten())
+                    return new BookmarkItem[0];
+                }
+
+                var chromeBookmarks = new List<ChromeBookmark>();
+
+                foreach (JToken token in rootsToken)
+                {
+                    var property = token as JProperty;
+
+                    if (property?.Value is JObject)
                     {
-                        yield return bookmark;
+                        chromeBookmarks.Add(property.Value.ToObject<ChromeBookmark>());
                     }
                 }
+
+                ChromeBookmark[] urlBookmarks = chromeBookmarks.SelectMany(x => x.Flatten()).Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+
+                return urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Chrome bookmark")).ToArray();
             }
+            catch (Exception ex)
+            {
+                Log.Error("Parsing Chome bookmarks failed.", ex);
+            }
+
+            return new BookmarkItem[0];
         }
 
         internal class ChromeBookmark
