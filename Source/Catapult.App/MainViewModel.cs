@@ -142,7 +142,7 @@ namespace Catapult.App
                 return;
             }
 
-            var launchable = _actionRegistry.Launch(_selectedIndexables.Reverse().Concat(new[] { targetItem }).ToArray());
+            var launchable = _actionRegistry.Launch(_selectedIndexables.Reverse().Concat(new[] {targetItem}).ToArray());
 
             if (launchable?.Action == null)
             {
@@ -164,13 +164,12 @@ namespace Catapult.App
                 _frecencyStorage.AddUse(launchable.Action.BoostIdentifier, search, _mainListModel.SelectedIndex);
                 _frecencyStorage.AddUse(launchable.Target.BoostIdentifier, search, _mainListModel.SelectedIndex);
 
-                Reset();
 
                 Log.Information("Launching {@TargetItem} with {ActionType}", launchable.Target, launchable.Action);
 
                 launchable.Action.GetType()
-                    .GetMethod("Run", new[] { launchable.Target.GetType() })
-                    .Invoke(launchable.Action, new[] { launchable.Target });
+                    .GetMethod("Run", new[] {launchable.Target.GetType()})
+                    .Invoke(launchable.Action, new[] {launchable.Target});
             }
             catch (Exception ex)
             {
@@ -178,6 +177,7 @@ namespace Catapult.App
             }
 
             afterOpenAction();
+            Reset();
         }
 
         public void PerformFastAction(FastAction fastAction)
@@ -251,7 +251,7 @@ namespace Catapult.App
             }
 
             SearchItemModel searchItemModel = _mainListModel.Items[_mainListModel.SelectedIndex];
-            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(_selectedIndexables.Reverse().Concat(new[] { searchItemModel.TargetItem }).ToArray());
+            ISearchFrame searchFrame = _actionRegistry.GetSearchFrame(_selectedIndexables.Reverse().Concat(new[] {searchItemModel.TargetItem}).ToArray());
 
             if (searchFrame == null)
             {
@@ -279,7 +279,7 @@ namespace Catapult.App
             _queue = new BlockingCollection<IIntent>(new ConcurrentQueue<IIntent>());
             _dispatcher = dispatcher;
 
-            var thread = new Thread(Process) { IsBackground = true };
+            var thread = new Thread(Process) {IsBackground = true};
             thread.Start();
         }
 
@@ -306,10 +306,7 @@ namespace Catapult.App
                     {
                         var executeIntent = intent as ExecuteIntent;
 
-                        _dispatcher.Invoke(() =>
-                        {
-                            OpenSelected(executeIntent.Search, executeIntent.AfterOpenAction);
-                        });
+                        _dispatcher.Invoke(() => { OpenSelected(executeIntent.Search, executeIntent.AfterOpenAction); });
                     }
                     else if (intent is MoveSelectionIntent)
                     {
@@ -346,10 +343,7 @@ namespace Catapult.App
                     {
                         var fastActionIntent = intent as FastActionIntent;
 
-                        _dispatcher.Invoke(() =>
-                        {
-                            PerformFastAction(fastActionIntent.FastAction);
-                        });
+                        _dispatcher.Invoke(() => { PerformFastAction(fastActionIntent.FastAction); });
                     }
                     else if (intent is ShutdownIntent)
                     {
@@ -374,7 +368,6 @@ namespace Catapult.App
 
     public class ClearIntent : IIntent
     {
-
     }
 
     public class ExecuteIntent : IIntent
@@ -455,6 +448,5 @@ namespace Catapult.App
 
     public interface IIntent
     {
-
     }
 }
