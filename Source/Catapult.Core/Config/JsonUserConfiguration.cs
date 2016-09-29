@@ -30,7 +30,7 @@ namespace Catapult.Core.Config
                     @"c:\dev",
                 },
                 IgnoredDirectories = new[] { "node_modules", ".git", "scratch" },
-                Extensions = new[] { ".lnk", ".exe", ".sln", ".url", "*.docx", "*.xlsx", "*.pptx", "*.pdf" }
+                Extensions = new[] { ".lnk", ".exe", ".sln", ".url", ".docx", ".xlsx", ".pptx", ".pdf" }
             };
         }
     }
