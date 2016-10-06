@@ -223,42 +223,4 @@ namespace Catapult.Core.Actions
             return null;
         }
     }
-
-    public class Launchable
-    {
-        public IIndexable Action { get; set; }
-        public IIndexable Target { get; set; }
-
-        public Launchable(IIndexable action, IIndexable target)
-        {
-            Action = action;
-            Target = target;
-        }
-    }
-
-    public class ActionMapping
-    {
-        public ActionMapping(Type actionType, Type inType)
-        {
-            ActionType = actionType;
-            InType = inType;
-        }
-
-        public Type ActionType { get; }
-        public Type InType { get; }
-    }
-
-    public class ConvertMapping
-    {
-        public ConvertMapping(Type convertType, Type inType, Type outType)
-        {
-            ConvertType = convertType;
-            InType = inType;
-            OutType = outType;
-        }
-
-        public Type ConvertType { get; }
-        public Type InType { get; }
-        public Type OutType { get; }
-    }
 }

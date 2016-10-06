@@ -66,6 +66,12 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<ClipboardHistoryAction>();
             _actionRegistry.RegisterAction<UnderscorizeClipboardString>();
 
+            _actionRegistry.RegisterAction<WindowsSleepAction>();
+            _actionRegistry.RegisterAction<WindowsRestartAction>();
+            _actionRegistry.RegisterAction<WindowsShutdownAction>();
+            _actionRegistry.RegisterAction<WindowsLockComputerAction>();
+            _actionRegistry.RegisterAction<WindowsLogOffAction>();
+
             Reset();
 
             StartIntentService(Dispatcher.CurrentDispatcher);

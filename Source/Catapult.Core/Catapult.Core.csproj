@@ -75,11 +75,16 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\ActionMapping.cs" />
     <Compile Include="Actions\ActionRegistry.cs" />
     <Compile Include="Actions\CheckForUpdatesAction.cs" />
     <Compile Include="Actions\ClipboardHistoryAction.cs" />
-    <Compile Include="Actions\ContainingFolderAction.cs" />
+    <Compile Include="Actions\ContainingFolderConverter.cs" />
+    <Compile Include="Actions\ConvertMapping.cs" />
     <Compile Include="Actions\DisableRunAtStartUpAction.cs" />
+    <Compile Include="Actions\IndexableResult.cs" />
+    <Compile Include="Actions\IndexableUpdateState.cs" />
+    <Compile Include="Actions\Launchable.cs" />
     <Compile Include="Actions\UnderscorizeClipboardString.cs" />
     <Compile Include="Actions\FileNavigationSearchFrame.cs" />
     <Compile Include="Actions\GoogleAction.cs" />
@@ -104,6 +109,11 @@
     <Compile Include="Actions\UpdateableIndexableSearchFrame.cs" />
     <Compile Include="Actions\UpgradeCatapultAction.cs" />
     <Compile Include="Actions\WikipediaAction.cs" />
+    <Compile Include="Actions\WindowsLockComputerAction.cs" />
+    <Compile Include="Actions\WindowsLogOffAction.cs" />
+    <Compile Include="Actions\WindowsRestartAction.cs" />
+    <Compile Include="Actions\WindowsShutdownAction.cs" />
+    <Compile Include="Actions\WindowsSleepAction.cs" />
     <Compile Include="Bookmark.cs" />
     <Compile Include="CatapultPaths.cs" />
     <Compile Include="Config\JsonConfigLoader.cs" />
