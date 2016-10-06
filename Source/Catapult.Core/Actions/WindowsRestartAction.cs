@@ -9,7 +9,7 @@ namespace Catapult.Core.Actions
     {
         public void Run()
         {
-            Process.Start(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "shutdown.exe"), "/r /t 00");
+            Process.Start(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "shutdown.exe"), "-r -t 00");
         }
 
         public override string Name => "Windows: Restart / Reboot";
