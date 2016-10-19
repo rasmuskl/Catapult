@@ -69,6 +69,7 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<WindowsSleepAction>();
             _actionRegistry.RegisterAction<WindowsRestartAction>();
             _actionRegistry.RegisterAction<WindowsShutdownAction>();
+            _actionRegistry.RegisterAction<WindowsShutdownForceAction>();
             _actionRegistry.RegisterAction<WindowsLockComputerAction>();
             _actionRegistry.RegisterAction<WindowsLogOffAction>();
 

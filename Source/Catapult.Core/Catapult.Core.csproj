@@ -113,6 +113,7 @@
     <Compile Include="Actions\WindowsLogOffAction.cs" />
     <Compile Include="Actions\WindowsRestartAction.cs" />
     <Compile Include="Actions\WindowsShutdownAction.cs" />
+    <Compile Include="Actions\WindowsShutdownForceAction.cs" />
     <Compile Include="Actions\WindowsSleepAction.cs" />
     <Compile Include="Bookmark.cs" />
     <Compile Include="CatapultPaths.cs" />
