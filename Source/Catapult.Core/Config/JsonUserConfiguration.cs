@@ -14,7 +14,7 @@ namespace Catapult.Core.Config
         public string[] Paths { get; set; }
         public string[] IgnoredDirectories { get; set; }
         public string[] Extensions { get; set; }
-
+        public bool UseControlKey { get; set; }
 
         public static JsonUserConfiguration BuildDefaultSettings()
         {
@@ -30,7 +30,8 @@ namespace Catapult.Core.Config
                     @"c:\dev",
                 },
                 IgnoredDirectories = new[] { "node_modules", ".git", "scratch" },
-                Extensions = new[] { ".lnk", ".exe", ".sln", ".url", ".docx", ".xlsx", ".pptx", ".pdf" }
+                Extensions = new[] { ".lnk", ".exe", ".sln", ".url", ".docx", ".xlsx", ".pptx", ".pdf" },
+                UseControlKey = false
             };
         }
     }

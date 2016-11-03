@@ -49,7 +49,7 @@ namespace Catapult.App
 
             _hotKeyManager = new HotKeyManager();
 
-            RegisterHotKey(Key.Space, ModifierKeys.Alt);
+            RegisterHotKey(Key.Space, configuration.UseControlKey == true ? ModifierKeys.Control : ModifierKeys.Alt);
 
             _mainWindow = new MainWindow();
 
