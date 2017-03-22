@@ -65,6 +65,7 @@ namespace Catapult.App
 
             _actionRegistry.RegisterAction<ClipboardHistoryAction>();
             _actionRegistry.RegisterAction<UnderscorizeClipboardString>();
+            _actionRegistry.RegisterAction<PlingifyClipboardString>();
 
             _actionRegistry.RegisterAction<WindowsSleepAction>();
             _actionRegistry.RegisterAction<WindowsRestartAction>();
