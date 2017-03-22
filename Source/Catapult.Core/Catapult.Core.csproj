@@ -85,7 +85,7 @@
     <Compile Include="Actions\IndexableResult.cs" />
     <Compile Include="Actions\IndexableUpdateState.cs" />
     <Compile Include="Actions\Launchable.cs" />
-    <Compile Include="Actions\PlingifyClipboardString.cs" />
+    <Compile Include="Actions\TripleBacktickClipboardString.cs" />
     <Compile Include="Actions\UnderscorizeClipboardString.cs" />
     <Compile Include="Actions\FileNavigationSearchFrame.cs" />
     <Compile Include="Actions\GoogleAction.cs" />

@@ -4,7 +4,7 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
 {
-    public class PlingifyClipboardString : IndexableBase, IStandaloneAction
+    public class TripleBacktickClipboardString : IndexableBase, IStandaloneAction
     {
         public void Run()
         {
@@ -14,10 +14,10 @@ namespace Catapult.Core.Actions
             }
 
             var text = Clipboard.GetText();
-            var plingifiedText = "```" + Environment.NewLine + text + Environment.NewLine + "```";
+            var plingifiedText = $"```{Environment.NewLine}{text}{Environment.NewLine}```";
             Clipboard.SetText(plingifiedText);
         }
 
-        public override string Name => "Plingify clipboard string";
+        public override string Name => "Triple backtick clipboard string";
     }
 }
