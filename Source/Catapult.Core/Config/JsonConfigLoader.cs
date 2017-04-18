@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Serilog;
 
 namespace Catapult.Core.Config
 {
@@ -15,7 +17,15 @@ namespace Catapult.Core.Config
                 return JsonUserConfiguration.BuildDefaultSettings();
             }
 
-            return JsonConvert.DeserializeObject<JsonUserConfiguration>(fileContents);
+            try
+            {
+                return JsonConvert.DeserializeObject<JsonUserConfiguration>(fileContents) ?? JsonUserConfiguration.BuildDefaultSettings();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Loading config failed.");
+                throw;
+            }
         }
 
         public void SaveUserConfig(JsonUserConfiguration config, string file)
