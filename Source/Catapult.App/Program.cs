@@ -7,6 +7,7 @@ using Catapult.Core;
 using Catapult.Core.Debug;
 using Catapult.Core.Selecta;
 using Serilog;
+using System.Threading;
 
 namespace Catapult.App
 {
@@ -16,31 +17,42 @@ namespace Catapult.App
         public static bool UseSingleLaunchMode = IsDebug();
         private static App _app;
         private static bool _cleanedUp;
+        private static string ApplicationGuid = "73318AC3-8074-4094-8842-6A2994742764";
 
         [STAThread]
         public static void Main()
         {
-            ServicePointManager.DefaultConnectionLimit = 10;
+            using (var mutex = new Mutex(false, ApplicationGuid))
+            {
+                if (!mutex.WaitOne(0, false))
+                {
+                    Log.Information($"Catapult is already running.");
+                    MessageBox.Show($"Catapult is already running.");
+                    return;
+                }
 
-            var logger = new LoggerConfiguration()
-                .WriteTo.RollingFile(Path.Combine(CatapultPaths.LogPath, "log-{Date}.log"))
-                .WriteTo.LogWindow()
-                .CreateLogger();
+                ServicePointManager.DefaultConnectionLimit = 10;
 
-            Log.Logger = logger;
+                var logger = new LoggerConfiguration()
+                    .WriteTo.RollingFile(Path.Combine(CatapultPaths.LogPath, "log-{Date}.log"))
+                    .WriteTo.LogWindow()
+                    .CreateLogger();
 
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+                Log.Logger = logger;
 
-            SquirrelIntegration.Instance.HandleSquirrelEvents();
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
-            _app = new App();
+                SquirrelIntegration.Instance.HandleSquirrelEvents();
 
-            _app.Exit += App_Exit; ;
-            _app.DispatcherUnhandledException += App_DispatcherUnhandledException;
+                _app = new App();
 
-            _app.InitializeComponent();
-            _app.Run();
+                _app.Exit += App_Exit; ;
+                _app.DispatcherUnhandledException += App_DispatcherUnhandledException;
+
+                _app.InitializeComponent();
+                _app.Run();
+            }
         }
 
         private static void App_Exit(object sender, ExitEventArgs e)
