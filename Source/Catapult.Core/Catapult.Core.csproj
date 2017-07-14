@@ -101,7 +101,6 @@
     <Compile Include="Actions\OpenConfigAction.cs" />
     <Compile Include="Actions\OpenLastLogAction.cs" />
     <Compile Include="Actions\OpenLogFolderAction.cs" />
-    <Compile Include="Actions\PathOfExileWikiAction.cs" />
     <Compile Include="Actions\ReindexFilesAction.cs" />
     <Compile Include="Actions\RunningProcessInfo.cs" />
     <Compile Include="Actions\EnableRunAtStartUpAction.cs" />

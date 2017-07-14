@@ -4,7 +4,8 @@
         xmlns:app="clr-namespace:Catapult.App"
         Height="450" Width="600" WindowStyle="None" Background="Transparent" AllowsTransparency="True" BorderThickness="0" ResizeMode="NoResize" ShowInTaskbar="False"
         Loaded="MainWindow_OnLoaded"
-        Activated="MainWindow_OnActivated">
+        Activated="MainWindow_OnActivated"
+        Deactivated="SearchBar_OnLostFocus">
     <Window.Resources>
         <DataTemplate x:Key="ItemTemplate">
             <DataTemplate.DataType>
@@ -84,7 +85,6 @@
                  PreviewKeyUp="SearchBarPreviewKeyUp" 
                  TextChanged="SearchBar_OnTextChanged"
                  PreviewKeyDown="SearchBarPreviewKeyDown"
-                 LostFocus="SearchBar_OnLostFocus"
                  Background="#FF333333" 
                  Foreground="#FF66FF00" 
                  Margin="0,0,0,0" 
@@ -92,7 +92,7 @@
                  VerticalAlignment="Center" 
                  Padding="5,5,5,5" 
                  FontSize="24" />
-        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" SelectionChanged="SearchItems_OnSelectionChanged" Margin="0,0,0,0" Background="#FF333333" HorizontalContentAlignment="Stretch" Padding="0" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"  VirtualizingStackPanel.IsVirtualizing="True" />
+        <ListBox Name="SearchItems" ItemsSource="{Binding MainListModel.Items}" SelectedIndex="{Binding MainListModel.SelectedIndex}" SelectionChanged="SearchItems_OnSelectionChanged" Margin="0,0,0,0" Background="#FF333333" HorizontalContentAlignment="Stretch" Padding="0" ItemContainerStyle="{StaticResource ContainerStyle}" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"  VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseLeftButtonDown="SearchItems_OnPreviewMouseLeftButtonDown" />
     </StackPanel>
 </Window>
 

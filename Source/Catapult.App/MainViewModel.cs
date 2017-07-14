@@ -60,7 +60,6 @@ namespace Catapult.App
             };
 
             _actionRegistry.RegisterAction<GoogleAction>();
-            _actionRegistry.RegisterAction<PathOfExileWikiAction>();
             _actionRegistry.RegisterAction<WikipediaAction>();
 
             _actionRegistry.RegisterAction<ClipboardHistoryAction>();
@@ -159,7 +158,7 @@ namespace Catapult.App
 
             if (launchable.Target == null)
             {
-                if (PushStack(search))
+                if (PushStack())
                 {
                     return;
                 }
@@ -251,7 +250,7 @@ namespace Catapult.App
             }
         }
 
-        private bool PushStack(string search)
+        private bool PushStack()
         {
             if (!_mainListModel.Items.Any())
             {
@@ -326,19 +325,21 @@ namespace Catapult.App
                             {
                                 MainListModel.SelectedIndex = Math.Min(MainListModel.Items.Count, MainListModel.SelectedIndex + moveSelectionIntent.Count);
                             }
-                            else
+                            else if (moveSelectionIntent.Direction == MoveDirection.Up)
                             {
                                 MainListModel.SelectedIndex = Math.Max(0, MainListModel.SelectedIndex - moveSelectionIntent.Count);
+                            }
+                            else if (moveSelectionIntent.Direction == MoveDirection.SetIndex)
+                            {
+                                MainListModel.SelectedIndex = Math.Min(Math.Max(0, moveSelectionIntent.Count), MainListModel.Items.Count);
                             }
                         });
                     }
                     else if (intent is PushStackIntent)
                     {
-                        var pushStackIntent = intent as PushStackIntent;
-
                         _dispatcher.Invoke(() =>
                         {
-                            if (!PushStack(pushStackIntent.Search))
+                            if (!PushStack())
                             {
                                 return;
                             }
@@ -441,7 +442,8 @@ namespace Catapult.App
     public enum MoveDirection
     {
         Up,
-        Down
+        Down,
+        SetIndex
     }
 
     public class SearchIntent : IIntent

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 
 namespace Catapult.App
 {
@@ -40,17 +38,18 @@ namespace Catapult.App
         {
             if (e.Key == Key.Escape)
             {
-                Model.AddIntent(new ClearIntent());
-                Hide();
+                HideAndClearWindow();
             }
             else if (e.Key == Key.Enter)
             {
-                Model.AddIntent(new ExecuteIntent(SearchBar.Text, Hide));
+                Model.AddIntent(new ExecuteIntent(SearchBar.Text, HideAndClearWindow));
             }
         }
 
         private void SearchBarPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            var ctrlDown = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+
             if (e.Key == Key.Down)
             {
                 e.Handled = true;
@@ -71,12 +70,12 @@ namespace Catapult.App
                 e.Handled = true;
                 Model.AddIntent(new MoveSelectionIntent(MoveDirection.Up, 10));
             }
-            else if (e.Key == Key.Left)
+            else if (e.Key == Key.Left && ctrlDown)
             {
                 e.Handled = true;
                 Model.AddIntent(new FastActionIntent(FastAction.Left));
             }
-            else if (e.Key == Key.Right)
+            else if (e.Key == Key.Right && ctrlDown)
             {
                 e.Handled = true;
                 Model.AddIntent(new FastActionIntent(FastAction.Right));
@@ -115,10 +114,48 @@ namespace Catapult.App
             SearchItems.ScrollIntoView(SearchItems.SelectedItem);
         }
 
-        private void SearchBar_OnLostFocus(object sender, RoutedEventArgs e)
+        private void SearchBar_OnLostFocus(object sender, EventArgs eventArgs)
         {
+            HideAndClearWindow();
+        }
+
+        private void HideAndClearWindow()
+        {
+            if (Visibility != Visibility.Visible)
+            {
+                return;
+            }
+
             Model.AddIntent(new ClearIntent());
             Hide();
+        }
+
+        private void SearchItems_OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var dependencyObject = e.OriginalSource as DependencyObject;
+
+            if (dependencyObject == null)
+            {
+                return;
+            }
+
+            var listBox = sender as ListBox;
+
+            if (listBox == null)
+            {
+                return;
+            }
+
+            var item = ItemsControl.ContainerFromElement(listBox, dependencyObject) as ListBoxItem;
+
+            if (item == null)
+            {
+                return;
+            }
+
+            var itemIndex = listBox.Items.IndexOf(item.Content);
+            Model.AddIntent(new MoveSelectionIntent(MoveDirection.SetIndex, itemIndex));
+            Model.AddIntent(new ExecuteIntent(SearchBar.Text, HideAndClearWindow));
         }
     }
 }
