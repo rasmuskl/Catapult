@@ -114,7 +114,7 @@ namespace Catapult.App
             SearchItems.ScrollIntoView(SearchItems.SelectedItem);
         }
 
-        private void SearchBar_OnLostFocus(object sender, EventArgs eventArgs)
+        private void MainWindow_OnDeactivated(object sender, EventArgs eventArgs)
         {
             HideAndClearWindow();
         }
