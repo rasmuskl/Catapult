@@ -114,5 +114,11 @@ namespace Catapult.App
         {
             SearchItems.ScrollIntoView(SearchItems.SelectedItem);
         }
+
+        private void SearchBar_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            Model.AddIntent(new ClearIntent());
+            Hide();
+        }
     }
 }
