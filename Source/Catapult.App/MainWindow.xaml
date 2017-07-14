@@ -5,7 +5,7 @@
         Height="450" Width="600" WindowStyle="None" Background="Transparent" AllowsTransparency="True" BorderThickness="0" ResizeMode="NoResize" ShowInTaskbar="False"
         Loaded="MainWindow_OnLoaded"
         Activated="MainWindow_OnActivated"
-        Deactivated="SearchBar_OnLostFocus">
+        Deactivated="MainWindow_OnDeactivated">
     <Window.Resources>
         <DataTemplate x:Key="ItemTemplate">
             <DataTemplate.DataType>
