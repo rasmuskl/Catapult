@@ -23,7 +23,6 @@ namespace Catapult.App
         private MainWindow _mainWindow;
         private TaskbarIcon _taskbarIcon;
 
-
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
             Log.Information("Started Catapult.");
@@ -49,7 +48,7 @@ namespace Catapult.App
 
             _hotKeyManager = new HotKeyManager();
 
-            RegisterHotKey(Key.Space, configuration.UseControlKey == true ? ModifierKeys.Control : ModifierKeys.Alt);
+            RegisterHotKey(Key.Space, configuration.UseControlKey ? ModifierKeys.Control : ModifierKeys.Alt);
 
             _mainWindow = new MainWindow();
 

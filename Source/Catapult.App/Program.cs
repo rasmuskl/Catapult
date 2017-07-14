@@ -24,13 +24,6 @@ namespace Catapult.App
         {
             using (var mutex = new Mutex(false, ApplicationGuid))
             {
-                if (!mutex.WaitOne(0, false))
-                {
-                    Log.Information($"Catapult is already running.");
-                    MessageBox.Show($"Catapult is already running.");
-                    return;
-                }
-
                 ServicePointManager.DefaultConnectionLimit = 10;
 
                 var logger = new LoggerConfiguration()
@@ -44,6 +37,13 @@ namespace Catapult.App
                 AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
                 SquirrelIntegration.Instance.HandleSquirrelEvents();
+
+                if (!mutex.WaitOne(0, false))
+                {
+                    Log.Information("Catapult is already running.");
+                    MessageBox.Show("Catapult is already running.");
+                    return;
+                }
 
                 _app = new App();
 
