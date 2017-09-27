@@ -12,7 +12,7 @@ namespace Catapult.App
     {
         public static SquirrelIntegration Instance = new SquirrelIntegration();
         private readonly UpdateManager _updateManager;
-        private const string UpdateUrl = "https://catapultdata001.blob.core.windows.net/releases";
+        private const string UpdateUrl = "https://github.com/rasmuskl/Catapult";
         public static Action<string> OnUpdateFound;
 
         private SquirrelIntegration()
@@ -22,7 +22,7 @@ namespace Catapult.App
                 return;
             }
 
-            _updateManager = new UpdateManager(UpdateUrl);
+            _updateManager = UpdateManager.GitHubUpdateManager(UpdateUrl).Result;
         }
 
         public void HandleSquirrelEvents()
