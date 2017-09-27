@@ -31,3 +31,4 @@ tools/FAKE
 tools/squirrel.windows
 
 .fake
+.vs
