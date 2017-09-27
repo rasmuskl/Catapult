@@ -83,7 +83,7 @@ namespace Catapult.Core.Selecta
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Delayed indexing failed.", ex);
+                    Log.Error(ex, "Delayed indexing failed.");
                 }
             });
         }
