@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescriptionAttribute("Catapult Launcher")]
 [assembly: GuidAttribute("1c2e3e46-7e39-4c03-8816-ea2791fa184d")]
 [assembly: AssemblyProductAttribute("Catapult")]
-[assembly: AssemblyVersionAttribute("0.0.0")]
-[assembly: AssemblyFileVersionAttribute("0.0.0")]
+[assembly: AssemblyVersionAttribute("0.2.3")]
+[assembly: AssemblyFileVersionAttribute("0.2.3")]
 [assembly: AssemblyMetadataAttribute("SquirrelAwareVersion","1")]
 namespace System {
     internal static class AssemblyVersionInformation {
-        internal const string Version = "0.0.0";
+        internal const string Version = "0.2.3";
     }
 }

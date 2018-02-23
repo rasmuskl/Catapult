@@ -24,7 +24,6 @@ namespace Catapult.App
         {
             using (var mutex = new Mutex(false, ApplicationGuid))
             {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                 ServicePointManager.DefaultConnectionLimit = 10;
 
                 var logger = new LoggerConfiguration()
