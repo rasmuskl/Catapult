@@ -22,7 +22,15 @@ namespace Catapult.App
                 return;
             }
 
-            _updateManager = UpdateManager.GitHubUpdateManager(UpdateUrl).Result;
+            try
+            {
+                _updateManager = UpdateManager.GitHubUpdateManager(UpdateUrl).Result;
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex, "Squirrel failed. Disabled updates.");
+                Program.UseSquirrel = false;
+            }
         }
 
         public void HandleSquirrelEvents()

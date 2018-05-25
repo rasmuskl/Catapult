@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace Catapult.Core.Frecency
 {
@@ -69,12 +70,20 @@ namespace Catapult.Core.Frecency
 
         private FrecencyData RestoreData()
         {
-            if (!File.Exists(_path))
+            try
             {
+                if (!File.Exists(_path))
+                {
+                    return new FrecencyData();
+                }
+
+                return JsonConvert.DeserializeObject<FrecencyData>(File.ReadAllText(_path));
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex, "Restoring frecency failed.");
                 return new FrecencyData();
             }
-
-            return JsonConvert.DeserializeObject<FrecencyData>(File.ReadAllText(_path));
         }
     }
 }
