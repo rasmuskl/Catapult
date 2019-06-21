@@ -76,7 +76,7 @@ namespace Catapult.Core.Indexes
             var clipboardJson = File.ReadAllText(CatapultPaths.ClipboardPath);
             var clipboardHistory = JsonConvert.DeserializeObject<ClipboardEntry[]>(clipboardJson);
 
-            foreach (var entry in clipboardHistory)
+            foreach (var entry in clipboardHistory ?? Array.Empty<ClipboardEntry>())
             {
                 AddEntry(entry.Text, entry.CreatedUtc);
             }

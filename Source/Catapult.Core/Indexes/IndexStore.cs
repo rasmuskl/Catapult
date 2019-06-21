@@ -25,37 +25,49 @@ namespace Catapult.Core.Indexes
 
         public void IndexDirectory(string path, HashSet<string> ignoredDirectories, ExtensionContainer extensionContainer)
         {
-            var traverseDirectoriesWatch = Stopwatch.StartNew();
-
-            var allFiles = SafeWalk.EnumerateFiles(path, ignoredDirectories);
-
-            var paths = allFiles
-                .Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x)))
-                .Distinct()
-                .ToArray();
-
-            traverseDirectoriesWatch.Stop();
-
-            var indexWatch = Stopwatch.StartNew();
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
 
             try
             {
-                _lock.EnterWriteLock();
-                _indexData.Update(path, paths);
-                SaveIndex();
+                var traverseDirectoriesWatch = Stopwatch.StartNew();
+
+                var allFiles = SafeWalk.EnumerateFiles(path, ignoredDirectories);
+
+                var paths = allFiles
+                    .Where(x => extensionContainer.IsKnownExtension(Path.GetExtension(x)))
+                    .Distinct()
+                    .ToArray();
+
+                traverseDirectoriesWatch.Stop();
+
+                var indexWatch = Stopwatch.StartNew();
+
+                try
+                {
+                    _lock.EnterWriteLock();
+                    _indexData.Update(path, paths);
+                    SaveIndex();
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
+
+                indexWatch.Stop();
+
+                var traverseMs = traverseDirectoriesWatch.ElapsedMilliseconds;
+                var indexMs = indexWatch.ElapsedMilliseconds;
+                var totalMs = indexWatch.ElapsedMilliseconds + traverseDirectoriesWatch.ElapsedMilliseconds;
+
+                Log.Information($"Index {path} - {paths.Length} items. [ {totalMs} ms, tra: {traverseMs} ms, idx: {indexMs} ms ]");
             }
-            finally
+            catch (Exception e)
             {
-                _lock.ExitWriteLock();
+                Log.Error(e, "Failed to index path: {path}, message: {message}", path, e.Message);
             }
-
-            indexWatch.Stop();
-
-            var traverseMs = traverseDirectoriesWatch.ElapsedMilliseconds;
-            var indexMs = indexWatch.ElapsedMilliseconds;
-            var totalMs = indexWatch.ElapsedMilliseconds + traverseDirectoriesWatch.ElapsedMilliseconds;
-
-            Log.Information($"Index {path} - {paths.Length} items. [ {totalMs} ms, tra: {traverseMs} ms, idx: {indexMs} ms ]");
         }
 
         public bool IsIndexed(string path)

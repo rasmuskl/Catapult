@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitleAttribute("Catapult.Core")]
 [assembly: GuidAttribute("a33d57d2-0a7f-4901-beab-a92382a033eb")]
 [assembly: AssemblyProductAttribute("Catapult")]
-[assembly: AssemblyVersionAttribute("0.2.3")]
-[assembly: AssemblyFileVersionAttribute("0.2.3")]
+[assembly: AssemblyVersionAttribute("0.2.5")]
+[assembly: AssemblyFileVersionAttribute("0.2.5")]
 namespace System {
     internal static class AssemblyVersionInformation {
-        internal const string Version = "0.2.3";
+        internal const string Version = "0.2.5";
     }
 }
