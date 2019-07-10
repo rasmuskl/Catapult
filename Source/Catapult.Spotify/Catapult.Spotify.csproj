@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Catapult.Spotify</RootNamespace>
     <AssemblyName>Catapult.Spotify</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Catapult.Core\Catapult.Core.csproj">
-      <Project>{415649b7-e0d2-415f-8016-7d1dfcb86386}</Project>
+      <Project>{40d11f1d-dbd2-4643-8304-261fb16d7d7f}</Project>
       <Name>Catapult.Core</Name>
     </ProjectReference>
   </ItemGroup>

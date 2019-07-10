@@ -13,7 +13,18 @@ namespace Catapult.Core.Actions
         private ImmutableList<ActionMapping> _actionMappings = ImmutableList.Create<ActionMapping>();
         private ImmutableList<ConvertMapping> _convertMappings = ImmutableList.Create<ConvertMapping>();
         private readonly List<IIndexable> _actions = new List<IIndexable>();
+        private ImmutableList<Func<IEnumerable<IIndexable>>> _indexers;
         private int _updateCounter = 0;
+
+
+        public ActionRegistry()
+        {
+            _indexers = ImmutableList.Create<Func<IEnumerable<IIndexable>>>(
+                SearchResources.GetFiles,
+                () => _actions,
+                () => new ChromeBookmarksIndexer().GetBookmarkItems()
+            );
+        }
 
         public void RegisterAction<T>() where T : IIndexable, new()
         {
@@ -36,6 +47,11 @@ namespace Catapult.Core.Actions
             _convertMappings = _convertMappings.AddRange(convertTypes);
 
             _updateCounter += 1;
+        }
+
+        public void RegisterIndexer(Func<IEnumerable<IIndexable>> indexerFunc)
+        {
+            _indexers = _indexers.Add(indexerFunc);
         }
 
         public ImmutableList<ActionMapping> GetActionForInType(Type itemType)
@@ -65,7 +81,7 @@ namespace Catapult.Core.Actions
 
             if (!indexables.Any())
             {
-                Func<IndexableResult> fetchIndexables = () => new IndexableResult(SearchResources.GetFiles().Concat(_actions).Concat(new ControlPanelIndexer().GetControlPanelItems()).Concat(new ChromeBookmarksIndexer().GetBookmarkItems()).ToArray(), SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture));
+                Func<IndexableResult> fetchIndexables = () => new IndexableResult(_indexers.SelectMany(x => x()).ToArray(), SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture));
                 Func<string> getUpdatedState = () => $"{_updateCounter}-{SearchResources.UpdateCounter}";
                 var indexableUpdateState = new IndexableUpdateState(fetchIndexables, getUpdatedState);
                 return new UpdateableIndexableSearchFrame(indexableUpdateState);
@@ -82,16 +98,16 @@ namespace Catapult.Core.Actions
                     return null;
                 }
 
+                if (typeof(IHasSearchFrame).IsAssignableFrom(type))
+                {
+                    IHasSearchFrame hasSearchFrame = (IHasSearchFrame)Activator.CreateInstance(type);
+                    return hasSearchFrame.GetSearchFrame();
+                }
+
                 if (typeof(IAutocomplete).IsAssignableFrom(type))
                 {
                     IAutocomplete autocomplete = (IAutocomplete)Activator.CreateInstance(type);
                     return new StringSearchFrame(autocomplete.GetAutocompleteResults);
-                }
-
-                if (typeof(ClipboardHistoryAction).IsAssignableFrom(type))
-                {
-                    ClipboardHistoryAction clipboardHistoryAction = (ClipboardHistoryAction)Activator.CreateInstance(type);
-                    return clipboardHistoryAction.GetSearchFrame();
                 }
 
                 return new StringSearchFrame(null);

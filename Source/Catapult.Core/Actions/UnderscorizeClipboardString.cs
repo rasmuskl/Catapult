@@ -1,4 +1,3 @@
-using System.Windows.Forms;
 using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
@@ -7,14 +6,15 @@ namespace Catapult.Core.Actions
     {
         public void Run()
         {
-            if (!Clipboard.ContainsText())
+            var text = TextCopy.Clipboard.GetText();
+
+            if (text.IsNullOrWhiteSpace())
             {
                 return;
             }
 
-            var text = Clipboard.GetText();
             var underscorizedText = text.Replace(" ", "_");
-            Clipboard.SetText(underscorizedText);
+            TextCopy.Clipboard.SetText(underscorizedText);
         }
 
         public override string Name => "Underscorize clipboard string";

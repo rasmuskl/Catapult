@@ -77,7 +77,7 @@ namespace Catapult.App
             Log.Information("Clean-up starting.");
 
             _app?.Dispose();
-            SearchResources.Dispose();
+            ClipboardSearchResources.Dispose();
             SquirrelIntegration.Instance.Dispose();
 
             _cleanedUp = true;

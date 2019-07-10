@@ -1,5 +1,4 @@
 using System;
-using System.Windows.Forms;
 using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions
@@ -8,14 +7,15 @@ namespace Catapult.Core.Actions
     {
         public void Run()
         {
-            if (!Clipboard.ContainsText())
+            var text = TextCopy.Clipboard.GetText();
+
+            if (text.IsNullOrWhiteSpace())
             {
                 return;
             }
 
-            var text = Clipboard.GetText();
             var plingifiedText = $"```{Environment.NewLine}{text}{Environment.NewLine}```";
-            Clipboard.SetText(plingifiedText);
+            TextCopy.Clipboard.SetText(plingifiedText);
         }
 
         public override string Name => "Triple backtick clipboard string";

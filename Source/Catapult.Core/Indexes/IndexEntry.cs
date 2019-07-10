@@ -38,13 +38,13 @@ namespace Catapult.Core.Indexes
                 .ToLookup(x => char.ToLowerInvariant(x.Item1), x => x.Item2)
                 .ToImmutableDictionary(x => x.Key, x => x.ToImmutableList());
 
-            _boundaries = ImmutableList.From(inputString
+            _boundaries = ImmutableList.CreateRange(inputString
                 .Select((x, i) => new { Char = x, Index = i })
                 .Where(x => @" -_\/.".Contains(x.Char))
                 .Select(x => x.Index)
                 .Concat(new [] { -1 }));
 
-            _capitalLetters = ImmutableList.From(inputString
+            _capitalLetters = ImmutableList.CreateRange(inputString
                 .Select((x, i) => new { Char = x, Index = i })
                 .Where(x => char.IsUpper(x.Char))
                 .Select(x => x.Index));

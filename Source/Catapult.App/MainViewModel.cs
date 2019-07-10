@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using Catapult.Core;
 using Catapult.Core.Actions;
 using Catapult.Core.Frecency;
+using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 using Catapult.Spotify;
 using Serilog;
@@ -29,6 +30,8 @@ namespace Catapult.App
         public MainViewModel()
         {
             _actionRegistry = new ActionRegistry();
+
+            _actionRegistry.RegisterIndexer(() => new ControlPanelIndexer().GetControlPanelItems());
 
             _actionRegistry.RegisterAction<OpenAction>();
             _actionRegistry.RegisterAction<OpenAsAdminAction>();
@@ -72,6 +75,8 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<WindowsShutdownForceAction>();
             _actionRegistry.RegisterAction<WindowsLockComputerAction>();
             _actionRegistry.RegisterAction<WindowsLogOffAction>();
+
+            FileIconResolver.ResolverFunc = WindowsFileIconResolver.Resolve;
 
             Reset();
 

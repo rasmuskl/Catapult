@@ -13,7 +13,8 @@ namespace Catapult.Core.Indexes
 
         public DirectoryTraverser()
         {
-            _extensionContainer = new ExtensionReader().ReadRegistry();
+            //_extensionContainer = new ExtensionReader().ReadRegistry();
+            _extensionContainer = new ExtensionContainer(new ExtensionInfo[0]);
         }
 
         public ImmutableList<FileItem> GetFiles(DirectoryInfo directory)

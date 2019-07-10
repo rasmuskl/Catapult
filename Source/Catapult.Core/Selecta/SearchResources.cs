@@ -22,15 +22,12 @@ namespace Catapult.Core.Selecta
         private static string[] _paths;
         private static HashSet<string> _ignoredDirectories;
         private static ExtensionContainer _extensionContainer;
-        private static ClipboardIndexer _clipboardIndexer;
 
         public static void SetConfig(JsonUserConfiguration config)
         {
             _paths = config.Paths;
             _ignoredDirectories = new HashSet<string>(config.IgnoredDirectories);
             _extensionContainer = new ExtensionContainer(config.Extensions.Select(x => new ExtensionInfo(x)));
-
-            _clipboardIndexer = new ClipboardIndexer();
         }
 
         private static FileItem[] GetFilesInternal()
@@ -125,18 +122,6 @@ namespace Catapult.Core.Selecta
         public static FileItem[] GetFiles()
         {
             return GetFilesInternal();
-        }
-
-        public static ClipboardEntry[] GetClipboardHistory()
-        {
-            return _clipboardIndexer.ClipboardEntries
-                .OrderByDescending(x => x.CreatedUtc)
-                .ToArray();
-        }
-
-        public static void Dispose()
-        {
-            _clipboardIndexer?.Dispose();
         }
     }
 }
