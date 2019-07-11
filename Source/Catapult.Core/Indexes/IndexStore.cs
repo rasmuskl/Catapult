@@ -90,7 +90,7 @@ namespace Catapult.Core.Indexes
                 }
 
                 var indexJson = File.ReadAllText(CatapultPaths.IndexPath);
-                _indexData = JsonConvert.DeserializeObject<FileIndexData>(indexJson);
+                _indexData = JsonConvert.DeserializeObject<FileIndexData>(indexJson) ?? new FileIndexData();
             }
             catch (Exception ex)
             {
