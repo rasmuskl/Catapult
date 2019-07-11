@@ -66,7 +66,7 @@ namespace Catapult.App
         {
             var taskbarViewModel = new TaskbarViewModel();
             taskbarIcon.DataContext = taskbarViewModel;
-            taskbarIcon.ToolTipText = $"Catapult [{AssemblyVersionInformation.Version}]";
+            taskbarIcon.ToolTipText = $"Catapult [{AssemblyVersionInformation.AssemblyVersion}]";
 
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico"))
             {
