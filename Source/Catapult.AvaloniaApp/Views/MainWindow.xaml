@@ -1,0 +1,64 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Catapult.AvaloniaApp.ViewModels;assembly=Catapult.AvaloniaApp"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+        Width="600" Height="{Binding TargetHeight}"
+        x:Class="Catapult.AvaloniaApp.Views.MainWindow"
+        Title="Catapult">
+  
+  <Window.Styles>
+    <Style Selector="TextBox.search">
+      <Setter Property="BorderBrush" Value="#FF66FF00" />
+      <Setter Property="BorderThickness" Value="0,1,0,1" />
+    </Style>
+    <Style Selector="TextBox.search:pointerover /template/ Border#border">
+      <Setter Property="BorderBrush" Value="#FF66FF00"/>
+    </Style>
+    <Style Selector="TextBox.search:focus /template/ Border#border">
+      <Setter Property="BorderBrush" Value="#FF66FF00"/>
+    </Style>
+  </Window.Styles>
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
+  <StackPanel>
+    <!--<TextBlock Text="{Binding SearchBoxSelectedIndex, Mode=OneWay}" />-->
+    <TextBox x:Name="SearchTextBox" Classes="search" Text="{Binding SearchTerm}" Styles="{StaticResource NoBorder}" Margin="0,0,0,0" Padding="5,5,5,5"  Background="#FF333333" Foreground="#FF66FF00" VerticalAlignment="Center" Width="600" FontSize="24" KeyDown="SearchTextBox_KeyDown" KeyUp="SearchTextBox_KeyUp"></TextBox>
+      <ListBox x:Name="SearchBox" Items="{Binding SearchResults, Mode=OneWay}" SelectedIndex="{Binding SearchBoxSelectedIndex, Mode=TwoWay}" Margin="0,0,0,0" Background="#FF333333" HorizontalAlignment="Stretch" Padding="0" BorderThickness="0" SelectionMode="AlwaysSelected">
+      <ListBox.Styles>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+          <Setter Property="Background" Value="#33000000" />
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+          <Setter Property="Background" Value="#77000000" />
+        </Style>
+      </ListBox.Styles>
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <StackPanel>
+              <DockPanel LastChildFill="True" Height="48">
+                <Image DockPanel.Dock="Left" Height="32" Width="32" Source="{Binding Path=Icon}" Margin="3,3,5,0"></Image>
+                <DockPanel DockPanel.Dock="Right">
+                  <TextBlock DockPanel.Dock="Bottom" FontSize="10" Text="{Binding Score}" Foreground="#555555" />
+                </DockPanel>
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="#D9D9D9" FontSize="18" Margin="0" />
+                  <!--<TextBlock Text="{Binding Path=., Converter={StaticResource HighlightConverter}}" VerticalAlignment="Center" Foreground="#D9D9D9" FontSize="18" Padding="0" Margin="0" />-->
+                  <TextBlock x:Name="ItemDetails" Grid.Row="1" Text="{Binding Details}" VerticalAlignment="Center" Foreground="#888888" FontSize="12" Margin="0" />
+                </Grid>
+              </DockPanel>
+            </StackPanel>
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+  </ListBox>
+  </StackPanel>
+</Window>
