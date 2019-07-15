@@ -1,8 +1,14 @@
-﻿using Avalonia;
+﻿using System;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Catapult.AvaloniaApp.ViewModels;
+using ReactiveUI;
 
 namespace Catapult.AvaloniaApp.Views
 {
@@ -25,6 +31,20 @@ namespace Catapult.AvaloniaApp.Views
 
             HasSystemDecorations = false;
             Activated += MainWindow_Activated;
+
+            this.WhenActivated(disposables =>
+            {
+                this.WhenAnyValue(x => x.ViewModel.SearchResults)
+                    .Throttle(TimeSpan.FromMilliseconds(1))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x =>
+                    {
+                        var textBoxHeight = SearchTextBox.Bounds.Height;
+                        var searchBoxChildHeight = SearchBox.GetLogicalChildren().OfType<ListBoxItem>().FirstOrDefault()?.Bounds.Height ?? 0;
+                        Height = textBoxHeight + Math.Min(searchBoxChildHeight * 8, SearchBox.Bounds.Height);
+                    })
+                    .DisposeWith(disposables);
+            });
         }
 
         private void SearchTextBox_KeyUp(object sender, KeyEventArgs e)

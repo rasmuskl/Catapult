@@ -94,15 +94,19 @@ namespace Catapult.AvaloniaApp.ViewModels
             //_actionRegistry.RegisterAction<WindowsLogOffAction>();
 
             _searchResults = this.WhenAnyValue(x => x.SearchTerm)
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                //.Throttle(TimeSpan.FromMilliseconds(100))
                 .Select(term => term?.Trim())
                 .DistinctUntilChanged()
                 .SelectMany(Search)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.SearchResults);
 
+            this.WhenAnyValue(x => x.SearchResults)
+                .Where(x => x?.Any() == true)
+                .Subscribe(x => { SearchBoxSelectedIndex = 0; });
+
             _targetHeight = this.WhenAnyValue(x => x.SearchResults)
-                .Select(x => 75 + Math.Min(x?.Count() * 50 ?? 0, 300))
+                .Select(x => 44 + Math.Min(x?.Count() * 44 ?? 0, 10 * 44))
                 .ToProperty(this, x => x.TargetHeight);
 
             StartIntentService(Dispatcher.UIThread);
