@@ -138,8 +138,7 @@ namespace Catapult.AvaloniaApp.ViewModels
             _queue = new BlockingCollection<IIntent>(new ConcurrentQueue<IIntent>());
             _dispatcher = dispatcher;
 
-            var thread = new Thread(Process) { IsBackground = true };
-            thread.Start();
+            new Thread(Process) { IsBackground = true }.Start();
         }
 
         public void AddIntent(IIntent intent)
@@ -188,8 +187,6 @@ namespace Catapult.AvaloniaApp.ViewModels
                             }
 
                             SearchTerm = string.Empty;
-                            //var searchResults = _stack.Peek().PerformSearch(string.Empty, _frecencyStorage);
-                            //UpdateSearchItems(searchResults);
                         });
                     }
                     else if (intent is FastActionIntent)
