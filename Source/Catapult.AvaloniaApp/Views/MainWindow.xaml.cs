@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Catapult.AvaloniaApp.ViewModels;
 using ReactiveUI;
 
@@ -45,6 +46,14 @@ namespace Catapult.AvaloniaApp.Views
                     })
                     .DisposeWith(disposables);
             });
+
+            SocketActivation.Activator = () =>
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    Activate();
+                });
+            };
         }
 
         private void SearchTextBox_KeyUp(object sender, KeyEventArgs e)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Logging.Serilog;
@@ -32,6 +31,13 @@ namespace Catapult.AvaloniaApp
         {
             Log.Information("Started Catapult.");
 
+            if(SocketActivation.TryConnect())
+            {
+                return;
+            }
+
+            SocketActivation.CreateServer();
+
             if (!Directory.Exists(CatapultPaths.DataPath))
             {
                 Directory.CreateDirectory(CatapultPaths.DataPath);
@@ -42,11 +48,11 @@ namespace Catapult.AvaloniaApp
             var configuration = loader.LoadUserConfig(CatapultPaths.ConfigPath);
             loader.SaveUserConfig(configuration, CatapultPaths.ConfigPath);
 
-            //Task.Factory.StartNew(() =>
-            //{
+            Task.Factory.StartNew(() =>
+            {
                 SearchResources.SetConfig(configuration);
                 SearchResources.GetFiles();
-            //});
+            });
 
             var window = new MainWindow
             {
