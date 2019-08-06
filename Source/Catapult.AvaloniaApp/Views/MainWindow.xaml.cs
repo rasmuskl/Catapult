@@ -51,7 +51,14 @@ namespace Catapult.AvaloniaApp.Views
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    Activate();
+                    if(IsVisible) 
+                    {
+                        HideAndClearWindow();
+                    }
+                    else
+                    {
+                        Show();
+                    }
                 });
             };
         }

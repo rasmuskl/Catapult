@@ -19,9 +19,10 @@ namespace Catapult.AvaloniaApp
             try
             {
                 var listener = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-                listener.Connect(new UnixDomainSocketEndPoint("/tmp/testsocket"));
+                listener.Connect(new UnixDomainSocketEndPoint(SocketPath));
                 listener.Send(Encoding.UTF8.GetBytes(SocketToken));
                 listener.Disconnect(false);
+                Console.WriteLine($"Sent token to: {SocketPath}");
                 return true;
             }
             catch(Exception e)
@@ -46,6 +47,8 @@ namespace Catapult.AvaloniaApp
                 listener.Bind(new UnixDomainSocketEndPoint(SocketPath));
                 listener.Listen(1);
 
+                Console.WriteLine($"Listening for connections on: {SocketPath}");
+
                 byte[] bytes = new Byte[1024];
 
                 // Start listening for connections.
@@ -60,12 +63,14 @@ namespace Catapult.AvaloniaApp
                         int bytesRec = handler.Receive(bytes);
                         data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
 
-                        if (data.IndexOf(SocketToken) > -1)
+                        if (data.IndexOf(SocketToken) == -1)
                         {
-                            break;
+                            continue;
                         }
 
+                        Console.WriteLine("Activated by socket token.");
                         Activator?.Invoke();
+                        break;
                     }
 
                     handler.Shutdown(SocketShutdown.Both);
