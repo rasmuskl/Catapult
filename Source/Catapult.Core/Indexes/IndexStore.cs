@@ -94,7 +94,7 @@ namespace Catapult.Core.Indexes
             }
             catch (Exception ex)
             {
-                Log.Error("Index restore failed.", ex);
+                Log.Error(ex, "Index restore failed.");
                 _indexData = new FileIndexData();
             }
         }

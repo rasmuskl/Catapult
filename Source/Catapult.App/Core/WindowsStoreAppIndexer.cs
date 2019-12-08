@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Management.Automation;
 using Catapult.Core.Indexes;
+using Microsoft.WindowsAPICodePack.Shell;
 using Serilog;
 
 namespace Catapult.App.Core
@@ -13,47 +12,93 @@ namespace Catapult.App.Core
         {
             try
             {
-                Collection<StartAppsResult> startAppsResults;
-                Collection<GetAppxPackageResult> getAppxPackageResults;
+                Log.Information("Starting Windows Store indexer");
 
-                using (var powerShell = PowerShell.Create())
-                {
-                    powerShell.AddCommand("Get-StartApps");
-                    startAppsResults = powerShell.Invoke<StartAppsResult>();
-                }
+                // GUID taken from https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid
+                var FODLERID_AppsFolder = new Guid("{1e87508d-89c2-42f0-8a7e-645a0f50ca58}");
+                var appsFolder = (ShellObject)KnownFolderHelper.FromKnownFolderId(FODLERID_AppsFolder);
 
-                using (var powerShell = PowerShell.Create())
-                {
-                    powerShell.AddScript("Get-AppxPackage | Select PackageFamilyName");
-                    getAppxPackageResults = powerShell.Invoke<GetAppxPackageResult>();
-                }
+                var startApps = ((IKnownFolder)appsFolder).Select(x => new { x.Name, AppUserModelId = x.Properties.System.AppUserModel.ID.Value }).ToArray();
+                return startApps.Where(x => x.AppUserModelId.Contains("!")).Select(x => new WindowsStoreAppItem {DisplayName = x.Name, AppUserModelId = x.AppUserModelId}).ToArray();
 
-                var startAppsSet = startAppsResults.Where(x => x.AppID.Contains("!")).ToDictionary(x => x.AppID.Split('!').First(), x => x);
-                var packageResults = (from packageResult in getAppxPackageResults
-                        where startAppsSet.ContainsKey(packageResult.PackageFamilyName)
-                        let startApp = startAppsSet[packageResult.PackageFamilyName]
-                        select new WindowsStoreAppItem { DisplayName = startApp.Name, AppUserModelId = startApp.AppID })
-                    .ToArray();
+                //var packageManager = new PackageManager();
+                //var packages = packageManager.FindPackagesForUser(string.Empty);
 
-                return packageResults;
+                //foreach (var package in packages.Reverse())
+                //{
+                //    var packageIdName = package.Id.Name;
+
+                //    if (!startApps.Any(x => x.AppUserModelId.StartsWith(packageIdName)))
+                //    {
+                //        continue;
+                //    }
+
+                //    var dir = package.InstalledLocation.Path;
+                //    var file = Path.Combine(dir, "AppxManifest.xml");
+                //    var priPath = Path.Combine(dir, "resources.pri");
+
+                //    var xDocument = XDocument.Load(file);
+                //    var namespaceManager = new XmlNamespaceManager(new NameTable());
+                //    namespaceManager.AddNamespace("x", "http://schemas.microsoft.com/appx/manifest/foundation/windows10");
+                //    namespaceManager.AddNamespace("uap", "http://schemas.microsoft.com/appx/manifest/uap/windows10");
+                //    foreach (var application in xDocument.XPathSelectElements("//x:Applications/x:Application", namespaceManager))
+                //    {
+                //        var visualElements = application.XPathSelectElement("./uap:VisualElements", namespaceManager);
+
+                //        if (visualElements == null)
+                //        {
+                //            continue;
+                //        }
+
+                //        var appId = application.Attribute(XName.Get("Id"))?.Value;
+                //        var appDisplayName = visualElements.Attribute(XName.Get("DisplayName"))?.Value;
+
+                //        if (Uri.TryCreate(appDisplayName, UriKind.Absolute, out var uri))
+                //        {
+                //            var resource = $"ms-resource://{packageIdName}/resources/{uri.Segments.Last()}";
+                //            appDisplayName = ExtractStringFromPRIFile(priPath, resource);
+                //            if (string.IsNullOrWhiteSpace(appDisplayName))
+                //            {
+
+                //                var res = string.Concat(uri.Segments.Skip(1));
+                //                resource = $"ms-resource://{packageIdName}/{res}";
+                //                appDisplayName = ExtractStringFromPRIFile(priPath, resource);
+                //            }
+
+                //            var appUserModelId = $"{package.Id.FamilyName}!{appId}";
+
+                //            var startApp = startApps.FirstOrDefault(x => x.AppUserModelId == appUserModelId);
+
+                //            if (startApp != null)
+                //            {
+
+                //            }
+                //        }
+                //    }
+                //}
+
+
+                //Log.Information($"Indexed {list.Count} Windows Store Apps");
+                //return list.ToArray();
             }
             catch (Exception ex)
             {
-                Log.Error("Indexing Windows Store Apps failed.", ex);
+                Log.Error(ex, "Indexing Windows Store Apps failed.");
                 return Array.Empty<WindowsStoreAppItem>();
             }
         }
-    }
 
-    public class GetAppxPackageResult
-    {
-        public string PackageFamilyName { get; set; }
-    }
+        //static internal string ExtractStringFromPRIFile(string pathToPRI, string resourceKey)
+        //{
+        //    string sWin8ManifestString = string.Format("@{{{0}? {1}}}", pathToPRI, resourceKey);
+        //    var outBuff = new StringBuilder(1024);
+        //    int result = SHLoadIndirectString(sWin8ManifestString, outBuff, outBuff.Capacity, IntPtr.Zero);
+        //    return outBuff.ToString();
+        //}
 
-    public class StartAppsResult
-    {
-        public string Name { get; set; }
-        public string AppID { get; set; }
+        //[DllImport("shlwapi.dll", BestFitMapping = false, CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = false, ThrowOnUnmappableChar = true)]
+        //private static extern int SHLoadIndirectString(string pszSource, StringBuilder pszOutBuf, int cchOutBuf, IntPtr ppvReserved);
+
     }
 
     public class WindowsStoreAppItem : IndexableBase

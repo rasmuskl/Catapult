@@ -49,7 +49,7 @@ namespace Catapult.Core.Indexes
             }
             catch (Exception ex)
             {
-                Log.Error("Parsing Chome bookmarks failed.", ex);
+                Log.Error(ex, "Parsing Chrome bookmarks failed.");
             }
 
             return new BookmarkItem[0];
