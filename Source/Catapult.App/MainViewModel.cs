@@ -11,7 +11,6 @@ using Catapult.Core.Actions;
 using Catapult.Core.Frecency;
 using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
-using Catapult.Spotify;
 using Serilog;
 
 namespace Catapult.App
@@ -39,11 +38,6 @@ namespace Catapult.App
 
             var frecencyPath = CatapultPaths.FrecencyPath;
             _frecencyStorage = new FrecencyStorage(frecencyPath);
-
-            _actionRegistry.RegisterAction<SpotifyNextTrackAction>();
-            _actionRegistry.RegisterAction<SpotifyPlayPauseAction>();
-            _actionRegistry.RegisterAction<SpotifyPreviousTrackAction>();
-            _actionRegistry.RegisterAction<SpotifyStopAction>();
 
             _actionRegistry.RegisterAction<KillProcessAction>();
             _actionRegistry.RegisterAction<OpenLastLogAction>();

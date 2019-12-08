@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{E7F93BBE
 		..\Catapult.nuspec = ..\Catapult.nuspec
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catapult.Spotify", "Catapult.Spotify\Catapult.Spotify.csproj", "{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catapult.App", "Catapult.App\Catapult.App.csproj", "{DE66D8BD-1EB8-4A1F-86D9-2EEE4D13C6D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catapult.Tests", "Catapult.Tests\Catapult.Tests.csproj", "{61BA76CB-F85F-43A0-8CD1-4473FCD4AADE}"
@@ -30,10 +28,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADA56FA8-AEC9-40D4-BE63-4B073FB6B9D6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DE66D8BD-1EB8-4A1F-86D9-2EEE4D13C6D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DE66D8BD-1EB8-4A1F-86D9-2EEE4D13C6D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE66D8BD-1EB8-4A1F-86D9-2EEE4D13C6D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
