@@ -89,16 +89,23 @@ namespace Catapult.App
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
-            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
+            RepositionToPrimaryScreen();
 
             SearchItems.Height = 0;
 
             Activate();
         }
 
+        private void RepositionToPrimaryScreen()
+        {
+            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
+        }
+
         private void MainWindow_OnActivated(object sender, EventArgs e)
         {
+            RepositionToPrimaryScreen();
+
             SearchBar.SelectAll();
             SearchBar.Focus();
         }
