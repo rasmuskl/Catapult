@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Threading;
+using Catapult.App.Core;
 using Catapult.Core;
 using Catapult.Core.Actions;
 using Catapult.Core.Frecency;
@@ -31,6 +32,7 @@ namespace Catapult.App
             _actionRegistry = new ActionRegistry();
 
             _actionRegistry.RegisterIndexer(() => new ControlPanelIndexer().GetControlPanelItems());
+            _actionRegistry.RegisterIndexer(() => new WindowsStoreAppsIndexer().GetWindowsStoreApps());
 
             _actionRegistry.RegisterAction<OpenAction>();
             _actionRegistry.RegisterAction<OpenAsAdminAction>();
