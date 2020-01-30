@@ -81,8 +81,8 @@ namespace Catapult.Core.Actions
 
             if (!indexables.Any())
             {
-                Func<IndexableResult> fetchIndexables = () => new IndexableResult(_indexers.SelectMany(x => x()).ToArray(), SearchResources.UpdateCounter.ToString(CultureInfo.InvariantCulture));
                 Func<string> getUpdatedState = () => $"{_updateCounter}-{SearchResources.UpdateCounter}";
+                Func<IndexableResult> fetchIndexables = () => new IndexableResult(_indexers.SelectMany(x => x()).ToArray(), getUpdatedState());
                 var indexableUpdateState = new IndexableUpdateState(fetchIndexables, getUpdatedState);
                 return new UpdateableIndexableSearchFrame(indexableUpdateState);
             }
