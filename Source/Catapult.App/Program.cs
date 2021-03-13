@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Threading;
 using Catapult.Core;
 using Catapult.Core.Debug;
-using Catapult.Core.Selecta;
 using Serilog;
 using System.Threading;
 
@@ -77,7 +76,6 @@ namespace Catapult.App
             Log.Information("Clean-up starting.");
 
             _app?.Dispose();
-            ClipboardSearchResources.Dispose();
             SquirrelIntegration.Instance.Dispose();
 
             _cleanedUp = true;

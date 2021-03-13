@@ -100,14 +100,11 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Converters\HighlightValueConverter.cs" />
-    <Compile Include="Core\Actions\ClipboardHistoryAction.cs" />
     <Compile Include="Core\Actions\WindowsStoreAppOpenAction.cs" />
-    <Compile Include="Core\ClipboardIndexer.cs" />
     <Compile Include="Core\ControlPanelIndexer.cs" />
     <Compile Include="Core\Actions\DisableRunAtStartUpAction.cs" />
     <Compile Include="Core\Actions\EnableRunAtStartUpAction.cs" />
     <Compile Include="Core\ExtensionReader.cs" />
-    <Compile Include="Core\ClipboardSearchResources.cs" />
     <Compile Include="Core\Actions\WindowsLockComputerAction.cs" />
     <Compile Include="Core\Actions\WindowsLogOffAction.cs" />
     <Compile Include="Core\Actions\WindowsRestartAction.cs" />

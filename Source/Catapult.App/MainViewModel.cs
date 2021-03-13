@@ -64,7 +64,6 @@ namespace Catapult.App
             _actionRegistry.RegisterAction<GoogleAction>();
             _actionRegistry.RegisterAction<WikipediaAction>();
 
-            _actionRegistry.RegisterAction<ClipboardHistoryAction>();
             _actionRegistry.RegisterAction<UnderscorizeClipboardString>();
             _actionRegistry.RegisterAction<TripleBacktickClipboardString>();
 

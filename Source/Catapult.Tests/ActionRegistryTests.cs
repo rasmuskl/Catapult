@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Catapult.Core;
 using Catapult.Core.Actions;
 using Catapult.Core.Indexes;
+using Catapult.Core.Selecta;
 using NUnit.Framework;
 using Should;
 
