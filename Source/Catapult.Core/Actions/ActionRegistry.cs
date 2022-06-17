@@ -22,7 +22,8 @@ namespace Catapult.Core.Actions
             _indexers = ImmutableList.Create<Func<IEnumerable<IIndexable>>>(
                 SearchResources.GetFiles,
                 () => _actions,
-                () => new ChromeBookmarksIndexer().GetBookmarkItems()
+                () => new ChromeBookmarksIndexer().GetBookmarkItems(),
+                () => new EdgeBookmarksIndexer().GetBookmarkItems()
             );
         }
 

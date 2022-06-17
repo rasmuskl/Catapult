@@ -17,7 +17,7 @@ namespace Catapult.Core.Indexes
 
                 if (!File.Exists(bookmarksFilePath))
                 {
-                    return new BookmarkItem[0];
+                    return Array.Empty<BookmarkItem>();
                 }
 
                 var bookmarkCollectionJson = File.ReadAllText(bookmarksFilePath);
@@ -28,7 +28,7 @@ namespace Catapult.Core.Indexes
 
                 if (rootsToken == null)
                 {
-                    return new BookmarkItem[0];
+                    return Array.Empty<BookmarkItem>();
                 }
 
                 var chromeBookmarks = new List<ChromeBookmark>();
@@ -52,7 +52,7 @@ namespace Catapult.Core.Indexes
                 Log.Error(ex, "Parsing Chrome bookmarks failed.");
             }
 
-            return new BookmarkItem[0];
+            return Array.Empty<BookmarkItem>();
         }
 
         internal class ChromeBookmark
@@ -66,7 +66,7 @@ namespace Catapult.Core.Indexes
             {
                 yield return this;
 
-                foreach (ChromeBookmark child in Children ?? new ChromeBookmark[0])
+                foreach (ChromeBookmark child in Children ?? Array.Empty<ChromeBookmark>())
                 {
                     foreach (ChromeBookmark bookmark in child.Flatten())
                     {
