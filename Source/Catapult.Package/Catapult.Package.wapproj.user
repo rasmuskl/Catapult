@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Source>C:\Users\Rasmus\Downloads\catapult.png</Source>
+    <SmallTileSource>C:\Users\Rasmus\Downloads\catapult.png</SmallTileSource>
+    <MediumTileSource>C:\Users\Rasmus\Downloads\catapult.png</MediumTileSource>
+    <WideTileSource>C:\Users\Rasmus\Downloads\catapult.png</WideTileSource>
+    <LargeTileSource>C:\Users\Rasmus\Downloads\catapult.png</LargeTileSource>
+    <AppIconSource>C:\Users\Rasmus\Downloads\catapult.png</AppIconSource>
+    <SplashScreenSource>C:\Users\Rasmus\Downloads\catapult.png</SplashScreenSource>
+    <PackageLogoSource>C:\Users\Rasmus\Downloads\catapult.png</PackageLogoSource>
+  </PropertyGroup>
+</Project>
