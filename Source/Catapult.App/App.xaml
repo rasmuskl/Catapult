@@ -6,7 +6,8 @@
              Startup="ApplicationStartup">
     <Application.Resources>
         <tb:TaskbarIcon x:Key="MyNotifyIcon"
-                        ToolTipText="Catapult">
+                        ToolTipText="Catapult"
+                        IconSource="/Icon.ico">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Exit" Click="Exit_OnClick" />
