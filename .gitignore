@@ -1,34 +1,9 @@
-syntax: glob
+bin/
+obj/
 
-Source/*/bin
-Source/*/Bin
-Source/*/obj
-
-*.suo
-Source/*.ReSharper.user
+.idea/
 
 *.csproj.user
-*.ncrunchproject
-*.ncrunchsolution
-*.ncrunchsolution.user
+*.DotSettings.user
 
-Publish
-Artifacts
-Build
-test-reports
-
-_ReSharper*/
-
-App_Data/
-
-Source/**/*.crunchproject.local.xml
-Source/*.crunchsolution.*
-Source/packages/**
-Source/*.DotSettings.user
-Source/_NCrunch*
-
-tools/FAKE
-tools/squirrel.windows
-
-.fake
 .vs

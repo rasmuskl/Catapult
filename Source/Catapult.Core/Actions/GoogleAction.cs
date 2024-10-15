@@ -1,51 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Catapult.Core.Actions
+namespace Catapult.Core.Actions;
+
+public class GoogleAction : IndexableBase, IAction<StringIndexable>, IAutocomplete
 {
-    public class GoogleAction : IndexableBase, IAction<StringIndexable>, IAutocomplete
+    public void Run(StringIndexable stringIndexable)
     {
-        public void Run(StringIndexable stringIndexable)
+        Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(stringIndexable.Name));
+    }
+
+    public SearchResult[] GetAutocompleteResults(string search)
+    {
+        if (search.IsNullOrWhiteSpace())
         {
-            Process.Start("https://www.google.com/search?q=" + Uri.EscapeDataString(stringIndexable.Name));
+            return new SearchResult[0];
         }
 
-        public SearchResult[] GetAutocompleteResults(string search)
+        var searchResults = new List<SearchResult>();
+
+        using (var webClient = new WebClient())
         {
-            if (search.IsNullOrWhiteSpace())
+            string suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeDataString(search));
+            JArray suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
+
+            foreach (string suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new[] { search }).Distinct())
             {
-                return new SearchResult[0];
+                searchResults.Add(new SearchResult(suggestion, 0, new StringIndexable(suggestion), ImmutableHashSet.Create<int>()));
             }
-
-            var searchResults = new List<SearchResult>();
-
-            using (var webClient = new WebClient())
-            {
-                string suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeDataString(search));
-                JArray suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
-
-                foreach (string suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new[] { search }).Distinct())
-                {
-                    searchResults.Add(new SearchResult(suggestion, 0, new StringIndexable(suggestion), ImmutableHashSet.Create<int>()));
-                }
-            }
-
-            return searchResults.ToArray();
         }
 
-        public override string Name => "Google search";
+        return searchResults.ToArray();
+    }
 
-        public override IIconResolver GetIconResolver()
-        {
-            return new FaviconIconResolver("http://www.google.com/favicon.ico");
-        }
+    public override string Name => "Google search";
+
+    public override IIconResolver GetIconResolver()
+    {
+        return new FaviconIconResolver("http://www.google.com/favicon.ico");
     }
 }

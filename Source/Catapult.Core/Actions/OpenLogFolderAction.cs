@@ -1,35 +1,33 @@
 ﻿using System.Diagnostics;
-using System.IO;
 using Catapult.Core.Icons;
 using Catapult.Core.Indexes;
 
-namespace Catapult.Core.Actions
+namespace Catapult.Core.Actions;
+
+public class OpenLogFolderAction : IStandaloneAction
 {
-    public class OpenLogFolderAction : IStandaloneAction
+    public void Run()
     {
-        public void Run()
+        if (!Directory.Exists(CatapultPaths.LogPath))
         {
-            if (!Directory.Exists(CatapultPaths.LogPath))
-            {
-                return;
-            }
+            return;
+        }
             
-            Process.Start(CatapultPaths.LogPath);
-        }
+        Process.Start(CatapultPaths.LogPath);
+    }
 
-        public string Name => "Catapult: Open log folder";
-        public string Details => null;
+    public string Name => "Catapult: Open log folder";
+    public string Details => null;
 
-        public string BoostIdentifier => "CatapultOpenLogFolder";
+    public string BoostIdentifier => "CatapultOpenLogFolder";
 
-        public object GetDetails()
-        {
-            return "Open debug log folder";
-        }
+    public object GetDetails()
+    {
+        return "Open debug log folder";
+    }
 
-        public IIconResolver GetIconResolver()
-        {
-            return new EmptyIconResolver();
-        }
+    public IIconResolver GetIconResolver()
+    {
+        return new EmptyIconResolver();
     }
 }

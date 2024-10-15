@@ -1,9 +1,8 @@
 ﻿using Catapult.Core.Indexes;
 
-namespace Catapult.Core.Actions
+namespace Catapult.Core.Actions;
+
+public interface IAutocomplete
 {
-    public interface IAutocomplete
-    {
-        SearchResult[] GetAutocompleteResults(string search);
-    }
+    SearchResult[] GetAutocompleteResults(string search);
 }

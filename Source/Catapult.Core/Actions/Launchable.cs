@@ -1,16 +1,15 @@
 ﻿using Catapult.Core.Indexes;
 
-namespace Catapult.Core.Actions
-{
-    public class Launchable
-    {
-        public IIndexable Action { get; set; }
-        public IIndexable Target { get; set; }
+namespace Catapult.Core.Actions;
 
-        public Launchable(IIndexable action, IIndexable target)
-        {
-            Action = action;
-            Target = target;
-        }
+public class Launchable
+{
+    public IIndexable Action { get; set; }
+    public IIndexable Target { get; set; }
+
+    public Launchable(IIndexable action, IIndexable target)
+    {
+        Action = action;
+        Target = target;
     }
 }

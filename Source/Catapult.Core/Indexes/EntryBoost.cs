@@ -1,12 +1,11 @@
-﻿namespace Catapult.Core.Indexes
-{
-    public class EntryBoost
-    {
-        public string BoostIdentifier { get; private set; }
+﻿namespace Catapult.Core.Indexes;
 
-        public EntryBoost(string boostIdentifier)
-        {
-            BoostIdentifier = boostIdentifier;
-        }
+public class EntryBoost
+{
+    public string BoostIdentifier { get; private set; }
+
+    public EntryBoost(string boostIdentifier)
+    {
+        BoostIdentifier = boostIdentifier;
     }
 }

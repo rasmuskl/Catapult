@@ -1,62 +1,57 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using Catapult.Core.Indexes.Extensions;
 
-namespace Catapult.Core.Indexes
+namespace Catapult.Core.Indexes;
+
+public class DirectoryTraverser
 {
-    public class DirectoryTraverser
+    private readonly ExtensionContainer _extensionContainer;
+
+    public DirectoryTraverser()
     {
-        private readonly ExtensionContainer _extensionContainer;
+        //_extensionContainer = new ExtensionReader().ReadRegistry();
+        _extensionContainer = new ExtensionContainer(new ExtensionInfo[0]);
+    }
 
-        public DirectoryTraverser()
+    public ImmutableList<FileItem> GetFiles(DirectoryInfo directory)
+    {
+        var directoryQueue = new Queue<DirectoryInfo>();
+
+        directoryQueue.Enqueue(directory);
+
+        var fileItems = new List<FileItem>();
+
+        while (directoryQueue.Any())
         {
-            //_extensionContainer = new ExtensionReader().ReadRegistry();
-            _extensionContainer = new ExtensionContainer(new ExtensionInfo[0]);
-        }
+            DirectoryInfo nextDirectory = directoryQueue.Dequeue();
 
-        public ImmutableList<FileItem> GetFiles(DirectoryInfo directory)
-        {
-            var directoryQueue = new Queue<DirectoryInfo>();
-
-            directoryQueue.Enqueue(directory);
-
-            var fileItems = new List<FileItem>();
-
-            while (directoryQueue.Any())
+            try
             {
-                DirectoryInfo nextDirectory = directoryQueue.Dequeue();
+                FileSystemInfo[] fileSystemInfos = nextDirectory.GetFileSystemInfos();
 
-                try
+                foreach (var fileSystemInfo in fileSystemInfos)
                 {
-                    FileSystemInfo[] fileSystemInfos = nextDirectory.GetFileSystemInfos();
-
-                    foreach (var fileSystemInfo in fileSystemInfos)
+                    if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
                     {
-                        if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
+                        directoryQueue.Enqueue(new DirectoryInfo(fileSystemInfo.FullName));
+                    }
+                    else
+                    {
+                        if (_extensionContainer.IsKnownExtension(fileSystemInfo.Extension))
                         {
-                            directoryQueue.Enqueue(new DirectoryInfo(fileSystemInfo.FullName));
-                        }
-                        else
-                        {
-                            if (_extensionContainer.IsKnownExtension(fileSystemInfo.Extension))
-                            {
-                                fileItems.Add(new FileItem(fileSystemInfo.FullName));
-                            }
+                            fileItems.Add(new FileItem(fileSystemInfo.FullName));
                         }
                     }
                 }
-                catch (UnauthorizedAccessException)
-                {
-                }
-                catch (PathTooLongException)
-                {
-                }
             }
-
-            return fileItems.ToImmutableList();
+            catch (UnauthorizedAccessException)
+            {
+            }
+            catch (PathTooLongException)
+            {
+            }
         }
+
+        return fileItems.ToImmutableList();
     }
 }

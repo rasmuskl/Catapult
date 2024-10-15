@@ -1,38 +1,37 @@
 ﻿using System.Collections.Immutable;
 
-namespace Catapult.Core.Indexes
+namespace Catapult.Core.Indexes;
+
+public class Result
 {
-    public class Result
+    private readonly IndexEntry _indexEntry;
+
+    public double Score { get; private set; }
+    public ImmutableDictionary<int, double> MatchedIndexes { get; private set; }
+
+    public string MatchedString
     {
-        private readonly IndexEntry _indexEntry;
+        get { return _indexEntry.InputString; }
+    }
 
-        public double Score { get; private set; }
-        public ImmutableDictionary<int, double> MatchedIndexes { get; private set; }
+    public IIndexable TargetItem
+    {
+        get { return _indexEntry.Target; }
+    }
 
-        public string MatchedString
-        {
-            get { return _indexEntry.InputString; }
-        }
+    public Result(IndexEntry indexEntry, double score, ImmutableDictionary<int, double> matchedIndexes)
+    {
+        _indexEntry = indexEntry;
+        Score = score;
+        MatchedIndexes = matchedIndexes;
+    }
 
-        public IIndexable TargetItem
-        {
-            get { return _indexEntry.Target; }
-        }
+    public Result(Result result, double score) : this(result._indexEntry, score, result.MatchedIndexes)
+    {
+    }
 
-        public Result(IndexEntry indexEntry, double score, ImmutableDictionary<int, double> matchedIndexes)
-        {
-            _indexEntry = indexEntry;
-            Score = score;
-            MatchedIndexes = matchedIndexes;
-        }
-
-        public Result(Result result, double score) : this(result._indexEntry, score, result.MatchedIndexes)
-        {
-        }
-
-        public override string ToString()
-        {
-            return string.Format("MatchedString: {0}, Score: {1}", MatchedString, Score);
-        }
+    public override string ToString()
+    {
+        return string.Format("MatchedString: {0}, Score: {1}", MatchedString, Score);
     }
 }

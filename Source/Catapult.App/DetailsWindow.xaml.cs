@@ -1,10 +1,9 @@
-﻿namespace Catapult.App
+﻿namespace Catapult.App;
+
+public partial class DetailsWindow
 {
-    public partial class DetailsWindow
+    public DetailsWindow()
     {
-        public DetailsWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

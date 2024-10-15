@@ -1,21 +1,19 @@
 ﻿using System.Diagnostics;
-using System.IO;
 using Catapult.Core.Indexes;
 
-namespace Catapult.Core.Actions
-{
-    public class OpenConfigAction : IndexableBase, IStandaloneAction
-    {
-        public void Run()
-        {
-            if (!File.Exists(CatapultPaths.ConfigPath))
-            {
-                return;
-            }
+namespace Catapult.Core.Actions;
 
-            Process.Start(CatapultPaths.ConfigPath);
+public class OpenConfigAction : IndexableBase, IStandaloneAction
+{
+    public void Run()
+    {
+        if (!File.Exists(CatapultPaths.ConfigPath))
+        {
+            return;
         }
 
-        public override string Name => "Catapult: Open config file";
+        Process.Start(CatapultPaths.ConfigPath);
     }
+
+    public override string Name => "Catapult: Open config file";
 }

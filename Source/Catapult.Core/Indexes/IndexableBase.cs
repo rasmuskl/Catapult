@@ -1,21 +1,20 @@
 ﻿using Catapult.Core.Icons;
 
-namespace Catapult.Core.Indexes
+namespace Catapult.Core.Indexes;
+
+public abstract class IndexableBase : IIndexable
 {
-    public abstract class IndexableBase : IIndexable
+    public abstract string Name { get; }
+    public virtual string? Details => null;
+    public virtual string BoostIdentifier => $"{GetType().Name}-{Name}";
+
+    public virtual object GetDetails()
     {
-        public abstract string Name { get; }
-        public virtual string Details => null;
-        public virtual string BoostIdentifier => $"{GetType().Name}-{Name}";
+        return Name;
+    }
 
-        public virtual object GetDetails()
-        {
-            return Name;
-        }
-
-        public virtual IIconResolver GetIconResolver()
-        {
-            return new EmptyIconResolver();
-        }
+    public virtual IIconResolver GetIconResolver()
+    {
+        return new EmptyIconResolver();
     }
 }

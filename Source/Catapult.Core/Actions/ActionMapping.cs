@@ -1,16 +1,13 @@
-﻿using System;
+﻿namespace Catapult.Core.Actions;
 
-namespace Catapult.Core.Actions
+public class ActionMapping
 {
-    public class ActionMapping
+    public ActionMapping(Type actionType, Type inType)
     {
-        public ActionMapping(Type actionType, Type inType)
-        {
-            ActionType = actionType;
-            InType = inType;
-        }
-
-        public Type ActionType { get; }
-        public Type InType { get; }
+        ActionType = actionType;
+        InType = inType;
     }
+
+    public Type ActionType { get; }
+    public Type InType { get; }
 }

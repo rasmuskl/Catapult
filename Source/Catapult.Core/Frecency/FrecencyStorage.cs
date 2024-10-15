@@ -1,89 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Serilog;
 
-namespace Catapult.Core.Frecency
+namespace Catapult.Core.Frecency;
+
+public class FrecencyStorage
 {
-    public class FrecencyStorage
+    private readonly string _path;
+    private readonly FrecencyData _data;
+
+    public FrecencyStorage(string path)
     {
-        private readonly string _path;
-        private readonly FrecencyData _data;
+        _path = path;
+        _data = RestoreData();
+    }
 
-        public FrecencyStorage(string path)
+    public void AddUse(string boostIdentifier, string searchString, int selectedIndex)
+    {
+        if (boostIdentifier.IsNullOrWhiteSpace())
         {
-            _path = path;
-            _data = RestoreData();
+            return;
         }
 
-        public void AddUse(string boostIdentifier, string searchString, int selectedIndex)
-        {
-            if (boostIdentifier.IsNullOrWhiteSpace())
-            {
-                return;
-            }
+        _data.AddUse(boostIdentifier, searchString, selectedIndex);
+        SaveData();
+    }
 
-            _data.AddUse(boostIdentifier, searchString, selectedIndex);
-            SaveData();
+    private void SaveData()
+    {
+        var directoryName = Path.GetDirectoryName(_path);
+
+        if (!Directory.Exists(directoryName))
+        {
+            Directory.CreateDirectory(directoryName);
         }
 
-        private void SaveData()
+        File.WriteAllText(_path, JsonConvert.SerializeObject(_data, Formatting.Indented));
+    }
+
+    public Dictionary<string, int> GetFrecencyData()
+    {
+        var enumerable = (from entry in _data.Entries
+            group entry by entry.BoostIdentifier into x
+            let score = GetScore(x.Count(), x.Max(y => y.UtcUse))
+            select new { x.Key, Score = score });
+
+        return enumerable.ToDictionary(x => x.Key, x => x.Score);
+    }
+
+    private int GetScore(int count, DateTime utcLatest)
+    {
+        var now = DateTime.UtcNow;
+
+        if (utcLatest > now.AddDays(-1))
         {
-            var directoryName = Path.GetDirectoryName(_path);
-
-            if (!Directory.Exists(directoryName))
-            {
-                Directory.CreateDirectory(directoryName);
-            }
-
-            File.WriteAllText(_path, JsonConvert.SerializeObject(_data, Formatting.Indented));
+            return 4 * count;
         }
 
-        public Dictionary<string, int> GetFrecencyData()
+        if (utcLatest > now.AddDays(-7))
         {
-            var enumerable = (from entry in _data.Entries
-                              group entry by entry.BoostIdentifier into x
-                              let score = GetScore(x.Count(), x.Max(y => y.UtcUse))
-                              select new { x.Key, Score = score });
-
-            return enumerable.ToDictionary(x => x.Key, x => x.Score);
+            return 2 * count;
         }
 
-        private int GetScore(int count, DateTime utcLatest)
+        return count;
+    }
+
+    private FrecencyData RestoreData()
+    {
+        try
         {
-            var now = DateTime.UtcNow;
-
-            if (utcLatest > now.AddDays(-1))
+            if (!File.Exists(_path))
             {
-                return 4 * count;
-            }
-
-            if (utcLatest > now.AddDays(-7))
-            {
-                return 2 * count;
-            }
-
-            return count;
-        }
-
-        private FrecencyData RestoreData()
-        {
-            try
-            {
-                if (!File.Exists(_path))
-                {
-                    return new FrecencyData();
-                }
-
-                return JsonConvert.DeserializeObject<FrecencyData>(File.ReadAllText(_path));
-            }
-            catch(Exception ex)
-            {
-                Log.Error(ex, "Restoring frecency failed.");
                 return new FrecencyData();
             }
+
+            return JsonConvert.DeserializeObject<FrecencyData>(File.ReadAllText(_path));
+        }
+        catch(Exception ex)
+        {
+            Log.Error(ex, "Restoring frecency failed.");
+            return new FrecencyData();
         }
     }
 }

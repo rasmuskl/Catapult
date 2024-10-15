@@ -1,10 +1,9 @@
 ﻿using System.Drawing;
 
-namespace Catapult.Core.Icons
+namespace Catapult.Core.Icons;
+
+public interface IIconResolver
 {
-    public interface IIconResolver
-    {
-        Icon Resolve();
-        string IconKey { get; }
-    }
+    Icon Resolve();
+    string IconKey { get; }
 }

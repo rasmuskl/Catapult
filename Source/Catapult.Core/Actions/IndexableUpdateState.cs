@@ -1,33 +1,31 @@
-using System;
 using Catapult.Core.Indexes;
 
-namespace Catapult.Core.Actions
+namespace Catapult.Core.Actions;
+
+public class IndexableUpdateState
 {
-    public class IndexableUpdateState
+    private readonly Func<IndexableResult> _fetchIndexables;
+    private readonly Func<string> _getUpdatedState;
+    private readonly IndexableResult _indexableResult;
+
+    public IIndexable[] Indexables => _indexableResult.Indexables;
+
+    public IndexableUpdateState(Func<IndexableResult> fetchIndexables, Func<string> getUpdatedState)
     {
-        private readonly Func<IndexableResult> _fetchIndexables;
-        private readonly Func<string> _getUpdatedState;
-        private readonly IndexableResult _indexableResult;
+        _fetchIndexables = fetchIndexables;
+        _getUpdatedState = getUpdatedState;
+        _indexableResult = _fetchIndexables();
+    }
 
-        public IIndexable[] Indexables => _indexableResult?.Indexables;
-
-        public IndexableUpdateState(Func<IndexableResult> fetchIndexables, Func<string> getUpdatedState)
+    public IndexableUpdateState CheckUpdate(out bool updated)
+    {
+        if (_getUpdatedState() == _indexableResult.State)
         {
-            _fetchIndexables = fetchIndexables;
-            _getUpdatedState = getUpdatedState;
-            _indexableResult = _fetchIndexables();
+            updated = false;
+            return this;
         }
 
-        public IndexableUpdateState CheckUpdate(out bool updated)
-        {
-            if (_getUpdatedState() == _indexableResult.State)
-            {
-                updated = false;
-                return this;
-            }
-
-            updated = true;
-            return new IndexableUpdateState(_fetchIndexables, _getUpdatedState);
-        }
+        updated = true;
+        return new IndexableUpdateState(_fetchIndexables, _getUpdatedState);
     }
 }

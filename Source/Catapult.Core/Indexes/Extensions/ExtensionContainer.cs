@@ -1,20 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
-namespace Catapult.Core.Indexes.Extensions
+namespace Catapult.Core.Indexes.Extensions;
+
+public class ExtensionContainer
 {
-    public class ExtensionContainer
+    private readonly ImmutableDictionary<string, ExtensionInfo> _extensionInfos;
+
+    public ExtensionContainer(IEnumerable<ExtensionInfo> extensionInfos)
     {
-        private readonly ImmutableDictionary<string, ExtensionInfo> _extensionInfos;
+        _extensionInfos = extensionInfos.ToImmutableDictionary(x => x.Extension, x => x);
+    }
 
-        public ExtensionContainer(IEnumerable<ExtensionInfo> extensionInfos)
-        {
-            _extensionInfos = extensionInfos.ToImmutableDictionary(x => x.Extension, x => x);
-        }
-
-        public bool IsKnownExtension(string extension)
-        {
-            return _extensionInfos.ContainsKey(extension);
-        }
+    public bool IsKnownExtension(string extension)
+    {
+        return _extensionInfos.ContainsKey(extension);
     }
 }

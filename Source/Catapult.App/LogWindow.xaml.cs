@@ -1,20 +1,18 @@
-﻿using System;
-using Catapult.Core.Debug;
+﻿using Catapult.Core.Debug;
 
-namespace Catapult.App
+namespace Catapult.App;
+
+public partial class LogWindow
 {
-    public partial class LogWindow
+    public LogWindow()
     {
-        public LogWindow()
-        {
-            InitializeComponent();
-            LogWindowLogEventSink.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
-        }
+        InitializeComponent();
+        LogWindowLogEventSink.Attach(s => Status.Dispatcher.Invoke(() => AddLog(s)));
+    }
 
-        private void AddLog(string message)
-        {
-            Status.AppendText(message + Environment.NewLine);
-            Status.ScrollToEnd();
-        }
+    private void AddLog(string message)
+    {
+        Status.AppendText(message + Environment.NewLine);
+        Status.ScrollToEnd();
     }
 }

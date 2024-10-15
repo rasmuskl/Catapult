@@ -9,7 +9,6 @@
                         ToolTipText="Catapult">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Upgrade" Visibility="{Binding UpgradeVisibility}" Click="Upgrade_OnClick" />
                     <MenuItem Header="Exit" Click="Exit_OnClick" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>

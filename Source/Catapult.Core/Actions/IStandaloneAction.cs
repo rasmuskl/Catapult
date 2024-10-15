@@ -1,9 +1,8 @@
 ﻿using Catapult.Core.Indexes;
 
-namespace Catapult.Core.Actions
+namespace Catapult.Core.Actions;
+
+public interface IStandaloneAction : IIndexable
 {
-    public interface IStandaloneAction : IIndexable
-    {
-        void Run();
-    }
+    void Run();
 }

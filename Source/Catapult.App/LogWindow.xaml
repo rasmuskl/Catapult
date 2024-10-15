@@ -4,7 +4,7 @@
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         Title="Debug" Height="300" Width="300" Background="Transparent" WindowStyle="None" ShowInTaskbar="False">
     <Grid>
-        <!--<TextBox Name="Status" Background="#BB333333" Foreground="#FF66FF00" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"/>-->
-        <avalonEdit:TextEditor Name="Status" Background="#BB333333" Foreground="#FF66FF00" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+        <TextBox Name="Status" Background="#BB333333" Foreground="#FF66FF00" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"/>
+        <!--<avalonEdit:TextEditor Name="Status" Background="#BB333333" Foreground="#FF66FF00" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />-->
     </Grid>
 </Window>

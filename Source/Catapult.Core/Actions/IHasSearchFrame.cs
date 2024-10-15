@@ -1,7 +1,6 @@
-﻿namespace Catapult.Core.Actions
+﻿namespace Catapult.Core.Actions;
+
+public interface IHasSearchFrame
 {
-    public interface IHasSearchFrame
-    {
-        ISearchFrame GetSearchFrame();
-    }
+    ISearchFrame GetSearchFrame();
 }

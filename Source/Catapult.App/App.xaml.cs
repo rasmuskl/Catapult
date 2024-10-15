@@ -1,177 +1,163 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Catapult.App.Annotations;
 using Catapult.Core;
 using Catapult.Core.Config;
 using Catapult.Core.Selecta;
-using GlobalHotKey;
 using Hardcodet.Wpf.TaskbarNotification;
+using JetBrains.Annotations;
+using NHotkey;
+using NHotkey.Wpf;
 using Serilog;
 
-namespace Catapult.App
+namespace Catapult.App;
+
+public partial class App : IDisposable
 {
-    public partial class App : IDisposable
+    // private HotKeyManager _hotKeyManager;
+    private MainWindow _mainWindow;
+    private TaskbarIcon? _taskbarIcon;
+
+    private void ApplicationStartup(object sender, StartupEventArgs e)
     {
-        private HotKeyManager _hotKeyManager;
-        private MainWindow _mainWindow;
-        private TaskbarIcon _taskbarIcon;
+        Log.Information("Started Catapult");
 
-        private void ApplicationStartup(object sender, StartupEventArgs e)
+        if (!Directory.Exists(CatapultPaths.DataPath))
         {
-            Log.Information("Started Catapult.");
-
-            if (!Directory.Exists(CatapultPaths.DataPath))
-            {
-                Directory.CreateDirectory(CatapultPaths.DataPath);
-            }
-
-            var loader = new JsonConfigLoader();
-
-            var configuration = loader.LoadUserConfig(CatapultPaths.ConfigPath);
-            loader.SaveUserConfig(configuration, CatapultPaths.ConfigPath);
-
-            Task.Factory.StartNew(() =>
-            {
-                SearchResources.SetConfig(configuration);
-                SearchResources.GetFiles();
-            });
-
-            _taskbarIcon = (TaskbarIcon) FindResource("MyNotifyIcon");
-            InitializeTaskBarIcon(_taskbarIcon);
-
-            _hotKeyManager = new HotKeyManager();
-
-            RegisterHotKey(Key.Space, configuration.UseControlKey ? ModifierKeys.Control : ModifierKeys.Alt);
-
-            _mainWindow = new MainWindow();
-
-            _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
-
-            if (Program.UseSingleLaunchMode)
-            {
-                ToggleMainWindow();
-            }
-
-            SquirrelIntegration.Instance.StartPeriodicUpdateCheck();
+            Directory.CreateDirectory(CatapultPaths.DataPath);
         }
 
-        private static void InitializeTaskBarIcon(TaskbarIcon taskbarIcon)
+        var loader = new JsonConfigLoader();
+
+        var configuration = loader.LoadUserConfig(CatapultPaths.ConfigPath);
+        loader.SaveUserConfig(configuration, CatapultPaths.ConfigPath);
+
+        Task.Factory.StartNew(() =>
         {
-            var taskbarViewModel = new TaskbarViewModel();
-            taskbarIcon.DataContext = taskbarViewModel;
-            taskbarIcon.ToolTipText = $"Catapult [{AssemblyVersionInformation.AssemblyVersion}]";
+            SearchResources.SetConfig(configuration);
+            SearchResources.GetFiles();
+        });
 
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico"))
-            {
-                if (stream != null)
-                {
-                    taskbarIcon.Icon = new Icon(stream);
-                }
-            }
+        _taskbarIcon = FindResource("MyNotifyIcon") as TaskbarIcon;
+        InitializeTaskBarIcon(_taskbarIcon);
 
-            if (File.Exists(CatapultPaths.NewVersionPath))
-            {
-                string newVersion = File.ReadAllText(CatapultPaths.NewVersionPath);
-                taskbarIcon.ShowBalloonTip("Catapult", $"Updated to new version: {newVersion}", BalloonIcon.None);
-                File.Delete(CatapultPaths.NewVersionPath);
-            }
+        // _hotKeyManager = new HotKeyManager();
+        RegisterHotKey(Key.Space, configuration.UseControlKey ? ModifierKeys.Control : ModifierKeys.Alt);
 
-            SquirrelIntegration.OnUpdateFound += version =>
-            {
-                taskbarViewModel.UpgradeVisibility = Visibility.Visible;
-                SquirrelIntegration.Instance.UpgradeToNewVersion();
-            };
-        }
+        _mainWindow = new MainWindow();
 
-        private void RegisterHotKey(Key key, ModifierKeys modifierKeys)
-        {
-            if (Program.UseSingleLaunchMode)
-            {
-                return;
-            }
+        _mainWindow.IsVisibleChanged += _mainWindow_IsVisibleChanged;
 
-            Log.Information("Registering hot key.");
-            var hotKey = new HotKey(key, modifierKeys);
-            _hotKeyManager.Register(hotKey);
-            _hotKeyManager.KeyPressed += KeyHookKeyEvent;
-        }
-
-        private void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (!(bool) e.NewValue && Program.UseSingleLaunchMode)
-            {
-                _mainWindow.Model.AddIntent(new ShutdownIntent(Shutdown));
-            }
-        }
-
-        private void KeyHookKeyEvent(object sender, KeyPressedEventArgs keyPressedEventArgs)
+        if (Program.UseSingleLaunchMode)
         {
             ToggleMainWindow();
         }
+    }
 
-        private void ToggleMainWindow()
+    private static void InitializeTaskBarIcon(TaskbarIcon? taskbarIcon)
+    {
+        if (taskbarIcon is null)
         {
-            if (_mainWindow.Visibility != Visibility.Visible)
-            {
-                _mainWindow.Show();
-                _mainWindow.Topmost = true;
-
-                _mainWindow.Activate();
-            }
-            else
-            {
-                _mainWindow.Hide();
-            }
+            throw new InvalidOperationException("TaskbarIcon is null");
         }
+            
+        var taskbarViewModel = new TaskbarViewModel();
+        taskbarIcon.DataContext = taskbarViewModel;
+        taskbarIcon.ToolTipText = "Catapult";
 
-        public void Dispose()
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Catapult.App.Icon.ico");
+            
+        if (stream != null)
         {
-            Dispatcher.Invoke(() =>
-            {
-                _taskbarIcon.Visibility = Visibility.Hidden;
-                _taskbarIcon.Dispose();
-                _hotKeyManager.Dispose();
-            });
-        }
-
-        private void Exit_OnClick(object sender, RoutedEventArgs e)
-        {
-            Shutdown();
-        }
-
-        private void Upgrade_OnClick(object sender, RoutedEventArgs e)
-        {
-            SquirrelIntegration.Instance.UpgradeToNewVersion();
+            taskbarIcon.Icon = new Icon(stream);
         }
     }
 
-    public class TaskbarViewModel : INotifyPropertyChanged
+    private void RegisterHotKey(Key key, ModifierKeys modifierKeys)
     {
-        private Visibility _upgradeVisibility = Visibility.Collapsed;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Visibility UpgradeVisibility
+        if (Program.UseSingleLaunchMode)
         {
-            get { return _upgradeVisibility; }
-            set
+            return;
+        }
+
+        Log.Information("Registering hot key");
+        HotkeyManager.Current.AddOrReplace("Toggle", key, modifierKeys, KeyHookKeyEvent);
+        // var hotKey = new HotKey(key, modifierKeys);
+        // _hotKeyManager.Register(hotKey);
+        // _hotKeyManager.KeyPressed += KeyHookKeyEvent;
+    }
+
+    private void _mainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!(bool) e.NewValue && Program.UseSingleLaunchMode)
+        {
+            _mainWindow.Model.AddIntent(new ShutdownIntent(Shutdown));
+        }
+    }
+
+    private void KeyHookKeyEvent(object? sender, HotkeyEventArgs hotkeyEventArgs)
+    {
+        ToggleMainWindow();
+    }
+
+    private void ToggleMainWindow()
+    {
+        if (_mainWindow.Visibility != Visibility.Visible)
+        {
+            _mainWindow.Show();
+            _mainWindow.Topmost = true;
+
+            _mainWindow.Activate();
+        }
+        else
+        {
+            _mainWindow.Hide();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispatcher.Invoke(() =>
+        {
+            if (_taskbarIcon == null)
             {
-                if (value == _upgradeVisibility) return;
-                _upgradeVisibility = value;
-                OnPropertyChanged();
+                return;
             }
-        }
+                
+            _taskbarIcon.Visibility = Visibility.Hidden;
+            _taskbarIcon.Dispose();
+        });
+    }
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void Exit_OnClick(object sender, RoutedEventArgs e)
+    {
+        Shutdown();
+    }
+}
+
+public sealed class TaskbarViewModel : INotifyPropertyChanged
+{
+    private Visibility _upgradeVisibility = Visibility.Collapsed;
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public Visibility UpgradeVisibility
+    {
+        get => _upgradeVisibility;
+        set
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (value == _upgradeVisibility) return;
+            _upgradeVisibility = value;
+            OnPropertyChanged();
         }
+    }
+
+    [NotifyPropertyChangedInvocator]
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

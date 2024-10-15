@@ -1,13 +1,12 @@
 ﻿using Catapult.Core.Icons;
 
-namespace Catapult.Core.Indexes
+namespace Catapult.Core.Indexes;
+
+public interface IIndexable
 {
-    public interface IIndexable
-    {
-        string Name { get; }
-        string Details { get; }
-        string BoostIdentifier { get; }
-        object GetDetails();
-        IIconResolver GetIconResolver();
-    }
+    string Name { get; }
+    string? Details { get; }
+    string BoostIdentifier { get; }
+    object GetDetails();
+    IIconResolver GetIconResolver();
 }

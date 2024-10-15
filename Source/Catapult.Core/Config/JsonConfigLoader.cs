@@ -1,70 +1,67 @@
-using System;
-using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Serilog;
 
-namespace Catapult.Core.Config
+namespace Catapult.Core.Config;
+
+public class JsonConfigLoader
 {
-    public class JsonConfigLoader
+    public JsonUserConfiguration LoadUserConfig(string file)
     {
-        public JsonUserConfiguration LoadUserConfig(string file)
+        var fileContents = ReadEntireFile(file);
+
+        if (fileContents == null)
         {
-            var fileContents = ReadEntireFile(file);
-
-            if (fileContents == null)
-            {
-                return JsonUserConfiguration.BuildDefaultSettings();
-            }
-
-            try
-            {
-                return JsonConvert.DeserializeObject<JsonUserConfiguration>(fileContents) ?? JsonUserConfiguration.BuildDefaultSettings();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Loading config failed.");
-                throw;
-            }
+            return JsonUserConfiguration.BuildDefaultSettings();
         }
 
-        public void SaveUserConfig(JsonUserConfiguration config, string file)
+        try
         {
-            var json = JsonConvert.SerializeObject(config, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
-            WriteEntireFile(file, json);
+            return JsonConvert.DeserializeObject<JsonUserConfiguration>(fileContents) ?? JsonUserConfiguration.BuildDefaultSettings();
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Loading config failed.");
+            throw;
+        }
+    }
+
+    public void SaveUserConfig(JsonUserConfiguration config, string file)
+    {
+        var json = JsonConvert.SerializeObject(config, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+        WriteEntireFile(file, json);
+    }
+
+    public JsonIndexData LoadIndexData(string file)
+    {
+        var fileContents = ReadEntireFile(file);
+
+        if (fileContents == null)
+        {
+            return new JsonIndexData();
         }
 
-        public JsonIndexData LoadIndexData(string file)
+        return JsonConvert.DeserializeObject<JsonIndexData>(fileContents);
+    }
+
+    public void SaveIndexData(JsonIndexData data, string file)
+    {
+        var json = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+        WriteEntireFile(file, json);
+    }
+
+    private void WriteEntireFile(string file, string contents)
+    {
+        File.WriteAllText(file, contents);
+    }
+
+    private string ReadEntireFile(string file)
+    {
+        if (!File.Exists(file))
         {
-            var fileContents = ReadEntireFile(file);
-
-            if (fileContents == null)
-            {
-                return new JsonIndexData();
-            }
-
-            return JsonConvert.DeserializeObject<JsonIndexData>(fileContents);
+            return null;
         }
 
-        public void SaveIndexData(JsonIndexData data, string file)
-        {
-            var json = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
-            WriteEntireFile(file, json);
-        }
-
-        private void WriteEntireFile(string file, string contents)
-        {
-            File.WriteAllText(file, contents);
-        }
-
-        private string ReadEntireFile(string file)
-        {
-            if (!File.Exists(file))
-            {
-                return null;
-            }
-
-            return File.ReadAllText(file);
-        }
+        return File.ReadAllText(file);
     }
 }
