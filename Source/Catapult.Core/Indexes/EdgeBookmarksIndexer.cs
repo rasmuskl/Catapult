@@ -7,64 +7,68 @@ public class EdgeBookmarksIndexer
 {
     public BookmarkItem[] GetBookmarkItems()
     {
-        try
+        var userDataPath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Microsoft\Edge\User Data\");
+        var bookmarkFilePaths = Directory.EnumerateFiles(userDataPath, "Bookmarks", SearchOption.AllDirectories);
+        var bookmarkItems = new List<BookmarkItem>();
+
+        foreach (var bookmarkFilePath in bookmarkFilePaths)
         {
-            string bookmarksFilePath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Microsoft\Edge\User Data\Default\Bookmarks");
-
-            if (!File.Exists(bookmarksFilePath))
+            try
             {
-                return Array.Empty<BookmarkItem>();
-            }
-
-            var bookmarkCollectionJson = File.ReadAllText(bookmarksFilePath);
-
-            JToken rootToken = JToken.Parse(bookmarkCollectionJson);
-
-            JToken rootsToken = rootToken["roots"];
-
-            if (rootsToken == null)
-            {
-                return Array.Empty<BookmarkItem>();
-            }
-
-            var chromeBookmarks = new List<EdgeBookmark>();
-
-            foreach (JToken token in rootsToken)
-            {
-                var property = token as JProperty;
-
-                if (property?.Value is JObject)
+                if (!File.Exists(bookmarkFilePath))
                 {
-                    chromeBookmarks.Add(property.Value.ToObject<EdgeBookmark>());
+                    continue;
                 }
+
+                var bookmarkCollectionJson = File.ReadAllText(bookmarkFilePath);
+
+                JToken rootToken = JToken.Parse(bookmarkCollectionJson);
+
+                JToken rootsToken = rootToken["roots"];
+
+                if (rootsToken == null)
+                {
+                    continue;
+                }
+
+                var chromeBookmarks = new List<EdgeBookmark>();
+
+                foreach (var token in rootsToken)
+                {
+                    var property = token as JProperty;
+
+                    if (property?.Value is JObject)
+                    {
+                        chromeBookmarks.Add(property.Value.ToObject<EdgeBookmark>());
+                    }
+                }
+
+                var urlBookmarks = chromeBookmarks.SelectMany(x => x.Flatten()).Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                bookmarkItems.AddRange(urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Edge bookmark")));
             }
-
-            var urlBookmarks = chromeBookmarks.SelectMany(x => x.Flatten()).Where(x => string.Equals(x.Type, "url", StringComparison.InvariantCultureIgnoreCase)).ToArray();
-
-            return urlBookmarks.Select(x => new BookmarkItem(x.Name, x.Url, "Edge bookmark")).ToArray();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Parsing Edge bookmarks failed.");
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Parsing Edge bookmarks failed");
+            }
         }
 
-        return Array.Empty<BookmarkItem>();
+        return bookmarkItems.ToArray();
     }
 
     internal class EdgeBookmark
     {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Url { get; set; }
-        public EdgeBookmark[] Children { get; set; }
+        public string Name { get; init; }
+        public string Type { get; init; }
+        public string Url { get; init; }
+        public EdgeBookmark[] Children { get; init; } = [];
 
         public IEnumerable<EdgeBookmark> Flatten()
         {
             yield return this;
 
-            foreach (EdgeBookmark child in Children ?? Array.Empty<EdgeBookmark>())
+            foreach (var child in Children)
             {
-                foreach (EdgeBookmark bookmark in child.Flatten())
+                foreach (var bookmark in child.Flatten())
                 {
                     yield return bookmark;
                 }
