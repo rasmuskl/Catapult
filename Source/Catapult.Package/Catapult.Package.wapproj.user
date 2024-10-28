@@ -9,5 +9,9 @@
     <AppIconSource>C:\Users\Rasmus\Downloads\catapult.png</AppIconSource>
     <SplashScreenSource>C:\Users\Rasmus\Downloads\catapult.png</SplashScreenSource>
     <PackageLogoSource>C:\Users\Rasmus\Downloads\catapult.png</PackageLogoSource>
+    <UapAppxPackageBuildMode>SideloadOnly</UapAppxPackageBuildMode>
+    <AppxShowAllApps>False</AppxShowAllApps>
+    <AppxBuildConfigurationSelection>x86</AppxBuildConfigurationSelection>
+    <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
   </PropertyGroup>
 </Project>

@@ -1,0 +1,6 @@
+MainPackage=C:\dev\catapult\Source\Catapult.Package\bin\x86\Release\Catapult.Package_1.0.7.0_x86.appx
+SymbolPackage=C:\dev\catapult\Source\Catapult.Package\obj\x86\Release\Symbols\Catapult.Package_1.0.7.0_x86.appxsym
+ResourcePack=C:\dev\catapult\Source\Catapult.Package\bin\x86\Release\Catapult.Package_1.0.7.0_scale-100.appx
+ResourcePack=C:\dev\catapult\Source\Catapult.Package\bin\x86\Release\Catapult.Package_1.0.7.0_scale-125.appx
+ResourcePack=C:\dev\catapult\Source\Catapult.Package\bin\x86\Release\Catapult.Package_1.0.7.0_scale-150.appx
+ResourcePack=C:\dev\catapult\Source\Catapult.Package\bin\x86\Release\Catapult.Package_1.0.7.0_scale-400.appx
