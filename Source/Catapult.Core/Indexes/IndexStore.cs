@@ -8,10 +8,10 @@ namespace Catapult.Core.Indexes;
 
 public class FileIndexStore
 {
-    public static readonly FileIndexStore Instance = new FileIndexStore();
+    public static readonly FileIndexStore Instance = new();
 
-    private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-    private FileIndexData _indexData = new FileIndexData();
+    private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
+    private FileIndexData _indexData = new();
 
     private FileIndexStore()
     {
@@ -72,7 +72,7 @@ public class FileIndexStore
 
     public string[] GetIndexedPaths(string path)
     {
-        return _indexData.GetPaths(path) ?? new string[0];
+        return _indexData.GetPaths(path) ?? [];
     }
 
     private void TryRestoreIndex()
@@ -108,13 +108,11 @@ public class FileIndexStore
 
 public class FileIndexData
 {
-    public Dictionary<string, PathIndexData> Data { get; set; } = new Dictionary<string, PathIndexData>();
+    public Dictionary<string, PathIndexData> Data { get; set; } = new();
 
     public void Update(string path, string[] filePaths)
     {
-        PathIndexData data;
-
-        if (!Data.TryGetValue(path, out data))
+        if (!Data.TryGetValue(path, out var data))
         {
             data = new PathIndexData();
             Data[path] = data;
@@ -129,11 +127,9 @@ public class FileIndexData
         return Data.ContainsKey(path);
     }
 
-    public string[] GetPaths(string path)
+    public string[]? GetPaths(string path)
     {
-        PathIndexData data;
-
-        if (!Data.TryGetValue(path, out data))
+        if (!Data.TryGetValue(path, out var data))
         {
             return null;
         }

@@ -12,8 +12,13 @@ public class OpenLogFolderAction : IStandaloneAction
         {
             return;
         }
-            
-        Process.Start(CatapultPaths.LogPath);
+
+        var processStartInfo = new ProcessStartInfo(CatapultPaths.LogPath)
+        {
+            UseShellExecute = true
+        };
+
+        Process.Start(processStartInfo);
     }
 
     public string Name => "Catapult: Open log folder";

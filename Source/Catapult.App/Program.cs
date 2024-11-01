@@ -83,9 +83,7 @@ public class Program
 
             Log.Information("Unhandled exception");
 
-            var exception = e.ExceptionObject as Exception;
-
-            if (exception == null)
+            if (e.ExceptionObject is not Exception exception)
             {
                 return;
             }
@@ -135,20 +133,17 @@ public class Program
 
     private static void WriteToDisk(string title, Exception? exception)
     {
-        using (var stream = File.Create(Path.Combine(CatapultPaths.LogPath, $"error-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}-{Guid.NewGuid()}.txt")))
+        using var stream = File.Create(Path.Combine(CatapultPaths.LogPath, $"error-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}-{Guid.NewGuid()}.txt"));
+        using var streamWriter = new StreamWriter(stream);
+
+        streamWriter.WriteLine(title);
+
+        if (exception != null)
         {
-            using (var streamWriter = new StreamWriter(stream))
-            {
-                streamWriter.WriteLine(title);
-
-                if (exception != null)
-                {
-                    streamWriter.WriteLine(exception.ToString());
-                }
-
-                stream.Flush(true);
-            }
+            streamWriter.WriteLine(exception.ToString());
         }
+
+        stream.Flush(true);
     }
 
     private static bool IsDebug()

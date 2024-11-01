@@ -62,7 +62,7 @@ public class Searcher
 
         scoreStopwatch.Stop();
 
-        Log.Information($"Found {matches.Length} results of {items.Length} for {searchString} [ scr: {scoreStopwatch.ElapsedMilliseconds} ms ]");
+        Log.Information($"Found {matches.Length} results of {items.Length} for {searchString} [ search: {scoreStopwatch.ElapsedMilliseconds} ms ]");
 
         return new Searcher(_allItems, matchedItems, searchString, searchResults);
     }

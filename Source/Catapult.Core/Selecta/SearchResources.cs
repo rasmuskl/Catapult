@@ -8,10 +8,10 @@ namespace Catapult.Core.Selecta;
 
 public static class SearchResources
 {
-    private static readonly object LockObject = new object();
+    private static readonly object LockObject = new();
     private static DateTime _lastDelayedIndex = DateTime.MinValue;
 
-    private static volatile FileItem[] _files;
+    private static volatile FileItem[]? _files;
     private static volatile int _updateCounter = 1;
 
     private static string[] _paths;
@@ -21,7 +21,7 @@ public static class SearchResources
     public static void SetConfig(JsonUserConfiguration config)
     {
         _paths = config.Paths;
-        _ignoredDirectories = new HashSet<string>(config.IgnoredDirectories);
+        _ignoredDirectories = [..config.IgnoredDirectories];
         _extensionContainer = new ExtensionContainer(config.Extensions.Select(x => new ExtensionInfo(x)));
     }
 
@@ -29,7 +29,7 @@ public static class SearchResources
     {
         lock (LockObject)
         {
-            if (_files != null)
+            if (_files is not null)
             {
                 EnqueueDelayedIndexing();
                 return _files;
@@ -37,7 +37,7 @@ public static class SearchResources
 
             EnqueueDelayedIndexing();
             _files = BuildFileItems(_paths);
-            _updateCounter += 1;
+            Interlocked.Increment(ref _updateCounter);
         }
 
         return _files;
@@ -57,19 +57,20 @@ public static class SearchResources
             return;
         }
 
-        Log.Information("Starting delayed indexing of " + string.Join(", ", _paths));
+        Log.Information($"Starting delayed indexing of: {string.Join(", ", _paths)}");
 
-        ThreadPool.QueueUserWorkItem(o =>
+        ThreadPool.QueueUserWorkItem(_ =>
         {
             try
             {
                 foreach (var indexPath in _paths)
                 {
                     FileIndexStore.Instance.IndexDirectory(indexPath, _ignoredDirectories, _extensionContainer);
+                    var fileItems = BuildFileItems(_paths);
                     lock (LockObject)
                     {
-                        _files = BuildFileItems(_paths);
-                        _updateCounter += 1;
+                        _files = fileItems;
+                        Interlocked.Increment(ref _updateCounter);
                     }
                 }
             }
@@ -84,13 +85,14 @@ public static class SearchResources
     {
         var stopwatch = Stopwatch.StartNew();
 
-        var allFiles = paths.SelectMany(x => FileIndexStore.Instance.GetIndexedPaths(x));
+        var allFiles = paths.SelectMany(FileIndexStore.Instance.GetIndexedPaths);
 
         var fileItems = allFiles
             .Where(x => _extensionContainer.IsKnownExtension(Path.GetExtension(x)))
             .Distinct()
             .Select(BuildFileItem)
             .Where(x => x != null)
+            .Cast<FileItem>()
             .ToArray();
 
         stopwatch.Stop();
@@ -99,7 +101,7 @@ public static class SearchResources
         return fileItems;
     }
 
-    private static FileItem BuildFileItem(string fullName)
+    private static FileItem? BuildFileItem(string fullName)
     {
         try
         {

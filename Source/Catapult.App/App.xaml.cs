@@ -18,8 +18,7 @@ namespace Catapult.App;
 
 public partial class App : IDisposable
 {
-    // private HotKeyManager _hotKeyManager;
-    private MainWindow _mainWindow;
+    private MainWindow? _mainWindow;
     private TaskbarIcon? _taskbarIcon;
 
     private void ApplicationStartup(object sender, StartupEventArgs e)
@@ -45,7 +44,6 @@ public partial class App : IDisposable
         _taskbarIcon = FindResource("MyNotifyIcon") as TaskbarIcon;
         InitializeTaskBarIcon(_taskbarIcon);
 
-        // _hotKeyManager = new HotKeyManager();
         RegisterHotKey(Key.Space, configuration.UseControlKey ? ModifierKeys.Control : ModifierKeys.Alt);
 
         _mainWindow = new MainWindow();
@@ -95,19 +93,26 @@ public partial class App : IDisposable
     {
         if (!(bool) e.NewValue && Program.UseSingleLaunchMode)
         {
-            _mainWindow.Model.AddIntent(new ShutdownIntent(Shutdown));
+            _mainWindow?.Model.AddIntent(new ShutdownIntent(Shutdown));
         }
     }
 
     private void KeyHookKeyEvent(object? sender, HotkeyEventArgs hotkeyEventArgs)
     {
+        Log.Information("App: HotKey Toggle Triggered");
         ToggleMainWindow();
     }
 
     private void ToggleMainWindow()
     {
+        if (_mainWindow is null)
+        {
+            return;
+        }
+
         if (_mainWindow.Visibility != Visibility.Visible)
         {
+            Log.Information("App: Show MainWindow");
             _mainWindow.Show();
             _mainWindow.Topmost = true;
 
@@ -115,6 +120,7 @@ public partial class App : IDisposable
         }
         else
         {
+            Log.Information("App: Hide MainWindow");
             _mainWindow.Hide();
         }
     }

@@ -23,7 +23,12 @@ public class OpenLastLogAction : IndexableBase, IStandaloneAction
             return;
         }
 
-        Process.Start(lastLogFile.FullName);
+        var processStartInfo = new ProcessStartInfo(lastLogFile.FullName)
+        {
+            UseShellExecute = true
+        };
+
+        Process.Start(processStartInfo);
     }
 
     public override string Name => "Catapult: Open last log";

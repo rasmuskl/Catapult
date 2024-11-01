@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Serilog;
 
 namespace Catapult.App;
 
@@ -88,6 +89,8 @@ public partial class MainWindow
 
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
+        Log.Information("MainWindow: Loaded");
+
         RepositionToPrimaryScreen();
 
         SearchItems.Height = 0;
@@ -103,6 +106,8 @@ public partial class MainWindow
 
     private void MainWindow_OnActivated(object sender, EventArgs e)
     {
+        Log.Information("MainWindow: Activated");
+
         RepositionToPrimaryScreen();
 
         SearchBar.SelectAll();
@@ -122,6 +127,7 @@ public partial class MainWindow
 
     private void MainWindow_OnDeactivated(object sender, EventArgs eventArgs)
     {
+        Log.Information("MainWindow: Deactivated");
         HideAndClearWindow();
     }
 
@@ -132,6 +138,7 @@ public partial class MainWindow
             return;
         }
 
+        Log.Information("MainWindow Hide and Clear");
         Model.AddIntent(new ClearIntent());
         Hide();
     }
