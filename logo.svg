@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <mask id="stripe">
+        <rect x="0" y="0" width="400" height="400" fill="white" />
+        <circle cx="128" cy="128" r="56" fill="black"/>
+        <rect x="170" y="112" width="64" height="32" fill="black" />
+    </mask>
+  </defs>
+  <circle cx="128" cy="128" r="96" fill="blue" mask="url(#stripe)"/>
+  <circle cx="128" cy="128" r="32" fill="blue"/>
+</svg>
