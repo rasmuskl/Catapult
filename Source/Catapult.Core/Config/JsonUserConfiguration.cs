@@ -28,7 +28,7 @@ public class JsonUserConfiguration
                 @"c:\dev",
             },
             IgnoredDirectories = new[] { "node_modules", ".git", "scratch" },
-            Extensions = new[] { ".lnk", ".exe", ".sln", ".url", ".docx", ".xlsx", ".pptx", ".pdf" },
+            Extensions = new[] { ".lnk", ".exe", ".sln", "*.slnx", "*.slnf", ".url", ".docx", ".xlsx", ".pptx", ".pdf" },
             UseControlKey = false
         };
     }
