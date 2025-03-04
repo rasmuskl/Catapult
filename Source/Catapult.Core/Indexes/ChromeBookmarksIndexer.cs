@@ -8,6 +8,12 @@ public class ChromeBookmarksIndexer
     public BookmarkItem[] GetBookmarkItems()
     {
         var userDataPath = Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\AppData\Local\Google\Chrome\User Data\");
+
+        if (!Directory.Exists(userDataPath))
+        {
+            return [];
+        }
+
         var bookmarkFilePaths = Directory.EnumerateFiles(userDataPath, "Bookmarks", SearchOption.AllDirectories);
         var bookmarkItems = new List<BookmarkItem>();
 
