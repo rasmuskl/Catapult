@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.IO;
 using System.Windows.Threading;
 using Catapult.App.Core;
@@ -13,7 +12,7 @@ using Serilog;
 
 namespace Catapult.App;
 
-public class MainViewModel : INotifyPropertyChanged
+public sealed class MainViewModel
 {
     private readonly ActionRegistry _actionRegistry;
 
@@ -47,8 +46,6 @@ public class MainViewModel : INotifyPropertyChanged
         _actionRegistry.RegisterAction<EnableRunAtStartUpAction>();
         _actionRegistry.RegisterAction<DisableRunAtStartUpAction>();
         _actionRegistry.RegisterAction<ReindexFilesAction>();
-
-        _actionRegistry.RegisterAction<CheckForUpdatesAction>();
 
         _actionRegistry.RegisterAction<GoogleAction>();
         _actionRegistry.RegisterAction<WikipediaAction>();
@@ -110,7 +107,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public ListViewModel MainListModel => _mainListModel;
 
-    public SmartObservableCollection<string> ContextItems { get; set; } = new SmartObservableCollection<string>();
+    public SmartObservableCollection<string> ContextItems { get; } = new();
 
     private void OpenSelected(string search, Action afterOpenAction)
     {
@@ -141,7 +138,7 @@ public class MainViewModel : INotifyPropertyChanged
             return;
         }
 
-        var launchable = _actionRegistry.Launch(_selectedIndexables.Reverse().Concat(new[] {targetItem}).ToArray());
+        var launchable = _actionRegistry.Launch(_selectedIndexables.Reverse().Concat([targetItem]).ToArray());
 
         if (launchable?.Action == null)
         {
@@ -179,7 +176,7 @@ public class MainViewModel : INotifyPropertyChanged
         Reset();
     }
 
-    public void PerformFastAction(FastAction fastAction)
+    private void PerformFastAction(FastAction fastAction)
     {
         if (!_mainListModel.Items.Any())
         {
@@ -263,17 +260,10 @@ public class MainViewModel : INotifyPropertyChanged
         return true;
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     private BlockingCollection<IIntent> _queue;
     private Dispatcher _dispatcher;
 
-    public void StartIntentService(Dispatcher dispatcher)
+    private void StartIntentService(Dispatcher dispatcher)
     {
         _queue = new BlockingCollection<IIntent>(new ConcurrentQueue<IIntent>());
         _dispatcher = dispatcher;
@@ -293,24 +283,18 @@ public class MainViewModel : INotifyPropertyChanged
         {
             try
             {
-                if (intent is SearchIntent)
+                if (intent is SearchIntent searchIntent)
                 {
-                    var searchIntent = intent as SearchIntent;
-
                     var searchResults = _stack.Peek().PerformSearch(searchIntent.Search, _frecencyStorage);
 
                     _dispatcher.Invoke(() => UpdateSearchItems(searchResults));
                 }
-                else if (intent is ExecuteIntent)
+                else if (intent is ExecuteIntent executeIntent)
                 {
-                    var executeIntent = intent as ExecuteIntent;
-
                     _dispatcher.Invoke(() => { OpenSelected(executeIntent.Search, executeIntent.AfterOpenAction); });
                 }
-                else if (intent is MoveSelectionIntent)
+                else if (intent is MoveSelectionIntent moveSelectionIntent)
                 {
-                    var moveSelectionIntent = intent as MoveSelectionIntent;
-
                     _dispatcher.Invoke(() =>
                     {
                         if (moveSelectionIntent.Direction == MoveDirection.Down)
@@ -340,15 +324,12 @@ public class MainViewModel : INotifyPropertyChanged
                         UpdateSearchItems(searchResults);
                     });
                 }
-                else if (intent is FastActionIntent)
+                else if (intent is FastActionIntent fastActionIntent)
                 {
-                    var fastActionIntent = intent as FastActionIntent;
-
                     _dispatcher.Invoke(() => { PerformFastAction(fastActionIntent.FastAction); });
                 }
-                else if (intent is ShutdownIntent)
+                else if (intent is ShutdownIntent shutdownIntent)
                 {
-                    var shutdownIntent = intent as ShutdownIntent;
                     _dispatcher.Invoke(shutdownIntent.ShutdownAction);
                 }
                 else if (intent is ClearIntent)
@@ -371,36 +352,20 @@ public class ClearIntent : IIntent
 {
 }
 
-public class ExecuteIntent : IIntent
+public class ExecuteIntent(string search, Action afterOpenAction) : IIntent
 {
-    public string Search { get; set; }
-    public Action AfterOpenAction { get; set; }
-
-    public ExecuteIntent(string search, Action afterOpenAction)
-    {
-        Search = search;
-        AfterOpenAction = afterOpenAction;
-    }
+    public string Search { get; set; } = search;
+    public Action AfterOpenAction { get; set; } = afterOpenAction;
 }
 
-public class PushStackIntent : IIntent
+public class PushStackIntent(string search) : IIntent
 {
-    public string Search { get; set; }
-
-    public PushStackIntent(string search)
-    {
-        Search = search;
-    }
+    public string Search { get; set; } = search;
 }
 
-public class FastActionIntent : IIntent
+public class FastActionIntent(FastAction fastAction) : IIntent
 {
-    public FastAction FastAction { get; set; }
-
-    public FastActionIntent(FastAction fastAction)
-    {
-        FastAction = fastAction;
-    }
+    public FastAction FastAction { get; set; } = fastAction;
 }
 
 public enum FastAction
@@ -409,26 +374,15 @@ public enum FastAction
     Right
 }
 
-public class ShutdownIntent : IIntent
+public class ShutdownIntent(Action shutdownAction) : IIntent
 {
-    public Action ShutdownAction { get; }
-
-    public ShutdownIntent(Action shutdownAction)
-    {
-        ShutdownAction = shutdownAction;
-    }
+    public Action ShutdownAction { get; } = shutdownAction;
 }
 
-public class MoveSelectionIntent : IIntent
+public class MoveSelectionIntent(MoveDirection direction, int count = 1) : IIntent
 {
-    public MoveDirection Direction { get; set; }
-    public int Count { get; set; }
-
-    public MoveSelectionIntent(MoveDirection direction, int count = 1)
-    {
-        Direction = direction;
-        Count = count;
-    }
+    public MoveDirection Direction { get; set; } = direction;
+    public int Count { get; set; } = count;
 }
 
 public enum MoveDirection
@@ -438,14 +392,9 @@ public enum MoveDirection
     SetIndex
 }
 
-public class SearchIntent : IIntent
+public class SearchIntent(string search) : IIntent
 {
-    public string Search { get; set; }
-
-    public SearchIntent(string search)
-    {
-        Search = search;
-    }
+    public string Search { get; set; } = search;
 }
 
 public interface IIntent

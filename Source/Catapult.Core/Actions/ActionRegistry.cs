@@ -164,8 +164,8 @@ public class ActionRegistry
 
     public Launchable Launch(IIndexable[] indexables)
     {
-        IIndexable action = null;
-        IIndexable target = null;
+        IIndexable? action = null;
+        IIndexable? target = null;
 
         foreach (IIndexable indexable in indexables)
         {

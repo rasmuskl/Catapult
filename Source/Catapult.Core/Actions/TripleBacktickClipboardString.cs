@@ -26,7 +26,7 @@ public class TripleBacktickClipboardString : IndexableBase, IStandaloneAction
             return str;
         }
 
-        IEnumerable<string> lines = str.Split(new [] { Environment.NewLine }, StringSplitOptions.None);
+        IEnumerable<string> lines = str.Split([Environment.NewLine], StringSplitOptions.None);
         var min = lines.Where(x => !string.IsNullOrWhiteSpace(x)).Min(x => x.TakeWhile(char.IsWhiteSpace).Count());
         lines = lines.Select(x => !string.IsNullOrWhiteSpace(x) ? x.Substring(min) : x);
         return string.Join(Environment.NewLine, lines);
