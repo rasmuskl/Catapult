@@ -1,0 +1,103 @@
+name: Build and Release MSIX
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+    
+    - name: Set Version from Build Number
+      run: |
+        $version = "1.0.${{ github.run_number }}.0"
+        $manifestPath = "src/Catapult.Package/Package.appxmanifest"
+        (Get-Content $manifestPath) -replace 'Version="[^"]*"', "Version=`"$version`"" | Set-Content $manifestPath
+        echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+        Write-Host "Set version to: $version"
+      shell: powershell
+    
+    - name: Restore dependencies
+      run: dotnet restore src/Catapult.sln
+    
+    - name: Build solution
+      run: dotnet build src/Catapult.sln -c Release --no-restore
+    
+    - name: Build MSIX Package
+      run: |
+        msbuild src/Catapult.Package/Catapult.Package.wapproj `
+          -p:Configuration=Release `
+          -p:Platform=x64 `
+          -p:AppxBundle=Always `
+          -p:AppxBundlePlatforms="x64|x86|ARM64" `
+          -p:AppxPackageDir="${{ github.workspace }}/AppPackages/" `
+          -p:GenerateAppInstallerFile=true `
+          -p:AppInstallerUri="https://github.com/rasmuskl/Catapult/releases/latest/download/" `
+          -p:AppInstallerCheckForUpdateFrequency=OnApplicationRun `
+          -p:AppInstallerUpdateFrequency=1
+      shell: powershell
+    
+    - name: Sign MSIX Package
+      run: |
+        # Note: In production, use a real certificate
+        # For now, this will use the temporary certificate
+        Write-Host "Using temporary certificate for signing"
+      shell: powershell
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: msix-package
+        path: |
+          AppPackages/**/*.msix
+          AppPackages/**/*.msixbundle
+          AppPackages/**/*.appinstaller
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ env.PACKAGE_VERSION }}
+        name: Release v${{ env.PACKAGE_VERSION }}
+        draft: false
+        prerelease: false
+        files: |
+          AppPackages/**/*.msix
+          AppPackages/**/*.msixbundle
+          AppPackages/**/*.appinstaller
+        body: |
+          ## Catapult v${{ env.PACKAGE_VERSION }}
+          
+          Auto-generated release from build #${{ github.run_number }}.
+          
+          ### Installation
+          
+          **Option 1: Direct Install (Recommended)**
+          1. Download the `.appinstaller` file
+          2. Double-click to install - Windows will handle updates automatically
+          
+          **Option 2: Manual Install**
+          1. Download the `.msixbundle` file  
+          2. Right-click and select "Install"
+          
+          ### Auto-Updates
+          
+          If installed via the `.appinstaller` file, the app will automatically check for updates when launched.
+          
+          **Build Info:**
+          - Commit: ${{ github.sha }}
+          - Build: #${{ github.run_number }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

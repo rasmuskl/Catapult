@@ -46,6 +46,7 @@ public sealed class MainViewModel
         _actionRegistry.RegisterAction<EnableRunAtStartUpAction>();
         _actionRegistry.RegisterAction<DisableRunAtStartUpAction>();
         _actionRegistry.RegisterAction<ReindexFilesAction>();
+        _actionRegistry.RegisterAction<CheckForUpdatesAction>();
 
         _actionRegistry.RegisterAction<GoogleAction>();
         _actionRegistry.RegisterAction<WikipediaAction>();

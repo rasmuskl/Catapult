@@ -10,3 +10,16 @@ BundleArtifacts/
 *.DotSettings.user
 
 .vs
+
+.claude/*.local.json
+
+# Build Artifacts
+bin/
+obj/
+*.assets.cache
+
+# MSIX Build Artifacts
+AppPackages/
+*.appinstaller
+*.msix
+*.msixbundle
