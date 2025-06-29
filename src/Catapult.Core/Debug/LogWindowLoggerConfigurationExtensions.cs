@@ -13,7 +13,7 @@ public static class LogWindowLoggerConfigurationExtensions
         this LoggerSinkConfiguration sinkConfiguration,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
         string outputTemplate = DefaultConsoleOutputTemplate,
-        IFormatProvider formatProvider = null)
+        IFormatProvider? formatProvider = null)
     {
         if (sinkConfiguration == null)
         {

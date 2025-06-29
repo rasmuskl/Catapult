@@ -22,7 +22,7 @@ public class OpenLogFolderAction : IStandaloneAction
     }
 
     public string Name => "Catapult: Open log folder";
-    public string Details => null;
+    public string? Details => null;
 
     public string BoostIdentifier => "CatapultOpenLogFolder";
 

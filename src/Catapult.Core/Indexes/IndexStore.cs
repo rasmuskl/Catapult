@@ -114,7 +114,10 @@ public class FileIndexData
     {
         if (!Data.TryGetValue(path, out var data))
         {
-            data = new PathIndexData();
+            data = new PathIndexData
+            {
+                FilePaths = filePaths
+            };
             Data[path] = data;
         }
 
@@ -140,6 +143,6 @@ public class FileIndexData
 
 public class PathIndexData
 {
-    public string[] FilePaths { get; set; }
+    public required string[] FilePaths { get; set; }
     public DateTime LastIndexedUtc { get; set; }
 }

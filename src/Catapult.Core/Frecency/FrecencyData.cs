@@ -2,7 +2,7 @@ namespace Catapult.Core.Frecency;
 
 public class FrecencyData
 {
-    public List<FrecencyEntry> Entries { get; private set; } = new List<FrecencyEntry>();
+    public List<FrecencyEntry> Entries { get; private set; } = [];
      
     public void AddUse(string boostIdentifier, string searchString, int index)
     {

@@ -41,7 +41,7 @@ public class JsonConfigLoader
             return new JsonIndexData();
         }
 
-        return JsonConvert.DeserializeObject<JsonIndexData>(fileContents);
+        return JsonConvert.DeserializeObject<JsonIndexData>(fileContents) ?? new JsonIndexData();
     }
 
     public void SaveIndexData(JsonIndexData data, string file)
@@ -55,7 +55,7 @@ public class JsonConfigLoader
         File.WriteAllText(file, contents);
     }
 
-    private string ReadEntireFile(string file)
+    private string? ReadEntireFile(string file)
     {
         if (!File.Exists(file))
         {

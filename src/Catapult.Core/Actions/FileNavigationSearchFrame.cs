@@ -8,7 +8,7 @@ namespace Catapult.Core.Actions;
 public class FileNavigationSearchFrame : ISearchFrame
 {
     private Searcher _searcher;
-    private IIndexable _primaryIndexable = null;
+    private readonly IIndexable? _primaryIndexable;
 
     public FileNavigationSearchFrame(string directoryName, string primaryPath)
     {

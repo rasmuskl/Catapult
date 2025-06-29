@@ -2,14 +2,8 @@
 
 namespace Catapult.Core.Actions;
 
-public class Launchable
+public class Launchable(IIndexable action, IIndexable target)
 {
-    public IIndexable Action { get; set; }
-    public IIndexable Target { get; set; }
-
-    public Launchable(IIndexable action, IIndexable target)
-    {
-        Action = action;
-        Target = target;
-    }
+    public IIndexable Action { get; set; } = action;
+    public IIndexable Target { get; set; } = target;
 }

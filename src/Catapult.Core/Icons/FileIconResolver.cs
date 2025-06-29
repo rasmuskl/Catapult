@@ -2,21 +2,14 @@
 
 namespace Catapult.Core.Icons;
 
-public class FileIconResolver : IIconResolver
+public class FileIconResolver(string fullName) : IIconResolver
 {
-    private readonly string _fullName;
+    public static Func<string, Icon?> ResolverFunc { get; set; }
 
-    public static Func<string, Icon> ResolverFunc { get; set; }
-
-    public FileIconResolver(string fullName)
+    public Icon? Resolve()
     {
-        _fullName = fullName;
+        return ResolverFunc(fullName);
     }
 
-    public Icon Resolve()
-    {
-        return ResolverFunc(_fullName);
-    }
-
-    public string IconKey => _fullName;
+    public string IconKey => fullName;
 }

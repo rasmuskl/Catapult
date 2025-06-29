@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Catapult.App.Core;
 using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Icons;

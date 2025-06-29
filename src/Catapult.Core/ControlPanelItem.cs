@@ -6,30 +6,20 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core;
 
-public class ControlPanelItem : IndexableBase, IStandaloneAction
+public class ControlPanelItem(string name, ProcessStartInfo startInfo, string infoTip, Icon icon)
+    : IndexableBase, IStandaloneAction
 {
-    private readonly ProcessStartInfo _startInfo;
-    private readonly Icon _icon;
-
-    public ControlPanelItem(string name, ProcessStartInfo startInfo, string infoTip, Icon icon)
-    {
-        Name = name;
-        _startInfo = startInfo;
-        Details = infoTip;
-        _icon = icon;
-    }
-
-    public override string Name { get; }
+    public override string Name { get; } = name;
 
     public override IIconResolver GetIconResolver()
     {
-        return new StaticIconResolver(_icon);
+        return new StaticIconResolver(icon);
     }
 
-    public override string Details { get; }
+    public override string Details { get; } = infoTip;
 
     public void Run()
     {
-        Process.Start(_startInfo);
+        Process.Start(startInfo);
     }
 }

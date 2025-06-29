@@ -5,10 +5,10 @@ namespace Catapult.Core.Indexes;
 
 public class EmptyIconResolver : IIconResolver
 {
-    public Icon Resolve()
+    public Icon? Resolve()
     {
         return null;
     }
 
-    public string IconKey => null;
+    public string? IconKey => null;
 }

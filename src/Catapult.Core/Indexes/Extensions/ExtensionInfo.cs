@@ -1,11 +1,6 @@
 ﻿namespace Catapult.Core.Indexes.Extensions;
 
-public class ExtensionInfo
+public class ExtensionInfo(string extension)
 {
-    public string Extension { get; private set; }
-
-    public ExtensionInfo(string extension)
-    {
-        Extension = extension;
-    }
+    public string Extension { get; private set; } = extension;
 }

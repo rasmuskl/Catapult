@@ -3,23 +3,15 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions;
 
-public class StringIndexable : IndexableBase
+public class StringIndexable(string name, string? details = null, IIconResolver? iconResolver = null)
+    : IndexableBase
 {
-    private readonly IIconResolver? _iconResolver;
-
-    public StringIndexable(string name, string? details = null, IIconResolver? iconResolver = null)
-    {
-        _iconResolver = iconResolver;
-        Details = details;
-        Name = name;
-    }
-
-    public override string Name { get; }
-    public override string? Details { get; }
+    public override string Name { get; } = name;
+    public override string? Details { get; } = details;
     public override string BoostIdentifier => string.Empty;
 
     public override IIconResolver GetIconResolver()
     {
-        return _iconResolver ?? base.GetIconResolver();
+        return iconResolver ?? base.GetIconResolver();
     }
 }

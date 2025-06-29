@@ -1,17 +1,7 @@
-using System.Drawing;
-
 namespace Catapult.Core;
 
-public class FileItemDetails
+public class FileItemDetails(string fullName)
 {
-    public Icon Icon { get; }
-    public string FullName { get; set; }
-    public string ResolvePath { get; set; }
-
-    public FileItemDetails(string fullName)
-    {
-        FullName = fullName;
-        ResolvePath = LnkResolver.ResolveShortcut(fullName);
-        Icon = Icon.ExtractAssociatedIcon(fullName);
-    }
+    public string FullName { get; set; } = fullName;
+    public string ResolvePath { get; set; } = LnkResolver.ResolveShortcut(fullName);
 }

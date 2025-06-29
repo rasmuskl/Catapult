@@ -3,15 +3,19 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Catapult.Core;
 using Microsoft.Win32;
 
-namespace Catapult.Core.Indexes;
+namespace Catapult.App.Core;
 
 public class ControlPanelIndexer
 {
-    private static readonly RegistryKey ControlPanelNameSpace = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ControlPanel\\NameSpace");
+    private static readonly RegistryKey ControlPanelNameSpace = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ControlPanel\\NameSpace") 
+        ?? throw new InvalidOperationException("Failed to open Control Panel NameSpace registry key.");
 
-    private static readonly RegistryKey Clsid = Registry.ClassesRoot.OpenSubKey("CLSID");
+    private static readonly RegistryKey Clsid = Registry.ClassesRoot.OpenSubKey("CLSID") 
+        ?? throw new InvalidOperationException("Failed to open CLSID registry key.");
+    
     private const string Control = @"%SystemRoot%\System32\control.exe";
 
     public ControlPanelItem[] GetControlPanelItems()
@@ -37,35 +41,40 @@ public class ControlPanelIndexer
                     continue;
                 }
 
-                string infoTip = GetInfoTip(currentKey);
-                Icon myIcon = GetIcon(currentKey, 32);
-                items.Add(new ControlPanelItem(localizedString, executablePath, infoTip, myIcon));
+                var infoTip = GetInfoTip(currentKey);
+                var myIcon = GetIcon(currentKey, 32);
+
+
+                if (executablePath != null && infoTip != null && myIcon != null)
+                {
+                    items.Add(new ControlPanelItem(localizedString, executablePath, infoTip, myIcon));
+                }
             }
         }
 
         return items.ToArray();
     }
 
-    private static ProcessStartInfo GetExecutablePath(RegistryKey currentKey)
+    private static ProcessStartInfo? GetExecutablePath(RegistryKey currentKey)
     {
         if (currentKey.GetValue("System.ApplicationName") != null)
         {
             ProcessStartInfo executablePath = new ProcessStartInfo();
 
-            var applicationName = currentKey.GetValue("System.ApplicationName").ToString();
+            var applicationName = currentKey.GetValue("System.ApplicationName")?.ToString();
             executablePath.FileName = Environment.ExpandEnvironmentVariables(Control);
             executablePath.Arguments = "-name " + applicationName;
 
             return executablePath;
         }
 
-        using (RegistryKey subKey = currentKey.OpenSubKey("Shell\\Open\\Command"))
+        using (var subKey = currentKey.OpenSubKey("Shell\\Open\\Command"))
         {
             if (subKey?.GetValue(null) != null)
             {
-                ProcessStartInfo executablePath = new ProcessStartInfo();
+                var executablePath = new ProcessStartInfo();
 
-                string input = $"\"{Environment.ExpandEnvironmentVariables(subKey.GetValue(null).ToString())}\"";
+                var input = $"\"{Environment.ExpandEnvironmentVariables(subKey.GetValue(null)?.ToString() ?? string.Empty)}\"";
                 executablePath.FileName = "cmd.exe";
                 executablePath.Arguments = "/C " + input;
                 executablePath.WindowStyle = ProcessWindowStyle.Hidden;
@@ -76,15 +85,15 @@ public class ControlPanelIndexer
         return null;
     }
 
-    private string GetLocalizedString(RegistryKey currentKey)
+    private string? GetLocalizedString(RegistryKey currentKey)
     {
         if (currentKey.GetValue("LocalizedString") != null)
         {
             var localizedStringRaw = currentKey.GetValue("LocalizedString")
-                .ToString()
-                .Split(new[] {",-"}, StringSplitOptions.None);
+                ?.ToString()
+                ?.Split([",-"], StringSplitOptions.None);
 
-            if (localizedStringRaw.Length > 1)
+            if (localizedStringRaw is { Length: > 1 })
             {
                 if (localizedStringRaw[0][0] == '@')
                 {
@@ -110,18 +119,18 @@ public class ControlPanelIndexer
 
                 if (currentKey.GetValue(null) != null)
                 {
-                    return currentKey.GetValue(null).ToString();
+                    return currentKey.GetValue(null)?.ToString();
                 }
 
                 return null;
             }
 
-            return localizedStringRaw[0];
+            return localizedStringRaw?[0];
         }
 
         if (currentKey.GetValue(null) != null)
         {
-            return currentKey.GetValue(null).ToString();
+            return currentKey.GetValue(null)?.ToString();
         }
 
         return null;
@@ -132,13 +141,13 @@ public class ControlPanelIndexer
         return uint.Parse(Regex.Match(indexStr, @"(?<num>\d+)").Value);
     }
 
-    private string GetInfoTip(RegistryKey currentKey)
+    private string? GetInfoTip(RegistryKey currentKey)
     {
         if (currentKey.GetValue("InfoTip") != null)
         {
-            var infoTipRaw = currentKey.GetValue("InfoTip").ToString().Split(new[] {",-"}, StringSplitOptions.None);
+            var infoTipRaw = currentKey.GetValue("InfoTip")?.ToString()?.Split([",-"], StringSplitOptions.None);
 
-            if (infoTipRaw.Length == 2)
+            if (infoTipRaw is { Length: 2 })
             {
                 if (infoTipRaw[0][0] == '@')
                 {
@@ -157,7 +166,7 @@ public class ControlPanelIndexer
                 return resource.ToString();
             }
 
-            return currentKey.GetValue("InfoTip").ToString();
+            return currentKey.GetValue("InfoTip")?.ToString();
         }
 
         return null;
@@ -188,16 +197,16 @@ public class ControlPanelIndexer
     private const uint GroupIcon = 14;
     private const uint LoadLibraryAsDatafile = 0x00000002;
 
-    private Icon GetIcon(RegistryKey currentKey, int iconSize)
+    private Icon? GetIcon(RegistryKey currentKey, int iconSize)
     {
-        using (RegistryKey subKey = currentKey.OpenSubKey("DefaultIcon"))
+        using (var subKey = currentKey.OpenSubKey("DefaultIcon"))
         {
             if (subKey?.GetValue(null) == null)
             {
                 return null;
             }
 
-            var iconString = subKey.GetValue(null)?.ToString().Split(new[] {','}, 2) ?? new string[0];
+            var iconString = subKey.GetValue(null)?.ToString()?.Split([','], 2) ?? [];
 
             if (iconString[0][0] == '@')
             {
@@ -216,7 +225,7 @@ public class ControlPanelIndexer
             if (iconPtr == IntPtr.Zero)
             {
                 var defaultIconPtr = IntPtr.Zero;
-                EnumResourceNamesWithID(dataFilePointer, GroupIcon, (a, b, c, z) =>
+                EnumResourceNamesWithID(dataFilePointer, GroupIcon, (_, b, _, _) =>
                 {
                     defaultIconPtr = b;
                     return false;
@@ -236,14 +245,14 @@ public static class IntPtrExtensions
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     static extern bool DestroyIcon(IntPtr handle);
 
-    public static Icon ExtractIconAndDestroyIconPointer(this IntPtr iconPtr)
+    public static Icon? ExtractIconAndDestroyIconPointer(this IntPtr iconPtr)
     {
         if (iconPtr == IntPtr.Zero)
         {
             return null;
         }
 
-        Icon icon = null;
+        Icon? icon = null;
         try
         {
             icon = Icon.FromHandle(iconPtr);

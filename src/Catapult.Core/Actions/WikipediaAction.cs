@@ -16,7 +16,7 @@ public class WikipediaAction : IAction<StringIndexable>, IAutocomplete
     }
 
     public string Name => "Wikipedia search";
-    public string Details => null;
+    public string? Details => null;
         
     public string BoostIdentifier => Name;
 
@@ -34,7 +34,7 @@ public class WikipediaAction : IAction<StringIndexable>, IAutocomplete
     {
         if (search.IsNullOrWhiteSpace())
         {
-            return new SearchResult[0];
+            return [];
         }
 
         var searchResults = new List<SearchResult>();

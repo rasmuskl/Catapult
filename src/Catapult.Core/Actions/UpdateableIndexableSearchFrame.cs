@@ -32,7 +32,7 @@ public class UpdateableIndexableSearchFrame : ISearchFrame
         }
 
         var frecencyData = frecencyStorage.GetFrecencyData();
-        Func<IIndexable, int> boosterFunc = x => frecencyData.ContainsKey(x.BoostIdentifier) ? frecencyData[x.BoostIdentifier] : 0;
+        Func<IIndexable, int> boosterFunc = x => frecencyData.GetValueOrDefault(x.BoostIdentifier, 0);
         _selectaSeacher = _selectaSeacher.Search(search, boosterFunc);
 
         var searchResults = _selectaSeacher.SearchResults.Take(100).ToArray();

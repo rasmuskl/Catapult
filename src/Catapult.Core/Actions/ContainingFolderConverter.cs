@@ -14,7 +14,7 @@ public class ContainingFolderConverter : IndexableBase, IConvert<FileItem, Folde
         return GetFolderItem(item.FullName);
     }
 
-    private static FolderItem GetFolderItem(string fullName)
+    private static FolderItem? GetFolderItem(string fullName)
     {
         var directoryName = Path.GetDirectoryName(fullName);
 

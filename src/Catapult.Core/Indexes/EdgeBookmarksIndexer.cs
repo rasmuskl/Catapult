@@ -28,9 +28,8 @@ public class EdgeBookmarksIndexer
 
                 var bookmarkCollectionJson = File.ReadAllText(bookmarkFilePath);
 
-                JToken rootToken = JToken.Parse(bookmarkCollectionJson);
-
-                JToken rootsToken = rootToken["roots"];
+                var rootToken = JToken.Parse(bookmarkCollectionJson);
+                var rootsToken = rootToken["roots"];
 
                 if (rootsToken == null)
                 {

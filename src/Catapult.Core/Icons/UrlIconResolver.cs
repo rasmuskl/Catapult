@@ -5,18 +5,11 @@ using Serilog;
 
 namespace Catapult.Core.Icons;
 
-public class UrlIconResolver : IIconResolver
+public class UrlIconResolver(string imageUrl) : IIconResolver
 {
-    private readonly string _imageUrl;
-
-    public UrlIconResolver(string imageUrl)
+    public Icon? Resolve()
     {
-        _imageUrl = imageUrl;
-    }
-
-    public Icon Resolve()
-    {
-        if (_imageUrl.IsNullOrWhiteSpace())
+        if (imageUrl.IsNullOrWhiteSpace())
         {
             return null;
         }
@@ -31,12 +24,12 @@ public class UrlIconResolver : IIconResolver
                 byte[] bytes;
                 try
                 {
-                    bytes = webClient.DownloadData(_imageUrl);
+                    bytes = webClient.DownloadData(imageUrl);
                 }
                 finally
                 {
                     stopwatch.Stop();
-                    Log.Information("Fetched url image in {time} - {url}", stopwatch.ElapsedMilliseconds, _imageUrl);
+                    Log.Information("Fetched url image in {time} - {url}", stopwatch.ElapsedMilliseconds, imageUrl);
                 }
 
                 using (var stream = new MemoryStream(bytes))
@@ -48,11 +41,11 @@ public class UrlIconResolver : IIconResolver
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Loading image for {url} failed.", _imageUrl);
+            Log.Error(ex, "Loading image for {url} failed.", imageUrl);
         }
 
         return null;
     }
 
-    public string IconKey => $"Url-image: {_imageUrl}";
+    public string IconKey => $"Url-image: {imageUrl}";
 }

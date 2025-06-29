@@ -2,18 +2,10 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core;
 
-public class BookmarkItem : IndexableBase
+public class BookmarkItem(string name, string url, string? details = null) : IndexableBase
 {
-    public BookmarkItem(string name, string url, string? details = null)
-    {
-        Name = name;
-        Url = url;
-        Details = details;
-    }
+    public string Url { get; set; } = url;
 
-    public string Url { get; set; }
-
-    public override string Name { get; }
-    public override string? Details { get; }
-
+    public override string Name { get; } = name;
+    public override string? Details { get; } = details;
 }

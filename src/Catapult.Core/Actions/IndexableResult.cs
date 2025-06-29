@@ -2,14 +2,8 @@ using Catapult.Core.Indexes;
 
 namespace Catapult.Core.Actions;
 
-public class IndexableResult
+public class IndexableResult(IIndexable[] indexables, string state)
 {
-    public IIndexable[] Indexables { get; set; }
-    public string State { get; set; }
-
-    public IndexableResult(IIndexable[] indexables, string state)
-    {
-        Indexables = indexables;
-        State = state;
-    }
+    public IIndexable[] Indexables { get; set; } = indexables;
+    public string State { get; set; } = state;
 }

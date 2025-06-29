@@ -4,21 +4,15 @@ using Serilog.Formatting.Display;
 
 namespace Catapult.Core.Debug;
 
-public class LogWindowLogEventSink : ILogEventSink
+public class LogWindowLogEventSink(MessageTemplateTextFormatter formatter) : ILogEventSink
 {
-    private readonly MessageTemplateTextFormatter _formatter;
-    private static readonly List<string> Buffer = new List<string>();
-    private static readonly List<Action<string>> Listeners = new List<Action<string>>();
-
-    public LogWindowLogEventSink(MessageTemplateTextFormatter formatter)
-    {
-        _formatter = formatter;
-    }
+    private static readonly List<string> Buffer = [];
+    private static readonly List<Action<string>> Listeners = [];
 
     public void Emit(LogEvent logEvent)
     {
         var renderSpace = new StringWriter();
-        _formatter.Format(logEvent, renderSpace);
+        formatter.Format(logEvent, renderSpace);
         var output = renderSpace.ToString();
 
         if (Listeners.Any())

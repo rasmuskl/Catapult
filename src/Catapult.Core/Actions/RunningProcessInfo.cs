@@ -2,31 +2,20 @@
 
 namespace Catapult.Core.Actions;
 
-public class RunningProcessInfo : IndexableBase
+public class RunningProcessInfo(string processName, string title, int processId) : IndexableBase
 {
-    private readonly string _processName;
-    private readonly string _title;
-    private readonly int _processId;
-
-    public RunningProcessInfo(string processName, string title, int processId)
-    {
-        _processName = processName;
-        _title = title;
-        _processId = processId;
-    }
-
-    public int ProcessId => _processId;
+    public int ProcessId => processId;
 
     public override string Name
     {
         get
         {
-            if (_title.IsNullOrWhiteSpace())
+            if (title.IsNullOrWhiteSpace())
             {
-                return $"{_processName} [{_processId}]";
+                return $"{processName} [{processId}]";
             }
 
-            return $"{_processName} - {_title} [{_processId}]";
+            return $"{processName} - {title} [{processId}]";
         }
     }
 }

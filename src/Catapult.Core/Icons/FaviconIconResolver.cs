@@ -3,22 +3,15 @@ using Serilog;
 
 namespace Catapult.Core.Icons;
 
-public class FaviconIconResolver : IIconResolver
+public class FaviconIconResolver(string iconUrl) : IIconResolver
 {
-    private readonly string _iconUrl;
-
-    public FaviconIconResolver(string iconUrl)
-    {
-        _iconUrl = iconUrl;
-    }
-
-    public Icon Resolve()
+    public Icon? Resolve()
     {
         try
         {
             using (var httpClient = new HttpClient())
             {
-                var bytes = httpClient.GetByteArrayAsync(_iconUrl).Result;
+                var bytes = httpClient.GetByteArrayAsync(iconUrl).Result;
 
                 using (var stream = new MemoryStream(bytes))
                 {
@@ -28,11 +21,11 @@ public class FaviconIconResolver : IIconResolver
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Loading favicon for {url} failed.", _iconUrl);
+            Log.Error(ex, "Loading favicon for {url} failed.", iconUrl);
         }
 
         return null;
     }
 
-    public string IconKey => $"Favicon: {_iconUrl}";
+    public string IconKey => $"Favicon: {iconUrl}";
 }

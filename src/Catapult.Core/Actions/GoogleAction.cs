@@ -19,7 +19,7 @@ public class GoogleAction : IndexableBase, IAction<StringIndexable>, IAutocomple
     {
         if (search.IsNullOrWhiteSpace())
         {
-            return new SearchResult[0];
+            return [];
         }
 
         var searchResults = new List<SearchResult>();
@@ -29,7 +29,7 @@ public class GoogleAction : IndexableBase, IAction<StringIndexable>, IAutocomple
             string suggestionJson = webClient.DownloadString("http://suggestqueries.google.com/complete/search?client=firefox&q=" + Uri.EscapeDataString(search));
             JArray suggestions = (JArray)JsonConvert.DeserializeObject<object[]>(suggestionJson)[1];
 
-            foreach (string suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except(new[] { search }).Distinct())
+            foreach (string suggestion in suggestions.Children<JToken>().Select(x => x.ToString()).Except([search]).Distinct())
             {
                 searchResults.Add(new SearchResult(suggestion, 0, new StringIndexable(suggestion), ImmutableHashSet.Create<int>()));
             }

@@ -5,7 +5,7 @@ namespace Catapult.Core;
 
 public class FileItem : IIndexable
 {
-    private static readonly HashSet<string> HiddenExtensions = new HashSet<string>(new[] { ".lnk", ".url" }, StringComparer.InvariantCultureIgnoreCase);
+    private static readonly HashSet<string> HiddenExtensions = new([".lnk", ".url"], StringComparer.InvariantCultureIgnoreCase);
 
     public string FullName { get; set; }
     public string Name { get; set; }

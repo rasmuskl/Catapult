@@ -4,6 +4,6 @@ namespace Catapult.Core.Icons;
 
 public interface IIconResolver
 {
-    Icon Resolve();
-    string IconKey { get; }
+    Icon? Resolve();
+    string? IconKey { get; }
 }
