@@ -10,10 +10,10 @@
   <Identity
     Name="9a676c4f-2177-452b-9c85-5900e6a75949"
     Publisher="CN=Rasmus"
-    Version="1.0.8.0" />
+    Version="0.3.0.0" />
 
   <Properties>
-    <DisplayName>Catapult.Package</DisplayName>
+    <DisplayName>Catapult</DisplayName>
     <PublisherDisplayName>Rasmus</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>

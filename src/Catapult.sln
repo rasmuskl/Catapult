@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catapult.Tests", "Catapult.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catapult.App", "Catapult.App\Catapult.App.csproj", "{8353CDCD-4F97-441B-9DBE-9A50BFA85620}"
 EndProject
-Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Catapult.Package", "Catapult.Package\Catapult.Package.wapproj", "{06D1F5E5-B439-42B2-9B88-7E51D2ECA944}"
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Catapult", "Catapult\Catapult.wapproj", "{06D1F5E5-B439-42B2-9B88-7E51D2ECA944}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

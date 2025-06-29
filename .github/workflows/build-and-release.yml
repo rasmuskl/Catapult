@@ -1,0 +1,91 @@
+name: Build and Release MSIX
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+    
+    - name: Set Version from Build Number
+      run: |
+        $version = "0.3.${{ github.run_number }}.0"
+        $manifestPath = "src/Catapult/Package.appxmanifest"
+        
+        Write-Host "Original manifest content:"
+        Get-Content $manifestPath | Select-Object -First 5
+        
+        $content = Get-Content $manifestPath -Raw -Encoding UTF8
+        $content = $content -replace '<Identity([^>]*?)Version="[^"]*"', "<Identity`$1Version=`"$version`""
+        [System.IO.File]::WriteAllText($manifestPath, $content, [System.Text.Encoding]::UTF8)
+        
+        Write-Host "Updated manifest content:"
+        Get-Content $manifestPath | Select-Object -First 5
+        
+        echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+        Write-Host "Set version to: $version"
+      shell: powershell
+    
+    - name: Build MSIX Package
+      run: ./build-msix-package.ps1 ${{ github.workspace }}
+      shell: powershell
+      working-directory: build
+    
+    - name: List build output
+      run: |
+        Write-Host "AppPackages directory contents:"
+        if (Test-Path "AppPackages") {
+          Get-ChildItem -Path "AppPackages" -Recurse | Format-Table Name, FullName, Length
+        } else {
+          Write-Host "AppPackages directory does not exist"
+        }
+      shell: powershell
+    
+    - name: Sign MSIX Package
+      run: |
+        # Note: In production, use a real certificate
+        # For now, this will use the temporary certificate
+        Write-Host "Using temporary certificate for signing"
+      shell: powershell
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: msix-package
+        path: |
+          AppPackages/
+
+    - name: Create Release Archive
+      run: ./create-github-release-folder.ps1 ${{ github.workspace }}
+      shell: powershell
+      working-directory: build
+
+    - name: Update AppInstaller Version
+      run: ./update-appinstaller-version.ps1 -Version ${{ env.PACKAGE_VERSION }}
+      shell: powershell
+      working-directory: build      
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ env.PACKAGE_VERSION }}
+        name: Release v${{ env.PACKAGE_VERSION }}
+        draft: false
+        prerelease: false
+        files: build/GithubRelease/**
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
